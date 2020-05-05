@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 }
 
 dependencies {
@@ -34,8 +38,24 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics:17.2.2'
     //fireStore
     implementation 'com.google.firebase:firebase-firestore:21.2.1'
+    implementation 'com.google.firebase:firebase-storage:19.1.1'
 
     //Google登入
     implementation 'com.google.firebase:firebase-auth:19.1.0'
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    //必要工具
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+
+    //圓角圖套件
+    implementation 'com.makeramen:roundedimageview:2.3.0'
+    implementation 'com.github.lovetuzitong:MultiImageSelector:1.2'
+    //裁減圖套件
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+    implementation 'androidx.work:work-runtime:2.3.2'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'com.github.LuckSiege.PictureSelector:picture_library:v2.4.6'
 }

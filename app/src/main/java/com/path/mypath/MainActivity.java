@@ -3,89 +3,121 @@ package com.path.mypath;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
-import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.path.mypath.edit_page.EditActivity;
+import com.path.mypath.share_page.ShareActivity;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements MainActivityVu {
 
     private MainActivityPresenter presenter;
 
-    private Handler handler = new Handler();
 
     private static final int REQUEST_LOCATION = 1;
-
-    private MyHandler myHandler = new MyHandler(this);
 
     private static String[] PERMISSION_LOCATION = {"android.permission.ACCESS_FINE_LOCATION"
             , "android.permission.ACCESS_COARSE_LOCATION"
             , "android.permission.ACCESS_BACKGROUND_LOCATION"};
 
-    private static final int START_RECORD = 0;
-
-    private ArrayList<LatLng> latLngArrayList;
-
-    private GoogleMap googleMap;
-
-    private MapView mapView;
+    private static final String USER = "user";
 
     private int permission;
+
+    private SignInButton btnLogin;
+
+    private static final int RC_SIGN_IN = 0;
+
+    private GoogleSignInClient googleSignInClient;
+
+    private FirebaseAuth mAuth;
+
+    private FirebaseUser user;
+
+    private FirebaseFirestore firestore;
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        user = mAuth.getCurrentUser();
+        if (user != null){
+            //這邊導下一頁
+            presenter.onCatchCurrentUser();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        initFirebase();
         initPresenter();
         initView();
 
-        latLngArrayList = new ArrayList<>();
 
         verifyLocationPermissions(this);
+
+    }
+
+    private void initFirebase() {
+
+        // Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(this,gso);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        firestore = FirebaseFirestore.getInstance();
+    }
+
+    private void initView() {
+        Toolbar toolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
+        btnLogin = findViewById(R.id.main_sign_in_btn);
+        btnLogin.setSize(SignInButton.SIZE_STANDARD);
+        btnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onButtonLoginClickListener();
+            }
+        });
+    }
+
+    private void initPresenter() {
+        presenter = new MainActivityPresenterImpl(this);
     }
 
     private void verifyLocationPermissions(MainActivity mainActivity) {
@@ -94,56 +126,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
                     "android.permission.ACCESS_FINE_LOCATION");
 
             if (permission != PackageManager.PERMISSION_GRANTED) {
+                btnLogin.setClickable(false);
                 ActivityCompat.requestPermissions(mainActivity, PERMISSION_LOCATION, REQUEST_LOCATION);
-            } else {
-
-                presenter.onLocationPermissionGranted();
-                catchCurrentLocation();
+            }else {
+                btnLogin.setClickable(true);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void catchCurrentLocation() {
-        FusedLocationProviderClient client = new FusedLocationProviderClient(this);
-        Task<Location> currentLocation = client.getLastLocation();
-        currentLocation.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(final Location location) {
-
-
-                if (mapView != null && location != null) {
-                    mapView.onCreate(null);
-                    mapView.onResume();
-                    mapView.getMapAsync(new OnMapReadyCallback() {
-                        @Override
-                        public void onMapReady(GoogleMap Map) {
-                            Log.i("Michael", "地圖顯示");
-                            googleMap = Map;
-                            googleMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
-                                    location.getLongitude())).title("目前位置"));
-                            googleMap.setMyLocationEnabled(true);
-                            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-                            googleMap.getUiSettings().setZoomControlsEnabled(true);  // 右下角的放大縮小功能
-                            googleMap.getUiSettings().setCompassEnabled(true);       // 左上角的指南針，要兩指旋轉才會出現
-                            googleMap.getUiSettings().setMapToolbarEnabled(true);    // 右下角的導覽及開啟 Google Map功能
-
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
-                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-                            Log.i("Michael", "錄製到的經度 : " + location.getLatitude() + " , 緯度 : " + location.getLongitude());
-                        }
-                    });
-                } else {
-                    Log.i("Michael", "mapView == null");
-                }
-//
-
-
-            }
-        });
-    }
 
     //取得權限
     @Override
@@ -190,8 +182,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
                                 }).create();
                         dialog.show();
                     }
-                } else {
-                    ActivityCompat.requestPermissions(MainActivity.this, PERMISSION_LOCATION, REQUEST_LOCATION);
                 }
                 break;
         }
@@ -215,146 +205,104 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         }
     }
 
-    private void initView() {
-        SignInButton btnLogin = findViewById(R.id.main_sign_in_btn);
-        Button btnStart = findViewById(R.id.btn_start_record);
-        Button btnStop = findViewById(R.id.btn_stop_record);
 
-
-
-
-        btnStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.onStopToRecordButtonClickListener();
-            }
-        });
-        btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.onStartToRecordButtonClickListener();
-            }
-        });
-        mapView = findViewById(R.id.basic_map);
-
-    }
-
-    private void initPresenter() {
-        presenter = new MainActivityPresenterImpl(this);
+    @Override
+    public void startGoogleLogin() {
+        Intent it = googleSignInClient.getSignInIntent();
+        startActivityForResult(it,RC_SIGN_IN);
     }
 
     @Override
-    public void startToRecordMyPath() {
-        handler.post(recordPath);
+    public void intentToShareActivity() {
+        Intent it = new Intent(this, ShareActivity.class);
+        startActivity(it);
+        finish();
+    }
+
+
+    @Override
+    public void setUserDataToFireStore(Map<String, Object> userMap, String email) {
+        firestore.collection(USER)
+                .document(email)
+                .set(userMap)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            presenter.onSetFirebaseDataSuccessful();
+                        }else {
+                            Log.i("Michael","創建FireStore資料失敗");
+                        }
+                    }
+                });
     }
 
     @Override
-    public void stopToRecordMyPath() {
-        handler.removeCallbacks(recordPath);
-        Log.i("Michael", "停止錄製");
-    }
-
-    @Override
-    public void showNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("channel_id", name, importance);
-            channel.setDescription(description);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
-        }
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channel_id")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("開始錄製")
-                .setContentText("點我一下回APP")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                // Set the intent that will fire when the user taps the notification
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-
-        // notificationId is a unique int for each notification that you must define
-        notificationManager.notify(0, builder.build());
-
-    }
-
-    private Runnable recordPath = new Runnable() {
-        @Override
-        public void run() {
-            handler.postDelayed(this, 10000);
-            Log.i("Michael", "做事");
-
-            Message message = new Message();
-            message.what = START_RECORD;
-            myHandler.sendMessage(message);
-
-        }
-    };
-
-
-    //轉到 MainThread
-    private static class MyHandler extends Handler {
-        private WeakReference<MainActivity> mChannel;
-
-        MyHandler(MainActivity mainActivity) {
-            mChannel = new WeakReference<>(mainActivity);
-        }
-
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-            if (mChannel.get() == null) {
-                return;
-            }
-            final MainActivity mainActivity = mChannel.get();
-            switch (msg.what) {
-                case START_RECORD:
-
-                    FusedLocationProviderClient client = new FusedLocationProviderClient(mainActivity);
-                    Task<Location> currentLocation = client.getLastLocation();
-                    currentLocation.addOnSuccessListener(new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(final Location location) {
-
-                            if (location != null) {
-
-                                if (mainActivity.latLngArrayList.size() != 0) {
-
-                                    int lastIndex = mainActivity.latLngArrayList.size() - 1;
-                                    LatLng latLng = mainActivity.latLngArrayList.get(lastIndex);
-
-                                    if (latLng.latitude == location.getLatitude() && latLng.longitude == location.getLongitude()){
-                                        Log.i("Michael", "經緯度一樣不錄製");
-                                    }else {
-                                        Log.i("Michael","經度 : "+location.getLatitude()+" , 緯度 : "+location.getLongitude()+" , 資料長度 : "+mainActivity.latLngArrayList.size());
-                                        mainActivity.latLngArrayList.add(new LatLng(location.getLatitude(),location.getLongitude()));
-                                    }
-
-                                } else {
-                                    mainActivity.latLngArrayList.add(new LatLng(location.getLatitude(),
-                                            location.getLongitude()));
-                                    Log.i("Michael", "第一次錄製到的經度 : " + location.getLatitude() + " , 緯度 : " + location.getLongitude() + " , 資料長度為 : " + mainActivity.latLngArrayList.size());
+    public void checkUserData(final String email, final String uid) {
+        firestore.collection(USER)
+                .document(email)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            DocumentSnapshot snapshot = task.getResult();
+                            if (snapshot != null){
+                                String mail = (String) snapshot.get("email");
+                                if (mail == null){
+                                    presenter.onCatchNoData(email,uid);
+                                }else {
+                                    presenter.onCatchCurrentUser();
                                 }
-
-
-
-                            } else {
-                                Log.i("Michael", "location == null");
+                            }else {
+                                presenter.onCatchNoData(email,uid);
                             }
                         }
-                    });
+                    }
+                });
+    }
 
+    @Override
+    public void intentToEditActivity() {
+        Intent it = new Intent(this,EditActivity.class);
+        startActivity(it);
+        finish();
+    }
 
-                    break;
-            }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_SIGN_IN){
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            handleSignInResult(task);
         }
+    }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> task) {
+        try{
+            Log.i("Michael","Google登入成功");
+            GoogleSignInAccount account = task.getResult(ApiException.class);
+            registerFirebaseAuth(account);
+        }catch (ApiException e){
+            Log.i("Michael","SignInResult:failed code = "+e.getStatusCode());
+        }
+    }
+
+    private void registerFirebaseAuth(final GoogleSignInAccount account) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(),null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()){
+                            user = mAuth.getCurrentUser();
+                            if (user != null){
+                                presenter.onRegisterAccountToFirebase(user.getEmail(),user.getUid());
+                            }
+                        }else {
+                            Log.i("Michael","signInWithCredential:failure : "+task.getException());
+                        }
+                    }
+                });
     }
 }

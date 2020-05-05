@@ -1,11 +1,16 @@
 package com.path.mypath;
 
+import java.util.Map;
+
 public interface MainActivityVu {
-    void startToRecordMyPath();
 
-    void stopToRecordMyPath();
+    void startGoogleLogin();
 
-    void showNotification();
+    void intentToShareActivity();
 
-    void catchCurrentLocation();
+    void setUserDataToFireStore(Map<String, Object> userMap, String email);
+
+    void checkUserData(String email, String uid);
+
+    void intentToEditActivity();
 }

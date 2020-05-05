@@ -1,9 +1,14 @@
 package com.path.mypath;
 
 public interface MainActivityPresenter {
-    void onStartToRecordButtonClickListener();
 
-    void onStopToRecordButtonClickListener();
+    void onButtonLoginClickListener();
 
-    void onLocationPermissionGranted();
+    void onCatchCurrentUser();
+
+    void onRegisterAccountToFirebase(String email, String uid);
+
+    void onSetFirebaseDataSuccessful();
+
+    void onCatchNoData(String email, String uid);
 }

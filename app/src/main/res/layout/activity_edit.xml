@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".edit_page.EditActivity">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/edit_toolbar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_marginEnd="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:id="@+id/edit_toolbar_title"
+            android:textColor="@color/black"
+            android:text="@string/edit_title"
+            android:textSize="@dimen/toolbar_title_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/edit_photo"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="15dp"
+        android:src="@drawable/empty_user"
+        android:scaleType="centerCrop"
+        app:riv_oval="true"
+        app:layout_constraintTop_toBottomOf="@id/edit_toolbar"
+        android:layout_width="@dimen/user_photo_size"
+        android:layout_height="@dimen/user_photo_size"/>
+
+    <TextView
+        android:id="@+id/edit_name"
+        android:text="@string/nick_name"
+        android:textSize="@dimen/normal_text_size"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/edit_photo"
+        android:layout_marginTop="40dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginStart="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/edit_edit_name"
+        android:inputType="text"
+        android:lines="1"
+        android:maxLines="1"
+        android:hint="@string/enter_nickname"
+        app:layout_constraintTop_toTopOf="@id/edit_name"
+        app:layout_constraintBottom_toBottomOf="@id/edit_name"
+        app:layout_constraintLeft_toLeftOf="@id/edit_edit_sentence"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginEnd="15dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/edit_sentence"
+        android:text="@string/sentence"
+        android:textSize="@dimen/normal_text_size"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/edit_name"
+        android:layout_marginTop="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginStart="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/edit_edit_sentence"
+        android:inputType="text"
+        android:lines="1"
+        android:maxLines="1"
+        android:hint="@string/enter_nickname"
+        app:layout_constraintTop_toTopOf="@id/edit_sentence"
+        app:layout_constraintBottom_toBottomOf="@id/edit_sentence"
+        app:layout_constraintLeft_toRightOf="@id/edit_sentence"
+        android:layout_marginStart="15dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginEnd="15dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        app:layout_constraintTop_toBottomOf="@id/edit_sentence"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="20dp"
+        android:id="@+id/edit_btn_save"
+        android:text="@string/finish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
