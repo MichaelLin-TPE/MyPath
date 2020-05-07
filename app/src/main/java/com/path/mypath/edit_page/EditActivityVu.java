@@ -7,9 +7,11 @@ public interface EditActivityVu {
 
     void showToast(String message);
 
-    void setDataToFirebase(Map<String, Object> map);
+    void setDataToFirebase(Map<String, Object> map, Map<String, Object> mapJson);
 
     void uploadPhotoToFirebase(byte[] byteArray);
 
     void intentToShareActivity();
+
+    void saveUserData(String email, String downloadUrl, String nickname, String sentence);
 }

@@ -13,7 +13,6 @@
 
     <uses-feature android:name="android.hardware.location.gps" /> <!-- Notification -->
     <uses-permission android:name="android.permission.VIBRATE" />
-
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -25,7 +24,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".edit_page.EditActivity"></activity>
+        <activity android:name=".home_activity.HomeActivity"></activity>
+        <activity android:name=".edit_page.EditActivity" />
         <activity android:name=".share_page.ShareActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

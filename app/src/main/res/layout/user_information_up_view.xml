@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="15dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/user_photo"
+        app:riv_oval="true"
+        android:scaleType="centerCrop"
+        android:layout_width="@dimen/user_photo_size"
+        android:layout_height="@dimen/user_photo_size"/>
+
+    <TextView
+        android:id="@+id/user_nickname"
+        android:textColor="@color/white"
+        tools:text="Michael"
+        tools:textColor="@color/black"
+        android:textSize="@dimen/normal_text_size"
+        app:layout_constraintTop_toBottomOf="@id/user_photo"
+        android:layout_marginTop="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/user_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/user_sentence"
+        android:textColor="@color/white"
+        tools:text="不會放棄"
+        tools:textColor="@color/black"
+        android:textSize="@dimen/normal_text_size"
+        app:layout_constraintTop_toBottomOf="@id/user_nickname"
+        android:layout_marginTop="10dp"
+        app:layout_constraintLeft_toLeftOf="@id/user_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/user_chasing_count"
+        android:textColor="@color/white"
+        tools:text="242"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="30dp"
+        tools:textColor="@color/black"
+        android:textSize="@dimen/big_text_size"
+        app:layout_constraintTop_toTopOf="@id/user_photo"
+        app:layout_constraintBottom_toBottomOf="@id/user_photo"
+        android:layout_marginTop="10dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/user_friends_count"
+        android:textColor="@color/white"
+        tools:text="180"
+        android:layout_marginBottom="30dp"
+        tools:textColor="@color/black"
+        android:textSize="@dimen/big_text_size"
+        app:layout_constraintTop_toTopOf="@id/user_photo"
+        app:layout_constraintBottom_toBottomOf="@id/user_photo"
+        android:layout_marginTop="10dp"
+        app:layout_constraintRight_toLeftOf="@id/user_chasing_count"
+        app:layout_constraintLeft_toRightOf="@id/user_article_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/user_article_count"
+        android:textColor="@color/white"
+        tools:text="55"
+        android:layout_marginBottom="30dp"
+        tools:textColor="@color/black"
+        android:textSize="@dimen/big_text_size"
+        app:layout_constraintTop_toTopOf="@id/user_photo"
+        app:layout_constraintBottom_toBottomOf="@id/user_photo"
+        android:layout_marginTop="10dp"
+        app:layout_constraintRight_toLeftOf="@id/user_friends_count"
+        app:layout_constraintLeft_toRightOf="@id/user_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:textColor="@color/white"
+        android:text="@string/article"
+        tools:textColor="@color/black"
+        android:textSize="@dimen/big_text_size"
+        app:layout_constraintTop_toBottomOf="@id/user_article_count"
+        app:layout_constraintLeft_toLeftOf="@id/user_article_count"
+        app:layout_constraintRight_toRightOf="@id/user_article_count"
+        android:layout_marginTop="3dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:textColor="@color/white"
+        android:text="@string/friend"
+        tools:textColor="@color/black"
+        android:textSize="@dimen/big_text_size"
+        app:layout_constraintTop_toBottomOf="@id/user_friends_count"
+        app:layout_constraintLeft_toLeftOf="@id/user_friends_count"
+        app:layout_constraintRight_toRightOf="@id/user_friends_count"
+        android:layout_marginTop="3dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:textColor="@color/white"
+        android:text="@string/friend"
+        tools:textColor="@color/black"
+        android:textSize="@dimen/big_text_size"
+        app:layout_constraintTop_toBottomOf="@id/user_chasing_count"
+        app:layout_constraintLeft_toLeftOf="@id/user_chasing_count"
+        app:layout_constraintRight_toRightOf="@id/user_chasing_count"
+        android:layout_marginTop="3dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+    <Button
+        android:id="@+id/user_edit_info_btn"
+        android:text="@string/edit_info"
+        android:textSize="13sp"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_selector"
+        app:layout_constraintTop_toTopOf="@id/user_nickname"
+        app:layout_constraintBottom_toBottomOf="@id/user_sentence"
+        app:layout_constraintLeft_toRightOf="@id/user_nickname"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginStart="25dp"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/user_info_btn_height"/>
+
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

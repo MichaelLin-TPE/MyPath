@@ -1,5 +1,9 @@
 package com.path.mypath;
 
+import com.google.gson.Gson;
+import com.path.mypath.data_parser.DataObject;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +23,8 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
     }
 
     @Override
-    public void onCatchCurrentUser() {
+    public void onCatchCurrentUser(String email) {
+        mView.updateUserData(email);
         mView.intentToShareActivity();
     }
 
@@ -41,6 +46,18 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
         userMap.put("display_name","");
         userMap.put("photo","");
         userMap.put("sentence","");
-        mView.setUserDataToFireStore(userMap,email);
+
+
+        DataObject data = new DataObject();
+        data.setArticleCount(0);
+        data.setChasingCount(0);
+        data.setDataArray(new ArrayList<>());
+        data.setFriendCount(0);
+        data.setUserNickname("");
+        data.setUserPhoto("");
+        Gson gson = new Gson();
+        String userJson = gson.toJson(data);
+
+        mView.setUserDataToFireStore(userMap,email,userJson);
     }
 }

@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -34,10 +33,10 @@ import com.makeramen.roundedimageview.RoundedImageView;
 import com.path.mypath.R;
 import com.path.mypath.share_page.ShareActivity;
 import com.path.mypath.tools.GlideEngine;
+import com.path.mypath.tools.UserDataProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +55,8 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
     private RoundedImageView ivPhoto;
 
     private StorageReference storage;
+
+    private static final String PERSONAL_DATA = "personal_data";
 
 
     @Override
@@ -140,7 +141,7 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
     }
 
     @Override
-    public void setDataToFirebase(Map<String, Object> map) {
+    public void setDataToFirebase(Map<String, Object> map, Map<String, Object> mapJson) {
         if (user != null && user.getEmail() != null) {
             firestore.collection("user")
                     .document(user.getEmail())
@@ -151,6 +152,17 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
                             if (task.isSuccessful()){
                                 Log.i("Michael","資料更新成功");
                                 presenter.onDataUpdateSuccessfulListener();
+                            }
+                        }
+                    });
+            firestore.collection(PERSONAL_DATA)
+                    .document(user.getEmail())
+                    .set(mapJson,SetOptions.merge())
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()){
+                                Log.i("Michael","個人資料更新成功");
                             }
                         }
                     });
@@ -187,5 +199,13 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
         Intent it = new Intent(this, ShareActivity.class);
         startActivity(it);
         finish();
+    }
+
+    @Override
+    public void saveUserData(String email, String downloadUrl, String nickname, String sentence) {
+        UserDataProvider.getInstance(this).saveUserEmail(email);
+        UserDataProvider.getInstance(this).saveUserSentence(sentence);
+        UserDataProvider.getInstance(this).saveUserNickname(nickname);
+        UserDataProvider.getInstance(this).saveUserPhotoUrl(downloadUrl);
     }
 }

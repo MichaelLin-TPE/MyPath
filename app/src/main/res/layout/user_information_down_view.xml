@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:paddingStart="15dp"
+    android:paddingEnd="15dp"
+    android:paddingBottom="15dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/user_recycler_view"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/user_down_notice"
+        android:text="@string/start_to_record_the_first_path"
+        android:textColor="@color/white"
+        tools:textColor="@color/black"
+        android:textSize="@dimen/big_text_size"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginBottom="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ImageView
+        android:id="@+id/user_down_add_icon"
+        android:src="@drawable/add_not_press"
+        android:contentDescription="@null"
+        app:layout_constraintTop_toBottomOf="@id/user_down_notice"
+        android:layout_marginTop="15dp"
+        app:layout_constraintLeft_toLeftOf="@id/user_down_notice"
+        app:layout_constraintRight_toRightOf="@id/user_down_notice"
+        android:layout_width="@dimen/normal_icon_size"
+        android:layout_height="@dimen/normal_icon_size"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

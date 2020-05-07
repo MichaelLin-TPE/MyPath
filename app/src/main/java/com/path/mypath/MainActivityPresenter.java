@@ -4,7 +4,7 @@ public interface MainActivityPresenter {
 
     void onButtonLoginClickListener();
 
-    void onCatchCurrentUser();
+    void onCatchCurrentUser(String email);
 
     void onRegisterAccountToFirebase(String email, String uid);
 

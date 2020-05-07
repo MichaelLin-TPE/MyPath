@@ -14,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -34,8 +35,10 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.path.mypath.edit_page.EditActivity;
-import com.path.mypath.share_page.ShareActivity;
+import com.path.mypath.home_activity.HomeActivity;
+import com.path.mypath.tools.UserDataProvider;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements MainActivityVu {
@@ -51,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
 
     private static final String USER = "user";
 
+    private static final String PERSONAL_DATA = "personal_data";
+
     private int permission;
 
     private SignInButton btnLogin;
@@ -65,6 +70,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
 
     private FirebaseFirestore firestore;
 
+    private String email;
+
+    private Handler handler;
+
 
     @Override
     protected void onStart() {
@@ -72,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         user = mAuth.getCurrentUser();
         if (user != null){
             //這邊導下一頁
-            presenter.onCatchCurrentUser();
+            presenter.onCatchCurrentUser(user.getEmail());
         }
     }
 
@@ -83,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         initFirebase();
         initPresenter();
         initView();
-
+        handler = new Handler();
 
         verifyLocationPermissions(this);
 
@@ -214,14 +223,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
 
     @Override
     public void intentToShareActivity() {
-        Intent it = new Intent(this, ShareActivity.class);
+        Intent it = new Intent(this, HomeActivity.class);
         startActivity(it);
         finish();
     }
 
 
     @Override
-    public void setUserDataToFireStore(Map<String, Object> userMap, String email) {
+    public void setUserDataToFireStore(Map<String, Object> userMap, String email, String userJson) {
         firestore.collection(USER)
                 .document(email)
                 .set(userMap)
@@ -232,6 +241,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
                             presenter.onSetFirebaseDataSuccessful();
                         }else {
                             Log.i("Michael","創建FireStore資料失敗");
+                        }
+                    }
+                });
+        Map<String,Object> map = new HashMap<>();
+        map.put("user_json",userJson);
+        firestore.collection(PERSONAL_DATA)
+                .document(email)
+                .set(map)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","基本資料建置成功");
                         }
                     }
                 });
@@ -252,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
                                 if (mail == null){
                                     presenter.onCatchNoData(email,uid);
                                 }else {
-                                    presenter.onCatchCurrentUser();
+                                    presenter.onCatchCurrentUser(user.getEmail());
                                 }
                             }else {
                                 presenter.onCatchNoData(email,uid);
@@ -268,6 +290,40 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         startActivity(it);
         finish();
     }
+
+    @Override
+    public void updateUserData(String email) {
+        this.email = email;
+        handler = new Handler();
+        handler.post(updateData);
+    }
+
+    private Runnable updateData = new Runnable() {
+        @Override
+        public void run() {
+            firestore.collection(USER)
+                    .document(email)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful() && task.getResult() != null){
+                                DocumentSnapshot snapshot = task.getResult();
+                                String email = (String) snapshot.get("email");
+                                String nickname = (String) snapshot.get("display_name");
+                                String photoUrl = (String) snapshot.get("photo");
+                                String sentence = (String) snapshot.get("sentence");
+                                UserDataProvider.getInstance(MainActivity.this).saveUserNickname(nickname);
+                                UserDataProvider.getInstance(MainActivity.this).saveUserPhotoUrl(photoUrl);
+                                UserDataProvider.getInstance(MainActivity.this).saveUserSentence(sentence);
+                                UserDataProvider.getInstance(MainActivity.this).saveUserEmail(email);
+                                Log.i("Michael","更新資料完成");
+                            }
+                        }
+                    });
+
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

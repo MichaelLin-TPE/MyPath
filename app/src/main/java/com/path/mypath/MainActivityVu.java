@@ -8,9 +8,11 @@ public interface MainActivityVu {
 
     void intentToShareActivity();
 
-    void setUserDataToFireStore(Map<String, Object> userMap, String email);
+    void setUserDataToFireStore(Map<String, Object> userMap, String email, String userJson);
 
     void checkUserData(String email, String uid);
 
     void intentToEditActivity();
+
+    void updateUserData(String email);
 }

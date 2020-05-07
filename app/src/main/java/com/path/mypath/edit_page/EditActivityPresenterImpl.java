@@ -2,6 +2,10 @@ package com.path.mypath.edit_page;
 
 import android.renderscript.Allocation;
 
+import com.google.gson.Gson;
+import com.path.mypath.data_parser.DataObject;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,7 +45,20 @@ public class EditActivityPresenterImpl implements EditActivityPresenter {
         map.put("photo",downloadUrl);
         map.put("display_name",nickname);
         map.put("sentence",sentence);
-        mView.setDataToFirebase(map);
+
+        DataObject data = new DataObject();
+        data.setArticleCount(0);
+        data.setChasingCount(0);
+        data.setDataArray(new ArrayList<>());
+        data.setFriendCount(0);
+        data.setUserNickname(nickname);
+        data.setUserPhoto(downloadUrl);
+        Gson gson = new Gson();
+        String userJson = gson.toJson(data);
+        Map<String,Object> mapJson = new HashMap<>();
+        mapJson.put("user_json",userJson);
+        mView.saveUserData(email,downloadUrl,nickname,sentence);
+        mView.setDataToFirebase(map,mapJson);
     }
 
     @Override
