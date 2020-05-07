@@ -5,6 +5,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 
 import com.google.android.material.tabs.TabLayout;
 import com.path.mypath.R;
+import com.path.mypath.share_page.ShareActivity;
 
 import java.util.ArrayList;
 
@@ -39,7 +41,13 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityVu {
     private void initView() {
         tabLayout = findViewById(R.id.home_tab_layout);
         viewPager = findViewById(R.id.home_view_pager);
-
+        ImageView ivAdd = findViewById(R.id.home_toolbar_icon);
+        ivAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onAddIconClickListener();
+            }
+        });
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
 
@@ -103,6 +111,12 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityVu {
         FragmentManager manager = getSupportFragmentManager();
         HomeViewPagerAdapter adapter = new HomeViewPagerAdapter(manager);
         viewPager.setAdapter(adapter);
+    }
+
+    @Override
+    public void intentToShareActivity() {
+        Intent it = new Intent(this, ShareActivity.class);
+        startActivity(it);
     }
 
     private View prepareView(Integer iconPress) {

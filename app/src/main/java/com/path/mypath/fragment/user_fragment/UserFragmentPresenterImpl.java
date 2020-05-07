@@ -51,6 +51,7 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
 
     @Override
     public void onCatchPhotoUrl(String downLoadUrl) {
+        mView.saveUserPhoto(downLoadUrl);
         data.setUserPhoto(downLoadUrl);
         String json = gson.toJson(data);
         mView.updateFirebaseData(json);

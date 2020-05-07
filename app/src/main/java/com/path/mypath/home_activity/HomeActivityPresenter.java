@@ -4,4 +4,6 @@ public interface HomeActivityPresenter {
     void onShowTabLayout();
 
     void onShowViewPager();
+
+    void onAddIconClickListener();
 }

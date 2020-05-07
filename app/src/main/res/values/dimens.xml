@@ -10,4 +10,11 @@
     <dimen name="big_text_size">18sp</dimen>
     <dimen name="user_info_btn_height">32dp</dimen>
     <dimen name="normal_icon_size">50dp</dimen>
+    <dimen name="back_icon_size">30dp</dimen>
+    <dimen name="big_map_height">400dp</dimen>
+    <dimen name="home_map_height">400dp</dimen>
+    <dimen name="home_item_photo_size">40dp</dimen>
+    <dimen name="small_text_size">13sp</dimen>
+    <dimen name="home_item_sort_icon_size">40dp</dimen>
+    <dimen name="home_item_tool_icon_size">30dp</dimen>
 </resources>

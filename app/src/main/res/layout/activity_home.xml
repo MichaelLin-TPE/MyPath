@@ -16,6 +16,14 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height">
 
+        <ImageView
+            android:layout_gravity="center|start"
+            android:contentDescription="@null"
+            android:id="@+id/home_toolbar_icon"
+            android:src="@drawable/add_not_press"
+            android:layout_width="@dimen/back_icon_size"
+            android:layout_height="@dimen/back_icon_size"/>
+
         <TextView
             android:id="@+id/home_toolbar_title"
             android:textColor="@color/white"

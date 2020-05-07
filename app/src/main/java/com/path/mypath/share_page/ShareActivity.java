@@ -6,9 +6,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -17,9 +19,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,14 +35,20 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.path.mypath.MainActivity;
-import com.path.mypath.MainActivityPresenter;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.path.mypath.R;
+import com.path.mypath.tools.UserDataProvider;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ShareActivity extends AppCompatActivity implements ShareActivityVu {
 
@@ -45,6 +57,8 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     private Handler handler = new Handler();
 
     private static final int REQUEST_LOCATION = 1;
+
+    private Button btnStart,btnStop;
 
     private MyHandler myHandler = new MyHandler(this);
 
@@ -60,6 +74,12 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
 
     private MapView mapView;
 
+    private EditText edContent;
+
+    private FirebaseFirestore firestore;
+
+    private static final String PERSONAL_DATA = "personal_data";
+
     private int permission;
 
     @Override
@@ -68,9 +88,14 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
         setContentView(R.layout.activity_share);
 
         initPresenter();
+        initFirebase();
         initView();
         latLngArrayList = new ArrayList<>();
         verifyLocationPermissions(this);
+    }
+
+    private void initFirebase() {
+        firestore = FirebaseFirestore.getInstance();
     }
 
     private void verifyLocationPermissions(ShareActivity shareActivity) {
@@ -90,13 +115,21 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     }
 
     private void initView() {
-        Button btnStart = findViewById(R.id.btn_start_record);
-        Button btnStop = findViewById(R.id.btn_stop_record);
-
+        ImageView ivBack = findViewById(R.id.share_toolbar_back);
+        btnStart = findViewById(R.id.btn_start_record);
+        edContent = findViewById(R.id.share_edit_content);
+        btnStop = findViewById(R.id.btn_stop_record);
+        btnStop.setEnabled(false);
+        ivBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onBackIconClickListener();
+            }
+        });
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.onStopToRecordButtonClickListener();
+                presenter.onStopToRecordButtonClickListener(edContent.getText().toString());
             }
         });
         btnStart.setOnClickListener(new View.OnClickListener() {
@@ -118,10 +151,8 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     }
 
     @Override
-    public void stopToRecordMyPath() {
+    public void stopToRecordMyPath(String articleContent) {
         handler.removeCallbacks(recordPath);
-
-
         PolylineOptions rectOptions = new PolylineOptions();
         //繪製路線
         for (LatLng latLng : latLngArrayList){
@@ -129,6 +160,9 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
         }
         googleMap.addPolyline(rectOptions);
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLngArrayList.get(latLngArrayList.size()-1)));
+
+
+        presenter.onCatchCurrentUserData(articleContent,latLngArrayList);
 
         Log.i("Michael", "停止錄製");
     }
@@ -171,6 +205,117 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     }
 
     @Override
+    public void closePage() {
+        finish();
+    }
+
+    @Override
+    public void showNoticeDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.record_path))
+                .setMessage(getString(R.string.notice))
+                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onRecordConfirmClickListener();
+                    }
+                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onRecordCancelClickListener();
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void showFinishDialog(String articleContent) {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.finish_record))
+                .setMessage(getString(R.string.finish_notice))
+                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onFinishRecordConfimClickListener(articleContent);
+                    }
+                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void setBtnStartEnable(boolean isEnable) {
+        btnStart.setEnabled(isEnable);
+        btnStop.setEnabled(!isEnable);
+    }
+
+    @Override
+    public void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void searchCurrentUserData() {
+        firestore.collection(PERSONAL_DATA)
+                .document(UserDataProvider.getInstance(this).getUserEmail())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            DocumentSnapshot snapshot = task.getResult();
+                            String json = (String) snapshot.get("user_json");
+                            if (json != null){
+                                presenter.onCatchCurrentUserDataSuccessful(json);
+                            }else {
+                                Log.i("Michael","抓不到JSON");
+                            }
+                        }else {
+                            Log.i("Michael","firebase 連線失敗");
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public String getUserNickname() {
+        return UserDataProvider.getInstance(this).getUserNickname();
+    }
+
+    @Override
+    public String getUserPhotoUrl() {
+        return UserDataProvider.getInstance(this).getUserPHotoUrl();
+    }
+
+    @Override
+    public void updateUserData(String newJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("user_json",newJson);
+        firestore.collection(PERSONAL_DATA)
+                .document(UserDataProvider.getInstance(this).getUserEmail())
+                .set(map, SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            presenter.onUpdateUserDataSuccessful();
+                        }else {
+                            presenter.onUpdateUserDataFailure();
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void setBtnStopEnable() {
+        btnStop.setEnabled(false);
+    }
+
+    @Override
     public void showNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
@@ -183,7 +328,7 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
                 manager.createNotificationChannel(channel);
             }
         }
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, ShareActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 

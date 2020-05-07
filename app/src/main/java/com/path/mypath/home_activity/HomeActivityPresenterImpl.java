@@ -34,4 +34,9 @@ public class HomeActivityPresenterImpl implements HomeActivityPresenter {
     public void onShowViewPager() {
         mView.showViewPager();
     }
+
+    @Override
+    public void onAddIconClickListener() {
+        mView.intentToShareActivity();
+    }
 }

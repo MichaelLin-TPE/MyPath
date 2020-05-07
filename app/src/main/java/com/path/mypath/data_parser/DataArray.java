@@ -24,6 +24,16 @@ public class DataArray implements Serializable {
     private ArrayList<DataReply> replyArray;
     @SerializedName("article_title")
     private String articleTitle;
+    @SerializedName("heart_press_user")
+    private ArrayList<DataUserPresHeart> heartPressUsers;
+
+    public ArrayList<DataUserPresHeart> getHeartPressUsers() {
+        return heartPressUsers;
+    }
+
+    public void setHeartPressUsers(ArrayList<DataUserPresHeart> heartPressUsers) {
+        this.heartPressUsers = heartPressUsers;
+    }
 
     public String getArticleTitle() {
         return articleTitle;

@@ -197,7 +197,7 @@ public class UserFragment extends Fragment implements UserFragmentVu {
 
             @Override
             public void onMapItemClick(ArrayList<LatLng> locationArray) {
-
+                Log.i("Michael","點擊了MAP");
             }
         });
     }
@@ -296,5 +296,10 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     public void intentToRecordActivity() {
         Intent it = new Intent(context, ShareActivity.class);
         context.startActivity(it);
+    }
+
+    @Override
+    public void saveUserPhoto(String downLoadUrl) {
+        UserDataProvider.getInstance(context).saveUserPhotoUrl(downLoadUrl);
     }
 }

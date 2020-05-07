@@ -16,4 +16,6 @@ public interface UserFragmentVu {
     void showToast(String message);
 
     void intentToRecordActivity();
+
+    void saveUserPhoto(String downLoadUrl);
 }

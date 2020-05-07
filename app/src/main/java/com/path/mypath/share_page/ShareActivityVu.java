@@ -5,7 +5,27 @@ public interface ShareActivityVu {
 
     void showNotification();
 
-    void stopToRecordMyPath();
+    void stopToRecordMyPath(String articleContent);
 
     void catchCurrentLocation();
+
+    void closePage();
+
+    void showNoticeDialog();
+
+    void showFinishDialog(String articleContent);
+
+    void setBtnStartEnable(boolean isEnable);
+
+    void showToast(String message);
+
+    void searchCurrentUserData();
+
+    String getUserNickname();
+
+    String getUserPhotoUrl();
+
+    void updateUserData(String newJson);
+
+    void setBtnStopEnable();
 }

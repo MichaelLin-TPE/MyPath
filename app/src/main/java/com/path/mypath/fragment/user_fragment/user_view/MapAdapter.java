@@ -3,6 +3,8 @@ package com.path.mypath.fragment.user_fragment.user_view;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,14 +59,40 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
         for (LatLng latLng : data.getLocationArray()) {
             rectOptions.add(latLng).color(Color.RED);
         }
-        holder.googleMap.addPolyline(rectOptions);
-        holder.googleMap.moveCamera(CameraUpdateFactory.newLatLng(data.getLocationArray().get(data.getLocationArray().size() - 1)));
-        holder.itemLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onClick(data.getLocationArray());
-            }
-        });
+        if (holder.mapView != null){
+            holder.mapView.onCreate(null);
+            holder.mapView.onResume();
+            holder.mapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap map) {
+                    holder.googleMap = map;
+
+//                    holder.googleMap.setMyLocationEnabled(true);
+//                    holder.googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+//                    holder.googleMap.getUiSettings().setZoomControlsEnabled(true);  // 右下角的放大縮小功能
+//                    holder.googleMap.getUiSettings().setCompassEnabled(true);       // 左上角的指南針，要兩指旋轉才會出現
+//                    holder.googleMap.getUiSettings().setMapToolbarEnabled(true);    // 右下角的導覽及開啟 Google Map功能
+
+                    holder.googleMap.addPolyline(rectOptions);
+                    holder.googleMap.moveCamera(CameraUpdateFactory.newLatLng(data.getLocationArray().get(data.getLocationArray().size() - 1)));
+                    holder.googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+                    holder.googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                        @Override
+                        public void onMapClick(LatLng latLng) {
+                            listener.onClick(data.getLocationArray());
+                        }
+                    });
+                }
+            });
+
+//            holder.itemLayout.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    listener.onClick(data.getLocationArray());
+//                }
+//            });
+        }
+
 
     }
 
@@ -95,8 +123,10 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
             //轉成DP
             float singleItemDb = singleItemSize / metrics.density;
             //強轉int
-            int dp = (int)singleItemDb;
-            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(dp,dp);
+            int pix = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, singleItemDb, context.getResources().getDisplayMetrics());
+
+            Log.i("Michael","強轉後的DB 為 : "+pix);
+            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(pix,pix);
             itemLayout.setLayoutParams(params);
 
             if (mapView != null) {

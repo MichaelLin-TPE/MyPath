@@ -6,4 +6,6 @@ public interface HomeActivityVu {
     void showTabLayout(ArrayList<Integer> iconNotPress, ArrayList<Integer> iconPress);
 
     void showViewPager();
+
+    void intentToShareActivity();
 }
