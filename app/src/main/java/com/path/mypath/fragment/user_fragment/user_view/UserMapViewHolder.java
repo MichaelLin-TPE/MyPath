@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.tools.UserDataProvider;
@@ -61,7 +60,7 @@ public class UserMapViewHolder extends RecyclerView.ViewHolder {
             ivIcon.setVisibility(View.GONE);
             adapter.setOnMapItemClickListener(new MapAdapter.OnMapItemClickListener() {
                 @Override
-                public void onClick(ArrayList<LatLng> locationArray) {
+                public void onClick(DataArray locationArray) {
                     listener.onMapItemClick(locationArray);
                 }
             });
@@ -80,6 +79,6 @@ public class UserMapViewHolder extends RecyclerView.ViewHolder {
     public interface OnUserDownClickListener{
         void onIconClick();
 
-        void onMapItemClick(ArrayList<LatLng> locationArray);
+        void onMapItemClick(DataArray locationArray);
     }
 }

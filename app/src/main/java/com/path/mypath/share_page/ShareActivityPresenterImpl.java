@@ -2,10 +2,12 @@ package com.path.mypath.share_page;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ShareActivityPresenterImpl implements ShareActivityPresenter {
 
@@ -27,7 +29,7 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
     @Override
     public void onStopToRecordButtonClickListener(String articleContent) {
 
-        if (articleContent != null){
+        if (articleContent != null && !articleContent.isEmpty()){
             mView.showFinishDialog(articleContent);
         }else {
             message = "下方輸入一點你去的地方吧~*";
@@ -107,6 +109,9 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
             if (newJson != null){
                 mView.updateUserData(newJson);
             }
+
+            mView.searchPublicData(dataArray);
+
         }
     }
 
@@ -120,5 +125,36 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
     public void onUpdateUserDataFailure() {
         message = "資料新增失敗,請確認網路狀態再重新試一次.";
         mView.showToast(message);
+    }
+
+    @Override
+    public void onCatchPublicJson(String json, DataArray data) {
+        ArrayList<DataArray> dataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
+        boolean isDataChange = false;
+        if (dataArray != null && dataArray.size() != 0){
+            for (int i = 0 ; i < dataArray.size() ; i ++){
+                if (dataArray.get(i).getUserNickName().equals(data.getUserNickName())){
+                    dataArray.set(i,data);
+                    isDataChange = true;
+                    break;
+                }
+            }
+            if (isDataChange){
+                String pubJson = gson.toJson(dataArray);
+                mView.updatePublicJson(pubJson);
+            }else {
+                dataArray.add(data);
+                String pubJson = gson.toJson(dataArray);
+                mView.updatePublicJson(pubJson);
+            }
+        }
+    }
+
+    @Override
+    public void onCatchNoPublicJson(DataArray dataArray) {
+        ArrayList<DataArray> dataArrayList = new ArrayList<>();
+        dataArrayList.add(dataArray);
+        String json = gson.toJson(dataArrayList);
+        mView.updatePublicJson(json);
     }
 }

@@ -1,6 +1,7 @@
 package com.path.mypath.share_page;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.path.mypath.data_parser.DataArray;
 
 import java.util.ArrayList;
 
@@ -26,4 +27,8 @@ public interface ShareActivityPresenter {
     void onUpdateUserDataSuccessful();
 
     void onUpdateUserDataFailure();
+
+    void onCatchPublicJson(String json, DataArray dataArray);
+
+    void onCatchNoPublicJson(DataArray dataArray);
 }

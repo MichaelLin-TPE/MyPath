@@ -111,17 +111,22 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
     @Override
     public void setRecyclerView(DataObject data) {
 
+        if (adapter != null){
+            adapter.setData(data);
+            adapter.notifyDataSetChanged();
+        }
+
         adapter = new HomeAdapter(context);
         adapter.setData(data);
         recyclerView.setAdapter(adapter);
 
         adapter.setOnHomeItemClickListener(new HomeAdapter.OnHomeItemClickListener() {
             @Override
-            public void onHeartClick(DataArray articleData, int position) {
+            public void onHeartClick(DataArray articleData, int position, boolean isCheck,int selectIndex) {
                 Log.i("Michael","點擊Heart");
-                presenter.onHeartClickListener(articleData,position);
+                presenter.onHeartClickListener(articleData,position,isCheck,selectIndex);
+                adapter.notifyItemChanged(position);
             }
-
             @Override
             public void onReplyClick() {
                 Log.i("Michael","點擊reply");

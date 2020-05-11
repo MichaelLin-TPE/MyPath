@@ -13,14 +13,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.MediaStore;
-import android.security.keystore.UserPresenceUnavailableException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,8 +38,8 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
-import com.path.mypath.MainActivity;
 import com.path.mypath.R;
+import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.fragment.user_fragment.user_presenter.UserPresenter;
 import com.path.mypath.fragment.user_fragment.user_presenter.UserPresenterImpl;
@@ -53,7 +51,6 @@ import com.path.mypath.tools.UserDataProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -196,7 +193,7 @@ public class UserFragment extends Fragment implements UserFragmentVu {
             }
 
             @Override
-            public void onMapItemClick(ArrayList<LatLng> locationArray) {
+            public void onMapItemClick(DataArray locationArray) {
                 Log.i("Michael","點擊了MAP");
             }
         });

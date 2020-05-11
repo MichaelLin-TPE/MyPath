@@ -19,7 +19,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -38,11 +37,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.path.mypath.R;
+import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.tools.UserDataProvider;
 
 import java.lang.ref.WeakReference;
@@ -79,6 +78,8 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     private FirebaseFirestore firestore;
 
     private static final String PERSONAL_DATA = "personal_data";
+
+    private static final String PUBLIC_DATA = "public_data";
 
     private int permission;
 
@@ -313,6 +314,44 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     @Override
     public void setBtnStopEnable() {
         btnStop.setEnabled(false);
+    }
+
+    @Override
+    public void searchPublicData(DataArray dataArray) {
+        firestore.collection(PUBLIC_DATA)
+                .document(PUBLIC_DATA)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            DocumentSnapshot snapshot = task.getResult();
+                            String json = (String) snapshot.get("public_json");
+                            if (json != null){
+                                presenter.onCatchPublicJson(json,dataArray);
+                            }else {
+                                presenter.onCatchNoPublicJson(dataArray);
+                            }
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void updatePublicJson(String pubJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("public_json",pubJson);
+        firestore.collection(PUBLIC_DATA)
+                .document(PUBLIC_DATA)
+                .set(map,SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","公開資料更新成功");
+                        }
+                    }
+                });
     }
 
     @Override

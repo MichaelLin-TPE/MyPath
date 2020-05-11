@@ -1,4 +1,4 @@
-package com.path.mypath.fragment.user_fragment.user_view;
+package com.path.mypath.fragment.add_fragment;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -21,24 +21,24 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
+import com.path.mypath.fragment.user_fragment.user_view.MapAdapter;
 
 import java.util.ArrayList;
 
-public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder> {
 
-    private ArrayList<DataArray> dataArray;
+    private ArrayList<DataArray> dataArrayList;
 
     private Context context;
 
-
-    public MapAdapter(ArrayList<DataArray> dataArray, Context context) {
-        this.dataArray = dataArray;
+    public SearchAdapter(ArrayList<DataArray> dataArrayList, Context context) {
+        this.dataArrayList = dataArrayList;
         this.context = context;
     }
 
-    private OnMapItemClickListener listener;
+    private MapAdapter.OnMapItemClickListener listener;
 
-    public void setOnMapItemClickListener(OnMapItemClickListener listener){
+    public void setOnMapItemClickListener(MapAdapter.OnMapItemClickListener listener){
         this.listener = listener;
     }
 
@@ -50,8 +50,7 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
-        DataArray data = dataArray.get(position);
+        DataArray data = dataArrayList.get(position);
 
         if (holder.mapView != null){
 
@@ -79,22 +78,20 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
                 }
             });
         }
-
-
     }
 
     @Override
     public int getItemCount() {
-        return dataArray == null ? 0 : dataArray.size();
+        return dataArrayList == null ? 0 : dataArrayList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-
         private GoogleMap googleMap;
 
         private MapView mapView;
 
         private ConstraintLayout itemLayout;
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -137,11 +134,6 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
                     }
                 });
             }
-
         }
-    }
-
-    public interface OnMapItemClickListener{
-        void onClick(DataArray locationArray);
     }
 }

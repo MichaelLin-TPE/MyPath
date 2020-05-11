@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
@@ -23,9 +24,9 @@ import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.data_parser.DataUserPresHeart;
 import com.path.mypath.tools.ImageLoaderProvider;
-import com.path.mypath.tools.UserDataProvider;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -36,8 +37,6 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
     private Context context;
 
     private OnHomeItemClickListener listener;
-
-    private boolean isPressed;
 
     public void setOnHomeItemClickListener(OnHomeItemClickListener listener) {
         this.listener = listener;
@@ -69,10 +68,12 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
             holder.ivHeart.setImageResource(R.drawable.heart_not_press);
         } else {
             holder.tvHeartCount.setVisibility(View.VISIBLE);
-            for (DataUserPresHeart userPress : itemData.getHeartPressUsers()) {
+
+            ArrayList<DataUserPresHeart> heartArray = itemData.getHeartPressUsers();
+
+            for (DataUserPresHeart userPress : heartArray) {
                 if (userPress.getName().equals(data.getUserNickname())) {
                     holder.ivHeart.setImageResource(R.drawable.heart_red);
-                    isPressed = true;
                     break;
                 }
             }
@@ -86,11 +87,14 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
                 public void onMapReady(GoogleMap googleMap) {
                     PolylineOptions rectOptions = new PolylineOptions();
                     //繪製路線
-                    for (LatLng latLng : itemData.getLocationArray()) {
+
+                    ArrayList<LatLng> locationArray = itemData.getLocationArray();
+
+                    for (LatLng latLng : locationArray) {
                         rectOptions.add(latLng).color(Color.RED);
                     }
                     googleMap.addPolyline(rectOptions);
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(itemData.getLocationArray().get(itemData.getLocationArray().size() - 1)));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArray.get(itemData.getLocationArray().size() - 1)));
                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
                 }
             });
@@ -100,15 +104,27 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 boolean isCheck = false;
+                int selectIndex = 0;
                 if (itemData.getHeartPressUsers() != null && itemData.getHeartPressUsers().size() != 0) {
+                    ArrayList<DataUserPresHeart> heartArray = itemData.getHeartPressUsers();
+                    for (DataUserPresHeart heart : heartArray){
+                        if (heart.getName().equals(data.getUserNickname())){
+                            isCheck = true;
+                            break;
+                        }
+                        selectIndex ++;
+                    }
 
+                    if (isCheck){
+                        holder.ivHeart.setImageResource(R.drawable.heart_not_press);
+                    }else {
+                        holder.ivHeart.setImageResource(R.drawable.heart_red);
+                    }
                 }else {
                     holder.ivHeart.setImageResource(R.drawable.heart_red);
 
                 }
-
-
-                listener.onHeartClick(itemData, position);
+                listener.onHeartClick(itemData, position,isCheck,selectIndex);
             }
         });
         holder.ivReply.setOnClickListener(new View.OnClickListener() {
@@ -167,7 +183,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
     }
 
     public interface OnHomeItemClickListener {
-        void onHeartClick(DataArray data, int position);
+        void onHeartClick(DataArray data, int position, boolean isCheck,int selectIndex);
 
         void onReplyClick();
 

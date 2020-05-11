@@ -27,4 +27,6 @@
     <string name="notice">注意! 此功能將會每10秒抓取一次你的地理位置,並在背景執行,若要繼續執行請按\"確定\",並開始錄製路徑,若不同意請按取消退出,謝謝.</string>
     <string name="finish_notice">確定要停止錄製嗎?</string>
     <string name="description_place">描述一下你去哪裡吧~*</string>
+    <string name="test">測試一</string>
+    <string name="search">搜尋</string>
 </resources>

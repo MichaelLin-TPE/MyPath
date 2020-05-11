@@ -5,5 +5,5 @@ import com.path.mypath.data_parser.DataArray;
 public interface HomeFragmentPresenter {
     void onCatchUserDataSuccessful(String json);
 
-    void onHeartClickListener(DataArray articleData, int position);
+    void onHeartClickListener(DataArray articleData, int position, boolean isCheck, int selectIndex);
 }

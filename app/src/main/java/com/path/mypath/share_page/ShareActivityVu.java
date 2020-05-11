@@ -1,5 +1,7 @@
 package com.path.mypath.share_page;
 
+import com.path.mypath.data_parser.DataArray;
+
 public interface ShareActivityVu {
     void startToRecordMyPath();
 
@@ -28,4 +30,8 @@ public interface ShareActivityVu {
     void updateUserData(String newJson);
 
     void setBtnStopEnable();
+
+    void searchPublicData(DataArray dataArray);
+
+    void updatePublicJson(String pubJson);
 }
