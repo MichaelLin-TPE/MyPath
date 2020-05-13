@@ -14,7 +14,7 @@
     <string name="enter_nickname">請輸入暱稱</string>
     <string name="sentence">座右銘 : </string>
     <string name="finish">完成</string>
-
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="article">貼文</string>
@@ -29,4 +29,8 @@
     <string name="description_place">描述一下你去哪裡吧~*</string>
     <string name="test">測試一</string>
     <string name="search">搜尋</string>
+    <string name="information">訊息</string>
+    <string name="set_public_confirm">是否將此筆路徑設成公開(所有人都看得見)</string>
+    <string name="public_confirm">設成公開</string>
+    <string name="is_recording">目前正在錄製中,如果退出此頁面,錄製將會取消唷...</string>
 </resources>

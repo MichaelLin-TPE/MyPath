@@ -29,6 +29,8 @@ public class DataArray implements Parcelable {
     private String articleTitle;
     @SerializedName("heart_press_user")
     private ArrayList<DataUserPresHeart> heartPressUsers;
+    @SerializedName("user_email")
+    private String userEmail;
 
     public static Creator<DataArray> getCREATOR() {
         return CREATOR;
@@ -47,6 +49,7 @@ public class DataArray implements Parcelable {
             data.setReplyArray(in.readArrayList(DataReply.class.getClassLoader()));
             data.setArticleTitle(in.readString());
             data.setHeartPressUsers(in.readArrayList(DataUserPresHeart.class.getClassLoader()));
+            data.setUserEmail(in.readString());
             return data;
         }
 
@@ -76,6 +79,15 @@ public class DataArray implements Parcelable {
         dest.writeList(replyArray);
         dest.writeString(articleTitle);
         dest.writeList(heartPressUsers);
+        dest.writeString(userEmail);
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public ArrayList getHeartPressUsers() {

@@ -31,6 +31,7 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.path.mypath.R;
+import com.path.mypath.home_activity.HomeActivity;
 import com.path.mypath.share_page.ShareActivity;
 import com.path.mypath.tools.GlideEngine;
 import com.path.mypath.tools.UserDataProvider;
@@ -196,7 +197,7 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
 
     @Override
     public void intentToShareActivity() {
-        Intent it = new Intent(this, ShareActivity.class);
+        Intent it = new Intent(this, HomeActivity.class);
         startActivity(it);
         finish();
     }

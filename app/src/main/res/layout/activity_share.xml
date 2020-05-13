@@ -87,4 +87,15 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"/>
 
+    <TextView
+        app:layout_constraintTop_toBottomOf="@id/share_edit_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="15dp"
+        android:id="@+id/share_distance"
+        android:textColor="@color/white"
+        android:textSize="@dimen/normal_text_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.renderscript.Allocation;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,14 +17,18 @@ import android.view.ViewGroup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.SetOptions;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
-import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.tools.UserDataProvider;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -40,6 +45,10 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
     private HomeAdapter adapter;
 
     private static final String PERSONAL_DATA = "personal_data";
+
+    private static final String HOME_DATA = "home_data";
+
+    private static final String USER_LIKE = "user_like";
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -83,8 +92,26 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        firestore.collection(PERSONAL_DATA)
-                .document(UserDataProvider.getInstance(context).getUserEmail())
+        DocumentReference snapshot = firestore.collection(HOME_DATA).document(HOME_DATA);
+        snapshot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","取得資料錯誤 : "+e.toString());
+                    return;
+                }
+                String json = (String) snapshot.get("json");
+                presenter.onCatchRealTimeData(json);
+            }
+        });
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        firestore.collection(HOME_DATA)
+                .document(HOME_DATA)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -92,7 +119,7 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
                         if (task.isSuccessful() && task.getResult() != null){
                             DocumentSnapshot snapshot = task.getResult();
                             if (snapshot != null){
-                                String json = (String) snapshot.get("user_json");
+                                String json = (String) snapshot.get("json");
                                 presenter.onCatchUserDataSuccessful(json);
                             }else {
                                 Log.i("Michael","取得資料失敗");
@@ -109,15 +136,15 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
 
 
     @Override
-    public void setRecyclerView(DataObject data) {
+    public void setRecyclerView(ArrayList<DataArray> dataArrayList) {
 
         if (adapter != null){
-            adapter.setData(data);
+            adapter.setData(dataArrayList);
             adapter.notifyDataSetChanged();
         }
 
         adapter = new HomeAdapter(context);
-        adapter.setData(data);
+        adapter.setData(dataArrayList);
         recyclerView.setAdapter(adapter);
 
         adapter.setOnHomeItemClickListener(new HomeAdapter.OnHomeItemClickListener() {
@@ -156,14 +183,75 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
 
     @Override
     public void updateUserData(Map<String, Object> map) {
-        firestore.collection(PERSONAL_DATA)
-                .document(UserDataProvider.getInstance(context).getUserEmail())
+        firestore.collection(HOME_DATA)
+                .document(HOME_DATA)
                 .set(map, SetOptions.merge())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             Log.i("Michael","資料更新成功");
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void searchUserPersonalData(String userEmail) {
+        firestore.collection("user")
+                .document(userEmail)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            DocumentSnapshot snapshot = task.getResult();
+                            String token = (String) snapshot.get("cloud_token");
+                            if (token != null){
+                                Log.i("Michael","取得TOKEN : "+token);
+                                presenter.onCatchFCMTokenSuccessful(token);
+                            }
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public String getUserEmail() {
+        return UserDataProvider.getInstance(context).getUserEmail();
+    }
+
+
+
+    @Override
+    public void saveUserLikeData(String likeJson, String userEmail) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("json",likeJson);
+        firestore.collection(USER_LIKE)
+                .document(userEmail)
+                .set(map)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","點讚傳送成功");
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void searchCreatorLikeData(String userEmail) {
+        firestore.collection(USER_LIKE)
+                .document(userEmail)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult()!= null){
+                            DocumentSnapshot snapshot = task.getResult();
+                            String json = (String) snapshot.get("json");
+                            presenter.onCatchCreatorLikeData(json);
                         }
                     }
                 });

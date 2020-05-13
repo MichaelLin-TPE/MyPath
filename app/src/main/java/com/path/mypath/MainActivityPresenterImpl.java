@@ -46,6 +46,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
         userMap.put("display_name","");
         userMap.put("photo","");
         userMap.put("sentence","");
+        userMap.put("cloud_token","");
 
 
         DataObject data = new DataObject();

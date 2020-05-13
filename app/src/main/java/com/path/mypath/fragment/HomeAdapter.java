@@ -2,6 +2,7 @@ package com.path.mypath.fragment;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
@@ -24,6 +24,7 @@ import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.data_parser.DataUserPresHeart;
 import com.path.mypath.tools.ImageLoaderProvider;
+import com.path.mypath.tools.UserDataProvider;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.Locale;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
-    private DataObject data;
+    private ArrayList<DataArray> dataArrayList;
 
     private Context context;
 
@@ -55,28 +56,34 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        DataArray itemData = data.getDataArray().get(position);
+        DataArray itemData = dataArrayList.get(position);
         ImageLoaderProvider.getInstance(context).setImage(itemData.getUserPhoto(), holder.ivPhoto);
-        holder.tvName.setText(data.getUserNickname());
+        holder.tvName.setText(itemData.getUserNickName());
         holder.tvTime.setText(new SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN).format(new Date(itemData.getCurrentTime())));
-        holder.tvContent.setText(String.format(Locale.getDefault(), "%s : %s", data.getUserNickname(), itemData.getArticleTitle()));
+        holder.tvContent.setText(String.format(Locale.getDefault(), "%s : %s", itemData.getUserNickName(), itemData.getArticleTitle()));
         holder.tvHeartCount.setText(String.format(Locale.getDefault(), "%d 個讚", itemData.getHeartCount()));
-
+        boolean isCheck = false;
         //判斷是否有按過讚
         if (itemData.getHeartPressUsers() != null && itemData.getHeartPressUsers().size() == 0) {
             holder.tvHeartCount.setVisibility(View.GONE);
             holder.ivHeart.setImageResource(R.drawable.heart_not_press);
+            Log.i("Michael","沒按過");
         } else {
             holder.tvHeartCount.setVisibility(View.VISIBLE);
 
             ArrayList<DataUserPresHeart> heartArray = itemData.getHeartPressUsers();
 
             for (DataUserPresHeart userPress : heartArray) {
-                if (userPress.getName().equals(data.getUserNickname())) {
+                if (userPress.getName().equals(UserDataProvider.getInstance(context).getUserNickname())) {
                     holder.ivHeart.setImageResource(R.drawable.heart_red);
+                    isCheck = true;
                     break;
                 }
             }
+            if (!isCheck){
+                holder.ivHeart.setImageResource(R.drawable.heart_not_press);
+            }
+
         }
         //設定MAP
         if (holder.mapView != null) {
@@ -108,7 +115,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
                 if (itemData.getHeartPressUsers() != null && itemData.getHeartPressUsers().size() != 0) {
                     ArrayList<DataUserPresHeart> heartArray = itemData.getHeartPressUsers();
                     for (DataUserPresHeart heart : heartArray){
-                        if (heart.getName().equals(data.getUserNickname())){
+                        if (heart.getName().equals(UserDataProvider.getInstance(context).getUserNickname())){
                             isCheck = true;
                             break;
                         }
@@ -116,11 +123,14 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
                     }
 
                     if (isCheck){
+                        Log.i("Michael","空白愛心");
                         holder.ivHeart.setImageResource(R.drawable.heart_not_press);
                     }else {
+                        Log.i("Michael","紅色愛心");
                         holder.ivHeart.setImageResource(R.drawable.heart_red);
                     }
                 }else {
+                    Log.i("Michael","特殊紅色愛心");
                     holder.ivHeart.setImageResource(R.drawable.heart_red);
 
                 }
@@ -150,11 +160,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return data.getDataArray() == null ? 0 : data.getDataArray().size();
+        return dataArrayList == null ? 0 : dataArrayList.size();
     }
 
-    public void setData(DataObject data) {
-        this.data = data;
+    public void setData(ArrayList<DataArray> data) {
+        this.dataArrayList = data;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

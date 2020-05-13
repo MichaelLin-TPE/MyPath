@@ -34,4 +34,16 @@ public interface ShareActivityVu {
     void searchPublicData(DataArray dataArray);
 
     void updatePublicJson(String pubJson);
+
+    void showPublicConfirmDialog(DataArray dataArray);
+
+    void searchHomeData(DataArray dataArray);
+
+    void updateHomeData(String homeJson);
+
+    void showIsRecordingDialog();
+
+    void stopRecord();
+
+    String getUserEmail();
 }

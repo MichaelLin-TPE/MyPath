@@ -37,6 +37,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:15.0.1"
     //firebase
     implementation 'com.google.firebase:firebase-analytics:17.2.2'
+    implementation 'com.google.firebase:firebase-messaging:20.1.0'
     //fireStore
     implementation 'com.google.firebase:firebase-firestore:21.2.1'
     implementation 'com.google.firebase:firebase-storage:19.1.1'

@@ -34,6 +34,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.path.mypath.edit_page.EditActivity;
 import com.path.mypath.home_activity.HomeActivity;
 import com.path.mypath.tools.UserDataProvider;
@@ -318,6 +321,23 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
                                 UserDataProvider.getInstance(MainActivity.this).saveUserSentence(sentence);
                                 UserDataProvider.getInstance(MainActivity.this).saveUserEmail(email);
                                 Log.i("Michael","更新資料完成");
+                                FirebaseInstanceId.getInstance().getInstanceId()
+                                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                                if (!task.isSuccessful()){
+                                                    Log.i("Michael","申請TOKEN 失敗 : "+task.getException());
+                                                    return;
+                                                }
+                                                String token = task.getResult().getToken();
+                                                Map<String,Object> map = new HashMap<>();
+                                                map.put("cloud_token",token);
+                                                Log.i("Michael",token);
+                                                firestore.collection(USER)
+                                                        .document(email)
+                                                        .set(map, SetOptions.merge());
+                                            }
+                                        });
                             }
                         }
                     });

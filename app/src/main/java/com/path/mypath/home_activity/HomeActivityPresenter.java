@@ -6,4 +6,6 @@ public interface HomeActivityPresenter {
     void onShowViewPager();
 
     void onAddIconClickListener();
+
+    void onLogoutClickListener();
 }

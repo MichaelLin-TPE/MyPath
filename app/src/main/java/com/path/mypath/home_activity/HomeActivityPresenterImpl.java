@@ -39,4 +39,9 @@ public class HomeActivityPresenterImpl implements HomeActivityPresenter {
     public void onAddIconClickListener() {
         mView.intentToShareActivity();
     }
+
+    @Override
+    public void onLogoutClickListener() {
+        mView.googleLogout();
+    }
 }

@@ -46,6 +46,7 @@ import com.path.mypath.fragment.user_fragment.user_presenter.UserPresenterImpl;
 import com.path.mypath.fragment.user_fragment.user_view.UserInfoViewHolder;
 import com.path.mypath.fragment.user_fragment.user_view.UserMapViewHolder;
 import com.path.mypath.share_page.ShareActivity;
+import com.path.mypath.single_view_activity.SingleViewActivity;
 import com.path.mypath.tools.GlideEngine;
 import com.path.mypath.tools.UserDataProvider;
 
@@ -72,6 +73,8 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     private FirebaseUser user;
 
     private static final String PERSONAL_DATA = "personal_data";
+
+    private static final String HOME_DATA = "home_data";
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -139,6 +142,22 @@ public class UserFragment extends Fragment implements UserFragmentVu {
                     }
                 }
             });
+
+            DocumentReference snapshot = firestore.collection(HOME_DATA).document(HOME_DATA);
+
+            snapshot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                    if (e != null){
+                        Log.i("Michael","LIKE DATA 取得資料失敗 : "+e.toString());
+                        return;
+                    }
+                    if (documentSnapshot != null){
+                        String json = (String) documentSnapshot.get("json");
+                        presenter.onCatchHomeDataSuccessful(json);
+                    }
+                }
+            });
         }
 
     }
@@ -195,6 +214,7 @@ public class UserFragment extends Fragment implements UserFragmentVu {
             @Override
             public void onMapItemClick(DataArray locationArray) {
                 Log.i("Michael","點擊了MAP");
+                presenter.onMapItemClickListener(locationArray);
             }
         });
     }
@@ -298,5 +318,26 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     @Override
     public void saveUserPhoto(String downLoadUrl) {
         UserDataProvider.getInstance(context).saveUserPhotoUrl(downLoadUrl);
+    }
+
+    @Override
+    public void intentToSingleViewActivity(DataArray locationArray) {
+        Intent it = new Intent(context, SingleViewActivity.class);
+        it.putExtra("data",locationArray);
+        context.startActivity(it);
+    }
+
+    @Override
+    public String getNickname() {
+        return UserDataProvider.getInstance(context).getUserNickname();
+    }
+
+    @Override
+    public void updateHomeData(String homeJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("json",homeJson);
+        firestore.collection(HOME_DATA)
+                .document(HOME_DATA)
+                .set(map,SetOptions.merge());
     }
 }

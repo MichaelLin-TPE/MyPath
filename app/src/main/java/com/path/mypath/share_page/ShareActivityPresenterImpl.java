@@ -21,6 +21,8 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
 
     private Gson gson;
 
+    private boolean isRecording;
+
     public ShareActivityPresenterImpl(ShareActivityVu mView) {
         this.mView = mView;
         gson = new Gson();
@@ -53,11 +55,16 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
 
     @Override
     public void onBackIconClickListener() {
-        mView.closePage();
+        if (isRecording){
+            mView.showIsRecordingDialog();
+        }else {
+            mView.closePage();
+        }
     }
 
     @Override
     public void onRecordConfirmClickListener() {
+        isRecording = true;
         mView.setBtnStartEnable(false);
         mView.startToRecordMyPath();
         mView.showNotification();
@@ -71,6 +78,7 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
 
     @Override
     public void onFinishRecordConfimClickListener(String articleContent) {
+        isRecording = false;
         mView.setBtnStopEnable();
         mView.stopToRecordMyPath(articleContent);
     }
@@ -79,6 +87,7 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
     public void onCatchCurrentUserData(String articleContent, ArrayList<LatLng> latLngArrayList) {
         this.articleContent = articleContent;
         this.latLngArrayList = latLngArrayList;
+        mView.setBtnStartEnable(true);
         mView.searchCurrentUserData();
     }
 
@@ -92,6 +101,7 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
             dataArray.setCurrentTime(System.currentTimeMillis());
             dataArray.setUserNickName(mView.getUserNickname());
             dataArray.setUserPhoto(mView.getUserPhotoUrl());
+            dataArray.setUserEmail(mView.getUserEmail());
             dataArray.setHeartCount(0);
             dataArray.setReplyCount(0);
             dataArray.setHeartPressUsers(new ArrayList<>());
@@ -109,9 +119,8 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
             if (newJson != null){
                 mView.updateUserData(newJson);
             }
-
             mView.searchPublicData(dataArray);
-
+            mView.showPublicConfirmDialog(dataArray);
         }
     }
 
@@ -156,5 +165,38 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
         dataArrayList.add(dataArray);
         String json = gson.toJson(dataArrayList);
         mView.updatePublicJson(json);
+    }
+
+    @Override
+    public void onPublicConfirmClickListener(DataArray dataArray) {
+        mView.searchHomeData(dataArray);
+    }
+
+    @Override
+    public void onCatchHomeData(String json, DataArray dataArray) {
+        if (json != null){
+            ArrayList<DataArray> dataArrayList = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
+            dataArrayList.add(dataArray);
+            String homeJson = gson.toJson(dataArrayList);
+            mView.updateHomeData(homeJson);
+        }else {
+            ArrayList<DataArray> dataArrayList = new ArrayList<>();
+            dataArrayList.add(dataArray);
+            String homeJson = gson.toJson(dataArrayList);
+            mView.updateHomeData(homeJson);
+        }
+    }
+
+    @Override
+    public void onUpdateHomeDataSuccessful() {
+        message = "此路徑已設成公開";
+        mView.showToast(message);
+    }
+
+    @Override
+    public void onBackConfirmClickListener() {
+        mView.stopRecord();
+        mView.closePage();
+
     }
 }

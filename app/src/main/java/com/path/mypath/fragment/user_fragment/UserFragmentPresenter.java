@@ -1,5 +1,7 @@
 package com.path.mypath.fragment.user_fragment;
 
+import com.path.mypath.data_parser.DataArray;
+
 public interface UserFragmentPresenter {
     void onSearchDataFromFirebase();
 
@@ -16,4 +18,8 @@ public interface UserFragmentPresenter {
     void onCatchFirebaseListenerFail(String toString);
 
     void onAddIconClickListener();
+
+    void onMapItemClickListener(DataArray locationArray);
+
+    void onCatchHomeDataSuccessful(String json);
 }

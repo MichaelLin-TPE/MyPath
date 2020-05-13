@@ -7,6 +7,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -20,10 +21,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,6 +43,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.path.mypath.MainActivity;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.tools.UserDataProvider;
@@ -47,6 +51,7 @@ import com.path.mypath.tools.UserDataProvider;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class ShareActivity extends AppCompatActivity implements ShareActivityVu {
@@ -81,18 +86,38 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
 
     private static final String PUBLIC_DATA = "public_data";
 
+    private static final String HOME_DATA = "home_data";
+
+    private static final double EARTH_RADIUS = 6378.137;
+
+    private double distance = 0;
+
     private int permission;
+
+    private TextView tvDistance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share);
-
+        Log.i("Michael","onCreate");
         initPresenter();
         initFirebase();
         initView();
         latLngArrayList = new ArrayList<>();
         verifyLocationPermissions(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i("Michael","onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i("Michael","onResume");
     }
 
     private void initFirebase() {
@@ -107,7 +132,6 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
             if (permission != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(shareActivity, PERMISSION_LOCATION, REQUEST_LOCATION);
             } else {
-
                 presenter.onLocationPermissionGranted();
             }
         } catch (Exception e) {
@@ -117,6 +141,7 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
 
     private void initView() {
         ImageView ivBack = findViewById(R.id.share_toolbar_back);
+        tvDistance = findViewById(R.id.share_distance);
         btnStart = findViewById(R.id.btn_start_record);
         edContent = findViewById(R.id.share_edit_content);
         btnStop = findViewById(R.id.btn_stop_record);
@@ -154,14 +179,6 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     @Override
     public void stopToRecordMyPath(String articleContent) {
         handler.removeCallbacks(recordPath);
-        PolylineOptions rectOptions = new PolylineOptions();
-        //繪製路線
-        for (LatLng latLng : latLngArrayList){
-            rectOptions.add(latLng).color(Color.RED);
-        }
-        googleMap.addPolyline(rectOptions);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLngArrayList.get(latLngArrayList.size()-1)));
-
 
         presenter.onCatchCurrentUserData(articleContent,latLngArrayList);
 
@@ -303,6 +320,7 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
+                            latLngArrayList = new ArrayList<>();
                             presenter.onUpdateUserDataSuccessful();
                         }else {
                             presenter.onUpdateUserDataFailure();
@@ -355,6 +373,90 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     }
 
     @Override
+    public void showPublicConfirmDialog(DataArray dataArray) {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.information))
+                .setMessage(getString(R.string.set_public_confirm))
+                .setPositiveButton(getString(R.string.public_confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onPublicConfirmClickListener(dataArray);
+                    }
+                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void searchHomeData(DataArray dataArray) {
+        firestore.collection(HOME_DATA)
+                .document(HOME_DATA)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            DocumentSnapshot snapshot = task.getResult();
+                            String json = (String) snapshot.get("json");
+                            presenter.onCatchHomeData(json,dataArray);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void updateHomeData(String homeJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("json",homeJson);
+
+        firestore.collection(HOME_DATA)
+                .document(HOME_DATA)
+                .set(map)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            presenter.onUpdateHomeDataSuccessful();
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void showIsRecordingDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.information))
+                .setMessage(getString(R.string.is_recording))
+                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onBackConfirmClickListener();
+                    }
+                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void stopRecord() {
+        latLngArrayList = new ArrayList<>();
+        handler.removeCallbacks(recordPath);
+    }
+
+    @Override
+    public String getUserEmail() {
+        return UserDataProvider.getInstance(this).getUserEmail();
+    }
+
+    @Override
     public void showNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
@@ -367,17 +469,22 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
                 manager.createNotificationChannel(channel);
             }
         }
-        Intent intent = new Intent(this, ShareActivity.class);
+        /**
+         * 暫時先不要讓他回去
+         */
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "channel_id")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("開始錄製")
-                .setContentText("點我一下回APP")
+                .setContentText("持續繪製您的路徑中.....")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setCategory(Notification.CATEGORY_MESSAGE)
                 // Set the intent that will fire when the user taps the notification
-                .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 
@@ -397,6 +504,37 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
 
         }
     };
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            presenter.onBackIconClickListener();
+        }
+        return true;
+    }
+
+    //轉弧度
+    private double rad (double radius){
+        return radius * Math.PI/180.0;
+    }
+
+    private double getDistance(double lat1,double long1,double lat2, double long2){
+
+        double firstRadLat = rad(lat1);
+        double firstRadLng = rad(long1);
+        double secondRadLat = rad(lat2);
+        double secondRadLng = rad(long2);
+
+        double a = firstRadLat - secondRadLat;
+        double b = firstRadLng - secondRadLng;
+
+        double cal = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(firstRadLat)
+                * Math.cos(secondRadLat) * Math.pow(Math.sin(b / 2), 2))) * EARTH_RADIUS;
+        double result = Math.round(cal * 10000d) / 10000d;
+
+        Log.i("Michael","計算出的距離 公尺 : "+result*1024);
+        return result*1024;
+    }
 
     //轉到 MainThread
     private static class MyHandler extends Handler {
@@ -436,11 +574,38 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
                                         mainActivity.latLngArrayList.add(new LatLng(location.getLatitude(), location.getLongitude()));
                                     }
 
+
+                                    //即時顯示路線圖
+                                    PolylineOptions rectOptions = new PolylineOptions();
+                                    //繪製路線
+                                    for (LatLng latLngData : mainActivity.latLngArrayList){
+                                        rectOptions.add(latLngData).color(Color.RED);
+                                    }
+                                    mainActivity.googleMap.addPolyline(rectOptions);
+                                    mainActivity.googleMap.moveCamera(CameraUpdateFactory.newLatLng(mainActivity.latLngArrayList.get(mainActivity.latLngArrayList.size()-1)));
+
+                                    //抓取距離
+                                    if (mainActivity.latLngArrayList.size() > 2){
+                                        int last = mainActivity.latLngArrayList.size() - 1;
+                                        int lastSecond = mainActivity.latLngArrayList.size() - 2;
+                                        LatLng lastLat = mainActivity.latLngArrayList.get(last);
+                                        LatLng lastSecondLat = mainActivity.latLngArrayList.get(lastSecond);
+                                        mainActivity.distance = mainActivity.distance + mainActivity.getDistance(lastLat.latitude,lastLat.longitude
+                                                ,lastSecondLat.latitude,lastSecondLat.longitude);
+
+                                        mainActivity.tvDistance.setText(String.format(Locale.getDefault(),"已經移動了 %1$,.2f 公尺",mainActivity.distance));
+
+                                        Log.i("Michael",String.format(Locale.getDefault(),"已經移動了 : %1$.4f",mainActivity.distance));
+                                    }
+
+
                                 } else {
                                     mainActivity.latLngArrayList.add(new LatLng(location.getLatitude(),
                                             location.getLongitude()));
                                     Log.i("Michael", "第一次錄製到的經度 : " + location.getLatitude() + " , 緯度 : " + location.getLongitude() + " , 資料長度為 : " + mainActivity.latLngArrayList.size());
                                 }
+
+
 
 
                             } else {

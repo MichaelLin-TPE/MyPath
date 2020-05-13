@@ -43,6 +43,7 @@ public class UserDataProvider {
         editor.apply();
     }
 
+
     public String getSentence(){
         return sharedPreferences.getString("sentence","");
     }

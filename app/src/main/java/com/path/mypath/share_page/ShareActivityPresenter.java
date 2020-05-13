@@ -31,4 +31,12 @@ public interface ShareActivityPresenter {
     void onCatchPublicJson(String json, DataArray dataArray);
 
     void onCatchNoPublicJson(DataArray dataArray);
+
+    void onPublicConfirmClickListener(DataArray dataArray);
+
+    void onCatchHomeData(String json, DataArray dataArray);
+
+    void onUpdateHomeDataSuccessful();
+
+    void onBackConfirmClickListener();
 }

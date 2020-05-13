@@ -8,4 +8,6 @@ public interface HomeActivityVu {
     void showViewPager();
 
     void intentToShareActivity();
+
+    void googleLogout();
 }

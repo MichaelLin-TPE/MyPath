@@ -1,5 +1,6 @@
 package com.path.mypath.fragment.user_fragment;
 
+import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 
 public interface UserFragmentVu {
@@ -18,4 +19,10 @@ public interface UserFragmentVu {
     void intentToRecordActivity();
 
     void saveUserPhoto(String downLoadUrl);
+
+    void intentToSingleViewActivity(DataArray locationArray);
+
+    String getNickname();
+
+    void updateHomeData(String homeJson);
 }
