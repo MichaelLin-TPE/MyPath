@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".photo_activity.SelectPhotoActivity">
+
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/photo_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/black_lite"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <ImageView
+            android:contentDescription="@null"
+            android:id="@+id/photo_toolbar_back"
+            android:src="@drawable/back"
+            android:layout_gravity="center|start"
+            android:layout_width="@dimen/back_icon_size"
+            android:layout_height="@dimen/back_icon_size"/>
+
+        <TextView
+            android:id="@+id/photo_toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/app_name"
+            android:textColor="@color/white"
+            android:textSize="@dimen/toolbar_title_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/photo_toolbar_add"
+            android:layout_gravity="end|center"
+            android:layout_marginEnd="15dp"
+            android:src="@drawable/add_not_press"
+            android:layout_width="@dimen/back_icon_size"
+            android:layout_height="@dimen/back_icon_size"/>
+
+
+    </androidx.appcompat.widget.Toolbar>
+
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/photo_view_pager"
+        app:layout_constraintTop_toBottomOf="@id/photo_toolbar"
+        android:layout_marginTop="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/home_map_height"/>
+
+    <EditText
+        android:id="@+id/photo_edit_content"
+        android:hint="@string/description_place"
+        android:inputType="text"
+        app:layout_constraintTop_toBottomOf="@id/photo_view_pager"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:textSize="@dimen/normal_text_size"
+        android:padding="10dp"
+        android:background="@drawable/btn_record_not_press"
+        android:layout_marginTop="15dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/photo_btn_finish"
+        android:text="@string/finish_upload"
+        android:textSize="@dimen/big_text_size"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_selector"
+        app:layout_constraintTop_toBottomOf="@id/photo_edit_content"
+        android:layout_marginTop="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,4 +6,16 @@ public interface SingleViewVu {
     void setView(DataArray data);
 
     void closePage();
+
+    String getUserNickname();
+
+    void setHeartIcon(boolean isShow);
+
+    void setHeartCountLess();
+
+    void setHeartCountMore();
+
+    String getUserPhoto();
+
+    void update(String json);
 }

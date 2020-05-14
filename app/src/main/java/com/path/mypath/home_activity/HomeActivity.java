@@ -1,5 +1,6 @@
 package com.path.mypath.home_activity;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
@@ -8,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.ViewPager;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -16,11 +18,13 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.path.mypath.MainActivity;
 import com.path.mypath.R;
+import com.path.mypath.photo_activity.SelectPhotoActivity;
 import com.path.mypath.share_page.ShareActivity;
 
 import java.util.ArrayList;
@@ -39,7 +43,6 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityVu {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
 
         initPresenter();
         initView();
@@ -176,6 +179,56 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityVu {
         Intent it = new Intent(this, MainActivity.class);
         startActivity(it);
         finish();
+    }
+
+    @Override
+    public void showLogoutDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.information))
+                .setMessage(getString(R.string.confirm_to_logout))
+                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onLogoutConfirmClickListener();
+                    }
+                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void showModeSelectDialog() {
+        View view = View.inflate(this,R.layout.mode_select_dialog,null);
+        LinearLayout linPhoto = view.findViewById(R.id.mode_select_photo);
+        LinearLayout linPath = view.findViewById(R.id.mode_select_path);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view).create();
+        dialog.show();
+        linPath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onRecordPathClickListener();
+                dialog.dismiss();
+            }
+        });
+        linPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onUploadPhotoClickListener();
+                dialog.dismiss();
+            }
+        });
+    }
+
+    @Override
+    public void intentToSelectPhotoActivity() {
+        Intent it = new Intent(this, SelectPhotoActivity.class);
+        startActivity(it);
     }
 
     private View prepareView(Integer iconPress) {

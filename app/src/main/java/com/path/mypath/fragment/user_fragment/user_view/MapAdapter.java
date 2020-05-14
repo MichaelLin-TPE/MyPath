@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -19,8 +20,11 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.makeramen.roundedimageview.RoundedImageView;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
+import com.path.mypath.fragment.PhotoViewPagerAdapter;
+import com.path.mypath.tools.ImageLoaderProvider;
 
 import java.util.ArrayList;
 
@@ -38,7 +42,7 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
 
     private OnMapItemClickListener listener;
 
-    public void setOnMapItemClickListener(OnMapItemClickListener listener){
+    public void setOnMapItemClickListener(OnMapItemClickListener listener) {
         this.listener = listener;
     }
 
@@ -53,32 +57,81 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
 
         DataArray data = dataArray.get(position);
 
-        if (holder.mapView != null){
 
-            holder.mapView.onCreate(null);
-            holder.mapView.onResume();
-            holder.mapView.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap map) {
-                    PolylineOptions rectOptions = new PolylineOptions();
-                    //繪製路線
-                    ArrayList<LatLng> locationArray = data.getLocationArray();
-                    for (LatLng latLng : locationArray) {
-                        rectOptions.add(latLng).color(Color.RED);
-                    }
-                    holder.googleMap = map;
-                    holder.googleMap.addPolyline(rectOptions);
-                    holder.googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArray.get(data.getLocationArray().size() - 1)));
-                    holder.googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-                    holder.googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                        @Override
-                        public void onMapClick(LatLng latLng) {
-                            listener.onClick(data);
+        /**
+         * 這邊判斷要顯示MAP 還是 照片
+         *
+         */
+        if (data.getLocationArray() != null && data.getLocationArray().size() != 0) {
+            holder.mapView.setVisibility(View.VISIBLE);
+            holder.ivPhoto.setVisibility(View.GONE);
+            //設定MAP
+            if (holder.mapView != null) {
+                holder.mapView.onCreate(null);
+                holder.mapView.onResume();
+                holder.mapView.getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(GoogleMap googleMap) {
+                        PolylineOptions rectOptions = new PolylineOptions();
+                        //繪製路線
+
+                        ArrayList<LatLng> locationArray = data.getLocationArray();
+
+                        for (LatLng latLng : locationArray) {
+                            rectOptions.add(latLng).color(Color.RED);
                         }
-                    });
+                        googleMap.addPolyline(rectOptions);
+                        int centerIndex = locationArray.size() / 2;
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArray.get(centerIndex)));
+                        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+                        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                            @Override
+                            public void onMapClick(LatLng latLng) {
+                                listener.onClick(data);
+                            }
+                        });
+                    }
+                });
+            }
+        } else if (data.getPhotoArray() != null && data.getPhotoArray() != null) {
+            holder.mapView.setVisibility(View.GONE);
+            holder.ivPhoto.setVisibility(View.VISIBLE);
+            ImageLoaderProvider.getInstance(context).setImage(data.getPhotoArray().get(0),holder.ivPhoto);
+            holder.ivPhoto.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onClick(data);
                 }
             });
         }
+
+
+//        if (holder.mapView != null){
+//
+//            holder.mapView.onCreate(null);
+//            holder.mapView.onResume();
+//            holder.mapView.getMapAsync(new OnMapReadyCallback() {
+//                @Override
+//                public void onMapReady(GoogleMap map) {
+//                    PolylineOptions rectOptions = new PolylineOptions();
+//                    //繪製路線
+//                    ArrayList<LatLng> locationArray = data.getLocationArray();
+//                    for (LatLng latLng : locationArray) {
+//                        rectOptions.add(latLng).color(Color.RED);
+//                    }
+//                    holder.googleMap = map;
+//                    holder.googleMap.addPolyline(rectOptions);
+//                    holder.googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArray.get(data.getLocationArray().size() - 1)));
+//                    holder.googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+//                    holder.googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+//                        @Override
+//                        public void onMapClick(LatLng latLng) {
+//                            listener.onClick(data);
+//                        }
+//                    });
+//                }
+//            });
+//        }
 
 
     }
@@ -96,11 +149,13 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
 
         private ConstraintLayout itemLayout;
 
+        private RoundedImageView ivPhoto;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             itemLayout = itemView.findViewById(R.id.map_layout);
             mapView = itemView.findViewById(R.id.map_item);
-
+            ivPhoto = itemView.findViewById(R.id.map_photo);
             //設定框框大小
 
             DisplayMetrics metrics = context.getResources().getDisplayMetrics();
@@ -113,8 +168,8 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
             //強轉int
             int pix = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, singleItemDb, context.getResources().getDisplayMetrics());
 
-            Log.i("Michael","強轉後的DB 為 : "+pix);
-            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(pix,pix);
+            Log.i("Michael", "強轉後的DB 為 : " + pix);
+            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(pix, pix);
             itemLayout.setLayoutParams(params);
 
             if (mapView != null) {
@@ -141,7 +196,7 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
         }
     }
 
-    public interface OnMapItemClickListener{
+    public interface OnMapItemClickListener {
         void onClick(DataArray locationArray);
     }
 }

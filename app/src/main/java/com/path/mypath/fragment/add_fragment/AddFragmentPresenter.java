@@ -8,4 +8,6 @@ public interface AddFragmentPresenter {
     void onCatchPublicDataSuccessful(String json);
 
     void onMapItemClickListener(DataArray locationData);
+
+    void onCatchHomeDataSuccess(String json);
 }

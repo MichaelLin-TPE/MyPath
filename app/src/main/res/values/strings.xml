@@ -33,4 +33,12 @@
     <string name="set_public_confirm">是否將此筆路徑設成公開(所有人都看得見)</string>
     <string name="public_confirm">設成公開</string>
     <string name="is_recording">目前正在錄製中,如果退出此頁面,錄製將會取消唷...</string>
+    <string name="confirm_to_logout">確認是否要登出?</string>
+    <string name="upload_photo">上傳照片</string>
+    <string name="upload_path">開啟記錄路徑</string>
+    <string name="private_data">私人</string>
+    <string name="finish_upload">完成編輯</string>
+    <string name="public_data">公開</string>
+    <string name="confirm_public_or_private">確認上傳資料要公開還是私人?</string>
+    <string name="chasing">追蹤</string>
 </resources>

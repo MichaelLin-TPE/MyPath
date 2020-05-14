@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -62,6 +63,13 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
         holder.tvTime.setText(new SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN).format(new Date(itemData.getCurrentTime())));
         holder.tvContent.setText(String.format(Locale.getDefault(), "%s : %s", itemData.getUserNickName(), itemData.getArticleTitle()));
         holder.tvHeartCount.setText(String.format(Locale.getDefault(), "%d 個讚", itemData.getHeartCount()));
+        if (itemData.getDistance() == 0){
+            holder.tvDistance.setVisibility(View.GONE);
+        }else {
+            holder.tvDistance.setVisibility(View.VISIBLE);
+            holder.tvDistance.setText(String.format(Locale.getDefault(),"#移動 %1$,.2f 公尺",itemData.getDistance()));
+        }
+
         boolean isCheck = false;
         //判斷是否有按過讚
         if (itemData.getHeartPressUsers() != null && itemData.getHeartPressUsers().size() == 0) {
@@ -85,27 +93,54 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
             }
 
         }
-        //設定MAP
-        if (holder.mapView != null) {
-            holder.mapView.onCreate(null);
-            holder.mapView.onResume();
-            holder.mapView.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    PolylineOptions rectOptions = new PolylineOptions();
-                    //繪製路線
 
-                    ArrayList<LatLng> locationArray = itemData.getLocationArray();
+        /**
+         * 這邊判斷要顯示MAP 還是 照片
+         *
+         */
+        if (itemData.getLocationArray() != null && itemData.getLocationArray().size() != 0){
+            holder.mapView.setVisibility(View.VISIBLE);
+            holder.viewPager.setVisibility(View.GONE);
+            //設定MAP
+            if (holder.mapView != null) {
+                holder.mapView.onCreate(null);
+                holder.mapView.onResume();
+                holder.mapView.getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(GoogleMap googleMap) {
+                        PolylineOptions rectOptions = new PolylineOptions();
+                        //繪製路線
 
-                    for (LatLng latLng : locationArray) {
-                        rectOptions.add(latLng).color(Color.RED);
+                        ArrayList<LatLng> locationArray = itemData.getLocationArray();
+
+                        for (LatLng latLng : locationArray) {
+                            rectOptions.add(latLng).color(Color.RED);
+                        }
+                        googleMap.addPolyline(rectOptions);
+                        int centerIndex = itemData.getLocationArray().size() / 2;
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArray.get(centerIndex)));
+                        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
                     }
-                    googleMap.addPolyline(rectOptions);
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArray.get(itemData.getLocationArray().size() - 1)));
-                    googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+                });
+            }
+        }else if (itemData.getPhotoArray() != null){
+            holder.mapView.setVisibility(View.INVISIBLE);
+            holder.viewPager.setVisibility(View.VISIBLE);
+            PhotoViewPagerAdapter adapter = new PhotoViewPagerAdapter(context,itemData.getPhotoArray());
+            holder.viewPager.setAdapter(adapter);
+            adapter.setOnPhotoClickListener(new PhotoViewPagerAdapter.OnPhotoClickListener() {
+                @Override
+                public void onClick() {
+
                 }
             });
         }
+
+
+
+        /**
+         * 以下是點擊事件
+         */
 
         holder.ivHeart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,14 +206,17 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
         private RoundedImageView ivPhoto;
 
-        private TextView tvName, tvTime, tvContent, tvHeartCount;
+        private TextView tvName, tvTime, tvContent, tvHeartCount,tvDistance;
 
         private ImageView ivHeart, ivReply, ivSend, ivSort;
 
         private MapView mapView;
 
+        private ViewPager viewPager;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            viewPager = itemView.findViewById(R.id.home_item_view_pager);
             ivPhoto = itemView.findViewById(R.id.home_item_photo);
             tvName = itemView.findViewById(R.id.home_item_name);
             tvTime = itemView.findViewById(R.id.home_item_time);
@@ -189,6 +227,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
             ivSend = itemView.findViewById(R.id.home_item_send);
             ivSort = itemView.findViewById(R.id.home_item_sort);
             mapView = itemView.findViewById(R.id.home_item_map_view);
+            tvDistance = itemView.findViewById(R.id.home_item_article_distance);
         }
     }
 

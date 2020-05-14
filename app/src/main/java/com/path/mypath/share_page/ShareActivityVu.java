@@ -21,8 +21,6 @@ public interface ShareActivityVu {
 
     void showToast(String message);
 
-    void searchCurrentUserData();
-
     String getUserNickname();
 
     String getUserPhotoUrl();
@@ -31,11 +29,8 @@ public interface ShareActivityVu {
 
     void setBtnStopEnable();
 
-    void searchPublicData(DataArray dataArray);
-
     void updatePublicJson(String pubJson);
 
-    void showPublicConfirmDialog(DataArray dataArray);
 
     void searchHomeData(DataArray dataArray);
 
@@ -46,4 +41,6 @@ public interface ShareActivityVu {
     void stopRecord();
 
     String getUserEmail();
+
+    void showDataModeDialog();
 }

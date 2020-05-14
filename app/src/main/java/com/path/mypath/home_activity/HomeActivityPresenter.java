@@ -8,4 +8,10 @@ public interface HomeActivityPresenter {
     void onAddIconClickListener();
 
     void onLogoutClickListener();
+
+    void onLogoutConfirmClickListener();
+
+    void onRecordPathClickListener();
+
+    void onUploadPhotoClickListener();
 }

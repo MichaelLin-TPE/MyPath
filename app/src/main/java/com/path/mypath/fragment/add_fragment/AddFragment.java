@@ -19,8 +19,11 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.fragment.user_fragment.user_view.MapAdapter;
@@ -44,6 +47,8 @@ public class AddFragment extends Fragment implements AddFragmentVu {
     private FirebaseFirestore firestore;
 
     private static final String PUBLIC_DATA = "public_data";
+
+    private static final String HOME_DATA = "home_data";
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -92,6 +97,23 @@ public class AddFragment extends Fragment implements AddFragmentVu {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        DocumentReference snapshot = firestore.collection(HOME_DATA).document(HOME_DATA);
+        snapshot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","搜尋頁面 蒐集資料失敗 : "+e.toString());
+                    return;
+                }
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("json");
+                    presenter.onCatchHomeDataSuccess(json);
+                }
+            }
+        });
+
+
         presenter.onShowPublicData();
     }
 

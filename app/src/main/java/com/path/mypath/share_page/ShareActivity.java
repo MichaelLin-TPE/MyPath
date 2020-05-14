@@ -1,6 +1,7 @@
 package com.path.mypath.share_page;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -40,8 +41,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.SetOptions;
 import com.path.mypath.MainActivity;
 import com.path.mypath.R;
@@ -106,6 +110,52 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
         initView();
         latLngArrayList = new ArrayList<>();
         verifyLocationPermissions(this);
+
+
+        DocumentReference userShot = firestore.collection(PERSONAL_DATA).document(UserDataProvider.getInstance(this).getUserEmail());
+        userShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","個人資料取得失敗 : "+e.toString());
+                    return;
+                }
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("user_json");
+                    presenter.onCatchUserDataSuccessful(json);
+                }
+            }
+        });
+        DocumentReference homeShot = firestore.collection(HOME_DATA).document(HOME_DATA);
+        homeShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","主資料取得失敗 : "+e.toString());
+                    return;
+                }
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("json");
+                    presenter.onCatchHomeDataSuccessful(json);
+                }
+            }
+        });
+        DocumentReference pubShot = firestore.collection(PUBLIC_DATA).document(PUBLIC_DATA);
+        pubShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","搜尋資料取得失敗 : "+e.toString());
+                    return;
+                }
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("public_json");
+                    presenter.onCatchSearchDataSuccessful(json);
+                }
+            }
+        });
+
+
     }
 
     @Override
@@ -180,7 +230,7 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     public void stopToRecordMyPath(String articleContent) {
         handler.removeCallbacks(recordPath);
 
-        presenter.onCatchCurrentUserData(articleContent,latLngArrayList);
+        presenter.onCatchCurrentUserData(articleContent,latLngArrayList,distance);
 
         Log.i("Michael", "停止錄製");
     }
@@ -276,28 +326,6 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    public void searchCurrentUserData() {
-        firestore.collection(PERSONAL_DATA)
-                .document(UserDataProvider.getInstance(this).getUserEmail())
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult() != null){
-                            DocumentSnapshot snapshot = task.getResult();
-                            String json = (String) snapshot.get("user_json");
-                            if (json != null){
-                                presenter.onCatchCurrentUserDataSuccessful(json);
-                            }else {
-                                Log.i("Michael","抓不到JSON");
-                            }
-                        }else {
-                            Log.i("Michael","firebase 連線失敗");
-                        }
-                    }
-                });
-    }
 
     @Override
     public String getUserNickname() {
@@ -334,26 +362,6 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
         btnStop.setEnabled(false);
     }
 
-    @Override
-    public void searchPublicData(DataArray dataArray) {
-        firestore.collection(PUBLIC_DATA)
-                .document(PUBLIC_DATA)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult() != null){
-                            DocumentSnapshot snapshot = task.getResult();
-                            String json = (String) snapshot.get("public_json");
-                            if (json != null){
-                                presenter.onCatchPublicJson(json,dataArray);
-                            }else {
-                                presenter.onCatchNoPublicJson(dataArray);
-                            }
-                        }
-                    }
-                });
-    }
 
     @Override
     public void updatePublicJson(String pubJson) {
@@ -372,24 +380,6 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
                 });
     }
 
-    @Override
-    public void showPublicConfirmDialog(DataArray dataArray) {
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.information))
-                .setMessage(getString(R.string.set_public_confirm))
-                .setPositiveButton(getString(R.string.public_confirm), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        presenter.onPublicConfirmClickListener(dataArray);
-                    }
-                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }).create();
-        dialog.show();
-    }
 
     @Override
     public void searchHomeData(DataArray dataArray) {
@@ -454,6 +444,26 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
     @Override
     public String getUserEmail() {
         return UserDataProvider.getInstance(this).getUserEmail();
+    }
+
+    @Override
+    public void showDataModeDialog() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.information))
+                .setMessage(getString(R.string.confirm_public_or_private))
+                .setCancelable(false)
+                .setPositiveButton(getString(R.string.public_data), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onPublicButtonClickListener();
+                    }
+                }).setNegativeButton(getString(R.string.private_data), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onPrivateButtonClickListener();
+                    }
+                }).create();
+        dialog.show();
     }
 
     @Override

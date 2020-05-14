@@ -9,6 +9,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DataArray implements Parcelable {
     @SerializedName("location_array")
@@ -31,82 +32,16 @@ public class DataArray implements Parcelable {
     private ArrayList<DataUserPresHeart> heartPressUsers;
     @SerializedName("user_email")
     private String userEmail;
+    @SerializedName("distance")
+    private double distance;
+    @SerializedName("photo_array")
+    private ArrayList<String> photoArray;
 
-    public static Creator<DataArray> getCREATOR() {
-        return CREATOR;
-    }
-
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        @Override
-        public DataArray createFromParcel(Parcel in) {
-            DataArray data = new DataArray();
-            data.setLocationArray(in.readArrayList(LatLng.class.getClassLoader()));
-            data.setCurrentTime(in.readLong());
-            data.setUserNickName(in.readString());
-            data.setUserPhoto(in.readString());
-            data.setHeartCount(in.readInt());
-            data.setReplyCount(in.readInt());
-            data.setReplyArray(in.readArrayList(DataReply.class.getClassLoader()));
-            data.setArticleTitle(in.readString());
-            data.setHeartPressUsers(in.readArrayList(DataUserPresHeart.class.getClassLoader()));
-            data.setUserEmail(in.readString());
-            return data;
-        }
-
-        @Override
-        public DataArray[] newArray(int size) {
-            return new DataArray[size];
-        }
-    };
-
-    public DataArray() {
+    public DataArray(){
 
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeList(locationArray);
-        dest.writeLong(currentTime);
-        dest.writeString(userNickName);
-        dest.writeString(userPhoto);
-        dest.writeInt(heartCount);
-        dest.writeInt(replyCount);
-        dest.writeList(replyArray);
-        dest.writeString(articleTitle);
-        dest.writeList(heartPressUsers);
-        dest.writeString(userEmail);
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
-    public ArrayList getHeartPressUsers() {
-        return heartPressUsers;
-    }
-
-    public void setHeartPressUsers(ArrayList<DataUserPresHeart> heartPressUsers) {
-        this.heartPressUsers = heartPressUsers;
-    }
-
-    public String getArticleTitle() {
-        return articleTitle;
-    }
-
-    public void setArticleTitle(String articleTitle) {
-        this.articleTitle = articleTitle;
-    }
-
-    public ArrayList getLocationArray() {
+    public ArrayList<LatLng> getLocationArray() {
         return locationArray;
     }
 
@@ -154,7 +89,7 @@ public class DataArray implements Parcelable {
         this.replyCount = replyCount;
     }
 
-    public ArrayList getReplyArray() {
+    public ArrayList<DataReply> getReplyArray() {
         return replyArray;
     }
 
@@ -162,5 +97,136 @@ public class DataArray implements Parcelable {
         this.replyArray = replyArray;
     }
 
+    public String getArticleTitle() {
+        return articleTitle;
+    }
 
+    public void setArticleTitle(String articleTitle) {
+        this.articleTitle = articleTitle;
+    }
+
+    public ArrayList<DataUserPresHeart> getHeartPressUsers() {
+        return heartPressUsers;
+    }
+
+    public void setHeartPressUsers(ArrayList<DataUserPresHeart> heartPressUsers) {
+        this.heartPressUsers = heartPressUsers;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public ArrayList<String> getPhotoArray() {
+        return photoArray;
+    }
+
+    public void setPhotoArray(ArrayList<String> photoArray) {
+        this.photoArray = photoArray;
+    }
+
+    public static Creator<DataArray> getCREATOR() {
+        return CREATOR;
+    }
+
+    protected DataArray(Parcel in) {
+        if (in.readByte() == 0x01) {
+            locationArray = new ArrayList<LatLng>();
+            in.readList(locationArray, LatLng.class.getClassLoader());
+        } else {
+            locationArray = null;
+        }
+        currentTime = in.readLong();
+        userNickName = in.readString();
+        userPhoto = in.readString();
+        heartCount = in.readInt();
+        replyCount = in.readInt();
+        if (in.readByte() == 0x01) {
+            replyArray = new ArrayList<DataReply>();
+            in.readList(replyArray, DataReply.class.getClassLoader());
+        } else {
+            replyArray = null;
+        }
+        articleTitle = in.readString();
+        if (in.readByte() == 0x01) {
+            heartPressUsers = new ArrayList<DataUserPresHeart>();
+            in.readList(heartPressUsers, DataUserPresHeart.class.getClassLoader());
+        } else {
+            heartPressUsers = null;
+        }
+        userEmail = in.readString();
+        distance = in.readDouble();
+        if (in.readByte() == 0x01) {
+            photoArray = new ArrayList<String>();
+            in.readList(photoArray, String.class.getClassLoader());
+        } else {
+            photoArray = null;
+        }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        if (locationArray == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(locationArray);
+        }
+        dest.writeLong(currentTime);
+        dest.writeString(userNickName);
+        dest.writeString(userPhoto);
+        dest.writeInt(heartCount);
+        dest.writeInt(replyCount);
+        if (replyArray == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(replyArray);
+        }
+        dest.writeString(articleTitle);
+        if (heartPressUsers == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(heartPressUsers);
+        }
+        dest.writeString(userEmail);
+        dest.writeDouble(distance);
+        if (photoArray == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(photoArray);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<DataArray> CREATOR = new Parcelable.Creator<DataArray>() {
+        @Override
+        public DataArray createFromParcel(Parcel in) {
+            return new DataArray(in);
+        }
+
+        @Override
+        public DataArray[] newArray(int size) {
+            return new DataArray[size];
+        }
+    };
 }

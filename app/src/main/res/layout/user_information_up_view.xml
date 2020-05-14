@@ -110,7 +110,7 @@
 
     <TextView
         android:textColor="@color/white"
-        android:text="@string/friend"
+        android:text="@string/chasing"
         tools:textColor="@color/black"
         android:textSize="@dimen/big_text_size"
         app:layout_constraintTop_toBottomOf="@id/user_chasing_count"

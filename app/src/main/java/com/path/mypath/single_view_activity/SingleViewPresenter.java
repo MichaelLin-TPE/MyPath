@@ -6,4 +6,8 @@ public interface SingleViewPresenter {
     void onCatchData(DataArray data);
 
     void onBackButtonClickListener();
+
+    void onCatchHomeDataSuccessful(String json);
+
+    void onHeartButtonClickListener(DataArray data);
 }

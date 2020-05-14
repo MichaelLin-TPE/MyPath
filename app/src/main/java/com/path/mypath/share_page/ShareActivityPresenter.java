@@ -20,23 +20,25 @@ public interface ShareActivityPresenter {
 
     void onFinishRecordConfimClickListener(String articleContent);
 
-    void onCatchCurrentUserData(String articleContent, ArrayList<LatLng> latLngArrayList);
-
-    void onCatchCurrentUserDataSuccessful(String json);
+    void onCatchCurrentUserData(String articleContent, ArrayList<LatLng> latLngArrayList, double distance);
 
     void onUpdateUserDataSuccessful();
 
     void onUpdateUserDataFailure();
-
-    void onCatchPublicJson(String json, DataArray dataArray);
-
-    void onCatchNoPublicJson(DataArray dataArray);
-
-    void onPublicConfirmClickListener(DataArray dataArray);
 
     void onCatchHomeData(String json, DataArray dataArray);
 
     void onUpdateHomeDataSuccessful();
 
     void onBackConfirmClickListener();
+
+    void onPublicButtonClickListener();
+
+    void onPrivateButtonClickListener();
+
+    void onCatchUserDataSuccessful(String json);
+
+    void onCatchHomeDataSuccessful(String json);
+
+    void onCatchSearchDataSuccessful(String json);
 }

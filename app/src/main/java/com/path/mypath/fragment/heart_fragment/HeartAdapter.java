@@ -71,6 +71,8 @@ public class HeartAdapter extends RecyclerView.Adapter<HeartAdapter.ViewHolder> 
 
         private RoundedImageView ivPhoto;
 
+
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvSecond = itemView.findViewById(R.id.heart_item_second);

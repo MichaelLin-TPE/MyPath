@@ -13,6 +13,8 @@ public class AddFragmentPresenterImpl implements AddFragmentPresenter {
 
     private Gson gson;
 
+    private ArrayList<DataArray> dataArray;
+
     public AddFragmentPresenterImpl(AddFragmentVu mView) {
         this.mView = mView;
         gson = new Gson();
@@ -33,6 +35,23 @@ public class AddFragmentPresenterImpl implements AddFragmentPresenter {
 
     @Override
     public void onMapItemClickListener(DataArray locationData) {
-        mView.intentToSingleViewActivity(locationData);
+        boolean isDataFound = false;
+        for (DataArray data : dataArray){
+            if (data.getArticleTitle().equals(locationData.getArticleTitle()) && data.getCurrentTime() == locationData.getCurrentTime()){
+                mView.intentToSingleViewActivity(data);
+                isDataFound = true;
+                break;
+            }
+        }
+        if (!isDataFound){
+            mView.intentToSingleViewActivity(locationData);
+        }
+
+
+    }
+
+    @Override
+    public void onCatchHomeDataSuccess(String json) {
+        dataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
     }
 }

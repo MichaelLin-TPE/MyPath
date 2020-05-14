@@ -23,6 +23,12 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
 
     private boolean isRecording;
 
+    private double distance;
+
+    private DataObject userData;
+
+    private ArrayList<DataArray> homeDataArray,searchDataArray;
+
     public ShareActivityPresenterImpl(ShareActivityVu mView) {
         this.mView = mView;
         gson = new Gson();
@@ -84,92 +90,27 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
     }
 
     @Override
-    public void onCatchCurrentUserData(String articleContent, ArrayList<LatLng> latLngArrayList) {
+    public void onCatchCurrentUserData(String articleContent, ArrayList<LatLng> latLngArrayList, double distance) {
         this.articleContent = articleContent;
         this.latLngArrayList = latLngArrayList;
+        this.distance = distance;
         mView.setBtnStartEnable(true);
-        mView.searchCurrentUserData();
+        mView.showDataModeDialog();
     }
 
-    @Override
-    public void onCatchCurrentUserDataSuccessful(String json) {
-        DataObject data = gson.fromJson(json,DataObject.class);
-        if (data != null){
-            DataArray dataArray = new DataArray();
-            dataArray.setArticleTitle(articleContent);
-            dataArray.setLocationArray(latLngArrayList);
-            dataArray.setCurrentTime(System.currentTimeMillis());
-            dataArray.setUserNickName(mView.getUserNickname());
-            dataArray.setUserPhoto(mView.getUserPhotoUrl());
-            dataArray.setUserEmail(mView.getUserEmail());
-            dataArray.setHeartCount(0);
-            dataArray.setReplyCount(0);
-            dataArray.setHeartPressUsers(new ArrayList<>());
-            dataArray.setReplyArray(new ArrayList<>());
-            ArrayList<DataArray> dataArrays = new ArrayList<>();
-            dataArrays.add(dataArray);
-            if (data.getDataArray() == null || data.getDataArray().size() == 0){
-                data.setDataArray(dataArrays);
-            }else {
-                data.getDataArray().add(dataArray);
-            }
-            int articleCount = data.getDataArray().size();
-            data.setArticleCount(articleCount);
-            String newJson = gson.toJson(data);
-            if (newJson != null){
-                mView.updateUserData(newJson);
-            }
-            mView.searchPublicData(dataArray);
-            mView.showPublicConfirmDialog(dataArray);
-        }
-    }
+
 
     @Override
     public void onUpdateUserDataSuccessful() {
         message = "新增成功";
         mView.showToast(message);
+        mView.closePage();
     }
 
     @Override
     public void onUpdateUserDataFailure() {
         message = "資料新增失敗,請確認網路狀態再重新試一次.";
         mView.showToast(message);
-    }
-
-    @Override
-    public void onCatchPublicJson(String json, DataArray data) {
-        ArrayList<DataArray> dataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
-        boolean isDataChange = false;
-        if (dataArray != null && dataArray.size() != 0){
-            for (int i = 0 ; i < dataArray.size() ; i ++){
-                if (dataArray.get(i).getUserNickName().equals(data.getUserNickName())){
-                    dataArray.set(i,data);
-                    isDataChange = true;
-                    break;
-                }
-            }
-            if (isDataChange){
-                String pubJson = gson.toJson(dataArray);
-                mView.updatePublicJson(pubJson);
-            }else {
-                dataArray.add(data);
-                String pubJson = gson.toJson(dataArray);
-                mView.updatePublicJson(pubJson);
-            }
-        }
-    }
-
-    @Override
-    public void onCatchNoPublicJson(DataArray dataArray) {
-        ArrayList<DataArray> dataArrayList = new ArrayList<>();
-        dataArrayList.add(dataArray);
-        String json = gson.toJson(dataArrayList);
-        mView.updatePublicJson(json);
-    }
-
-    @Override
-    public void onPublicConfirmClickListener(DataArray dataArray) {
-        mView.searchHomeData(dataArray);
     }
 
     @Override
@@ -198,5 +139,117 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
         mView.stopRecord();
         mView.closePage();
 
+    }
+
+    @Override
+    public void onPublicButtonClickListener() {
+        //公開
+        DataArray dataArray = new DataArray();
+        dataArray.setArticleTitle(articleContent);
+        dataArray.setLocationArray(latLngArrayList);
+        dataArray.setCurrentTime(System.currentTimeMillis());
+        dataArray.setUserNickName(mView.getUserNickname());
+        dataArray.setUserPhoto(mView.getUserPhotoUrl());
+        dataArray.setUserEmail(mView.getUserEmail());
+        dataArray.setHeartCount(0);
+        dataArray.setReplyCount(0);
+        dataArray.setDistance(distance);
+        dataArray.setPhotoArray(new ArrayList<>());
+        dataArray.setHeartPressUsers(new ArrayList<>());
+        dataArray.setReplyArray(new ArrayList<>());
+
+        //主資料更新
+        if (homeDataArray != null && homeDataArray.size() != 0){
+            homeDataArray.add(dataArray);
+        }else {
+            homeDataArray = new ArrayList<>();
+            homeDataArray.add(dataArray);
+        }
+        String json = gson.toJson(homeDataArray);
+        mView.updateHomeData(json);
+
+
+        //搜尋資料更新
+        if (searchDataArray != null && searchDataArray.size() != 0){
+            int index = 0;
+            for (DataArray data : searchDataArray){
+                if (data.getUserNickName().equals(mView.getUserNickname())){
+                    searchDataArray.set(index,dataArray);
+                }
+                index++;
+            }
+        }else {
+            searchDataArray = new ArrayList<>();
+            searchDataArray.add(dataArray);
+        }
+        String searchJson = gson.toJson(searchDataArray);
+        mView.updatePublicJson(searchJson);
+
+        //個人資料更新
+        if (userData != null && userData.getDataArray() != null && userData.getDataArray().size() != 0){
+            userData.getDataArray().add(dataArray);
+        }else {
+            ArrayList<DataArray> dataArrays = new ArrayList<>();
+            dataArrays.add(dataArray);
+            userData.setDataArray(dataArrays);
+        }
+
+        int articleCount = userData.getArticleCount() + 1;
+        userData.setArticleCount(articleCount);
+
+        String userJson = gson.toJson(userData);
+        mView.updateUserData(userJson);
+    }
+
+    @Override
+    public void onPrivateButtonClickListener() {
+        //私人
+        DataArray dataArray = new DataArray();
+        dataArray.setArticleTitle(articleContent);
+        dataArray.setLocationArray(latLngArrayList);
+        dataArray.setCurrentTime(System.currentTimeMillis());
+        dataArray.setUserNickName(mView.getUserNickname());
+        dataArray.setUserPhoto(mView.getUserPhotoUrl());
+        dataArray.setUserEmail(mView.getUserEmail());
+        dataArray.setHeartCount(0);
+        dataArray.setReplyCount(0);
+        dataArray.setDistance(distance);
+        dataArray.setPhotoArray(new ArrayList<>());
+        dataArray.setHeartPressUsers(new ArrayList<>());
+        dataArray.setReplyArray(new ArrayList<>());
+        if (userData != null && userData.getDataArray() != null && userData.getDataArray().size() != 0){
+            userData.getDataArray().add(dataArray);
+        }else {
+            ArrayList<DataArray> dataArrays = new ArrayList<>();
+            dataArrays.add(dataArray);
+            userData.setDataArray(dataArrays);
+        }
+
+        int articleCount = userData.getArticleCount() + 1;
+        userData.setArticleCount(articleCount);
+
+        String json = gson.toJson(userData);
+        mView.updateUserData(json);
+    }
+
+    @Override
+    public void onCatchUserDataSuccessful(String json) {
+        if (json != null){
+            userData = gson.fromJson(json,DataObject.class);
+        }
+    }
+
+    @Override
+    public void onCatchHomeDataSuccessful(String json) {
+        if (json != null){
+            homeDataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
+        }
+    }
+
+    @Override
+    public void onCatchSearchDataSuccessful(String json) {
+        if (json != null){
+            searchDataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
+        }
     }
 }

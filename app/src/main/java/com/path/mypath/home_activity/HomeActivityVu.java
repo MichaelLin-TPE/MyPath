@@ -10,4 +10,10 @@ public interface HomeActivityVu {
     void intentToShareActivity();
 
     void googleLogout();
+
+    void showLogoutDialog();
+
+    void showModeSelectDialog();
+
+    void intentToSelectPhotoActivity();
 }
