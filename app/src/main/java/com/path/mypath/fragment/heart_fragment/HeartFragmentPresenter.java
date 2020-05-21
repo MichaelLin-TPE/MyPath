@@ -8,4 +8,12 @@ public interface HeartFragmentPresenter {
     void onCatchHomeDataSuccessful(String json);
 
     void onHeartLikeItemClickListener(ArticleLikeNotification data);
+
+    void onCancelButtonClickListener(ArticleLikeNotification data);
+
+    void onAcceptButtonClickListener(ArticleLikeNotification data);
+
+    void onCatchUserDataSuccessful(String json);
+
+    void onCatchFansData(String json, ArticleLikeNotification data);
 }

@@ -4,8 +4,12 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.path.mypath.data_parser.ArticleLikeNotification;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
+import com.path.mypath.data_parser.DataReply;
+import com.path.mypath.data_parser.DataUserPresHeart;
+import com.path.mypath.fragment.FansData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +25,8 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
     private String message;
 
     private ArrayList<DataArray> dataArray;
+
+    private ArrayList<ArticleLikeNotification> likeArray;
 
     public UserFragmentPresenterImpl(UserFragmentVu mView) {
         this.mView = mView;
@@ -112,5 +118,124 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
     public void onCatchHomeDataSuccessful(String json) {
         //取得所有資料
         dataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
+    }
+
+    @Override
+    public void onEditNicknameClickListener() {
+        mView.showEditNicknameDialog();
+    }
+
+    @Override
+    public void onEditConfirmClickListener(String nickname, String oldNickname) {
+        //更改personal data 的 array
+        if (data != null){
+            data.setUserNickname(nickname);
+            for (DataArray object : data.getDataArray()){
+                if (object.getUserNickName().equals(oldNickname)){
+                    object.setUserNickName(nickname);
+                }
+                if (object.getReplyCount() != 0){
+                    for (DataReply reply : object.getReplyArray()){
+                        if (reply.getNickname().equals(oldNickname)){
+                            reply.setNickname(nickname);
+                        }
+                    }
+                }
+            }
+            //更改粉絲名單
+            if (data.getFansArray() != null && data.getFansArray().size() != 0){
+                for (FansData object : data.getFansArray()){
+                    if (object.getNickname().equals(oldNickname)){
+                        object.setNickname(nickname);
+                    }
+                }
+            }
+            //更改追蹤名單
+            if (data.getChaseArray() != null && data.getChaseArray().size() != 0){
+                for (FansData object : data.getChaseArray()){
+                    if (object.getNickname().equals(oldNickname)){
+                        object.setNickname(nickname);
+                    }
+                }
+            }
+
+            String newJson = gson.toJson(data);
+            mView.updateUserData(newJson,nickname);
+            mView.updatePersonalData(newJson);
+        }
+
+
+
+
+        //更新 home data
+        if (dataArray != null){
+            for (DataArray object : dataArray){
+                if (object.getUserNickName().equals(oldNickname)){
+                    object.setUserNickName(nickname);
+                }
+                if (object.getReplyCount() != 0){
+                    for (DataReply reply : object.getReplyArray()){
+                        if (reply.getNickname().equals(oldNickname)){
+                            reply.setNickname(nickname);
+                        }
+                    }
+                }
+                if (object.getHeartCount() != 0){
+                    for (DataUserPresHeart heart : object.getHeartPressUsers()){
+                        if (heart.getName().equals(oldNickname)){
+                            heart.setName(nickname);
+                        }
+                    }
+                }
+            }
+
+            String homeJson = gson.toJson(dataArray);
+            mView.updateHomeData(homeJson);
+        }
+
+        //更改 user like data
+        if (likeArray != null){
+            for (ArticleLikeNotification object : likeArray){
+                if (object.getUserNickname().equals(oldNickname)){
+                    object.setUserNickname(nickname);
+                }
+                if (object.getArticleCreatorName().equals(oldNickname)){
+                    object.setArticleCreatorName(nickname);
+                }
+            }
+            String likeJson = gson.toJson(likeArray);
+            mView.updateLikeData(likeJson);
+        }
+    }
+
+    @Override
+    public void onEditSentenceClickListener() {
+        mView.showEditSentenceDialog();
+    }
+
+    @Override
+    public void onEditSentenceConfirmClickListener(String sentence) {
+        if (data != null){
+            data.setSentence(sentence);
+            String json = gson.toJson(data);
+            mView.updateUserDataSentence(json,sentence);
+        }
+    }
+
+    @Override
+    public void onCatchLikeDataSuccess(String json) {
+        if (json != null){
+            likeArray = gson.fromJson(json,new TypeToken<List<ArticleLikeNotification>>(){}.getType());
+        }
+    }
+
+    @Override
+    public void onLogoutClickListener() {
+        mView.showLogoutConfirmDialog();
+    }
+
+    @Override
+    public void onLogoutConfirmClickListener() {
+        mView.logout();
     }
 }

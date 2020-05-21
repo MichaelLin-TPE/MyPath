@@ -18,23 +18,25 @@ public class EditActivityPresenterImpl implements EditActivityPresenter {
 
     private String message;
 
+    private boolean isPublicAccount;
+
     public EditActivityPresenterImpl(EditActivityVu mView) {
         this.mView = mView;
     }
 
     @Override
     public void onSaveButtonClickListener(String nickname, String sentence, String email) {
-        if (nickname == null){
+        if (nickname == null || nickname.isEmpty()){
             message = "請輸入暱稱";
             mView.showToast(message);
             return;
         }
-        if (sentence == null){
+        if (sentence == null || sentence.isEmpty()){
             message = "請輸入你的座右銘";
             mView.showToast(message);
             return;
         }
-        if (downloadUrl == null){
+        if (downloadUrl == null || downloadUrl.isEmpty()){
             message = "新增一張照片來增加豐富度呀~";
             mView.showToast(message);
             return;
@@ -53,6 +55,11 @@ public class EditActivityPresenterImpl implements EditActivityPresenter {
         data.setFriendCount(0);
         data.setUserNickname(nickname);
         data.setUserPhoto(downloadUrl);
+        data.setChaseArray(new ArrayList<>());
+        data.setFansArray(new ArrayList<>());
+        data.setSentence(sentence);
+        data.setEmail(email);
+        data.setPublicAccount(isPublicAccount);
         Gson gson = new Gson();
         String userJson = gson.toJson(data);
         Map<String,Object> mapJson = new HashMap<>();
@@ -80,5 +87,17 @@ public class EditActivityPresenterImpl implements EditActivityPresenter {
     @Override
     public void onDataUpdateSuccessfulListener() {
         mView.intentToShareActivity();
+    }
+
+    @Override
+    public void onCatchAccountMode(boolean isChecked) {
+        isPublicAccount = isChecked;
+        if (isChecked){
+            message = "公開";
+            mView.setAccountInfo(message);
+        }else {
+            message = "私人";
+            mView.setAccountInfo(message);
+        }
     }
 }

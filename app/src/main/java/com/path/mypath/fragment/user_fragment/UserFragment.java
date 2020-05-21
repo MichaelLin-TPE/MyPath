@@ -1,6 +1,8 @@
 package com.path.mypath.fragment.user_fragment;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -17,8 +19,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,6 +44,7 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
+import com.path.mypath.MainActivity;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
@@ -75,6 +82,8 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     private static final String PERSONAL_DATA = "personal_data";
 
     private static final String HOME_DATA = "home_data";
+
+    private GoogleSignInClient googleSignInClient;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -149,12 +158,27 @@ public class UserFragment extends Fragment implements UserFragmentVu {
                 @Override
                 public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                     if (e != null){
-                        Log.i("Michael","LIKE DATA 取得資料失敗 : "+e.toString());
+                        Log.i("Michael","HOME DATA 取得資料失敗 : "+e.toString());
                         return;
                     }
                     if (documentSnapshot != null){
                         String json = (String) documentSnapshot.get("json");
                         presenter.onCatchHomeDataSuccessful(json);
+                    }
+                }
+            });
+
+            DocumentReference likeShot = firestore.collection("user_like").document(UserDataProvider.getInstance(context).getUserEmail());
+            likeShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                    if (e != null){
+                        Log.i("Michael","LIKE DATA 取得資料失敗 : "+e.toString());
+                        return;
+                    }
+                    if (documentSnapshot != null){
+                        String json = (String) documentSnapshot.get("json");
+                        presenter.onCatchLikeDataSuccess(json);
                     }
                 }
             });
@@ -202,6 +226,21 @@ public class UserFragment extends Fragment implements UserFragmentVu {
             @Override
             public void onEditBtnClick() {
 
+            }
+
+            @Override
+            public void onEditNicknameClick() {
+                presenter.onEditNicknameClickListener();
+            }
+
+            @Override
+            public void onEditSentenceClick() {
+                presenter.onEditSentenceClickListener();
+            }
+
+            @Override
+            public void onLogoutClick() {
+                presenter.onLogoutClickListener();
             }
         });
         //下半部VIEW的點擊事件
@@ -339,5 +378,153 @@ public class UserFragment extends Fragment implements UserFragmentVu {
         firestore.collection(HOME_DATA)
                 .document(HOME_DATA)
                 .set(map,SetOptions.merge());
+    }
+
+    @Override
+    public void showEditNicknameDialog() {
+        EditText editText = new EditText(context);
+        editText.setHint(getString(R.string.enter_nickname));
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle(getString(R.string.edit_personal_info))
+                .setView(editText)
+                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onEditConfirmClickListener(editText.getText().toString(),UserDataProvider.getInstance(context).getUserNickname());
+                    }
+                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void showEditSentenceDialog() {
+        EditText editText = new EditText(context);
+        editText.setHint(getString(R.string.enter_sentence));
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle(getString(R.string.edit_personal_info))
+                .setView(editText)
+                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.onEditSentenceConfirmClickListener(editText.getText().toString());
+                    }
+                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void updateUserData(String newJson, String nickname) {
+        UserDataProvider.getInstance(context).saveUserNickname(nickname);
+        Map<String,Object> map = new HashMap<>();
+        map.put("display_name",nickname);
+        firestore.collection("user")
+                .document(UserDataProvider.getInstance(context).getUserEmail())
+                .set(map,SetOptions.merge());
+        Log.i("Michael","user data update successful");
+
+    }
+
+    @Override
+    public void updatePersonalData(String newJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("user_json",newJson);
+        firestore.collection(PERSONAL_DATA)
+                .document(UserDataProvider.getInstance(context).getUserEmail())
+                .set(map,SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","personal data update success");
+                        }
+                    }
+                });
+
+    }
+
+    @Override
+    public void updateLikeData(String likeJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("json",likeJson);
+        firestore.collection("user_like")
+                .document(UserDataProvider.getInstance(context).getUserEmail())
+                .set(map,SetOptions.merge());
+        Log.i("Michael","like data update success");
+    }
+
+    @Override
+    public void updateUserDataSentence(String json, String sentence) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("user_json",json);
+        firestore.collection(PERSONAL_DATA)
+                .document(UserDataProvider.getInstance(context).getUserEmail())
+                .set(map,SetOptions.merge());
+        map = new HashMap<>();
+        map.put("sentence",sentence);
+        firestore.collection("user")
+                .document(UserDataProvider.getInstance(context).getUserEmail())
+                .set(map,SetOptions.merge());
+        UserDataProvider.getInstance(context).saveUserSentence(sentence);
+    }
+
+    @Override
+    public void showLogoutConfirmDialog() {
+       androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(context)
+               .setTitle(context.getString(R.string.information))
+               .setMessage(context.getString(R.string.confirm_to_logout))
+               .setPositiveButton(context.getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int which) {
+                      presenter.onLogoutConfirmClickListener();
+                   }
+               }).setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int which) {
+
+                   }
+               }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void logout() {
+        FirebaseAuth.getInstance().signOut();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(context.getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        googleSignInClient = GoogleSignIn.getClient(context,gso);
+        googleSignInClient.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Log.i("Michael","已登出");
+                }
+            }
+        });
+        googleSignInClient.revokeAccess().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Log.i("Michael","google revokeAccess");
+                }
+            }
+        });
+        Intent it = new Intent(context, MainActivity.class);
+        context.startActivity(it);
+        if (getActivity() != null){
+            getActivity().finish();
+        }
+
     }
 }

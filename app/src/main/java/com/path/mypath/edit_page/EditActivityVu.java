@@ -14,4 +14,6 @@ public interface EditActivityVu {
     void intentToShareActivity();
 
     void saveUserData(String email, String downloadUrl, String nickname, String sentence);
+
+    void setAccountInfo(String message);
 }

@@ -33,6 +33,7 @@ import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataUserPresHeart;
 import com.path.mypath.fragment.PhotoViewPagerAdapter;
 import com.path.mypath.fragment.heart_fragment.HeartAdapter;
+import com.path.mypath.reply_activity.ReplyActivity;
 import com.path.mypath.tools.ImageLoaderProvider;
 import com.path.mypath.tools.UserDataProvider;
 
@@ -52,7 +53,7 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
 
     private RoundedImageView ivPhoto;
 
-    private TextView tvNickname, tvTime, tvContent,tvHeartCount,tvDistance;
+    private TextView tvNickname, tvTime, tvContent,tvHeartCount,tvDistance,tvReplyCount;
 
     private MapView mapView;
 
@@ -109,6 +110,7 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
     }
 
     private void initView() {
+        tvReplyCount = findViewById(R.id.single_item_reply_count);
         ivBack = findViewById(R.id.single_toolbar_icon);
         ivHeart = findViewById(R.id.single_item_heart);
         ivReply = findViewById(R.id.single_item_reply);
@@ -134,11 +136,29 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
                 presenter.onHeartButtonClickListener(data);
             }
         });
+        ivReply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onReplyClickListener(data);
+            }
+        });
+        tvReplyCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onReplyClickListener(data);
+            }
+        });
     }
 
 
     @Override
     public void setView(DataArray data) {
+        if (data.getReplyCount() == 0){
+            tvReplyCount.setVisibility(View.INVISIBLE);
+        }else {
+            tvReplyCount.setVisibility(View.VISIBLE);
+            tvReplyCount.setText(String.format(Locale.getDefault(),"%d 則留言",data.getReplyCount()));
+        }
         ImageLoaderProvider.getInstance(this).setImage(data.getUserPhoto(),ivPhoto);
         tvNickname.setText(data.getUserNickName());
         tvTime.setText(new SimpleDateFormat("yyyy/MM/dd",Locale.TAIWAN).format(new Date(data.getCurrentTime())));
@@ -255,5 +275,12 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
                         }
                     }
                 });
+    }
+
+    @Override
+    public void intentToReplyActivity(DataArray data) {
+        Intent it = new Intent(this, ReplyActivity.class);
+        it.putExtra("data",data);
+        startActivity(it);
     }
 }

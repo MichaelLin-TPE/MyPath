@@ -56,9 +56,19 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
         data.setFriendCount(0);
         data.setUserNickname("");
         data.setUserPhoto("");
+        data.setPublicAccount(true);
+        data.setSentence("");
+        data.setEmail("");
+        data.setFansArray(new ArrayList<>());
+        data.setChaseArray(new ArrayList<>());
         Gson gson = new Gson();
         String userJson = gson.toJson(data);
 
         mView.setUserDataToFireStore(userMap,email,userJson);
+    }
+
+    @Override
+    public void onShowWaitDialog() {
+        mView.showWaitDialog();
     }
 }

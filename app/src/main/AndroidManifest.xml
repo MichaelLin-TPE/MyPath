@@ -25,9 +25,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".photo_activity.SelectPhotoActivity"></activity>
+        <activity android:name=".user_page_activity.UserPageActivity"></activity>
+        <activity android:name=".reply_activity.ReplyActivity" />
+        <activity android:name=".photo_activity.SelectPhotoActivity" />
         <activity android:name=".single_view_activity.SingleViewActivity" />
-        <activity android:name=".home_activity.HomeActivity" />
+        <activity
+            android:name=".home_activity.HomeActivity"
+            android:launchMode="singleTop" />
         <activity
             android:name=".edit_page.EditActivity"
             android:screenOrientation="portrait" />

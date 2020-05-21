@@ -7,9 +7,8 @@ public interface HomeActivityPresenter {
 
     void onAddIconClickListener();
 
-    void onLogoutClickListener();
+    void onSendMessageClickListener();
 
-    void onLogoutConfirmClickListener();
 
     void onRecordPathClickListener();
 

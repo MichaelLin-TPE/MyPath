@@ -21,4 +21,32 @@ public interface HomeFragmentVu {
     void saveUserLikeData(String likeJson, String userEmail);
 
     void searchCreatorLikeData(String userEmail);
+
+    void intentToReplyActivity(DataArray data);
+
+    void intentToHomeActivity();
+
+    void intentToUserPageReviewActivity(String userEmail);
+
+    void showSendMessageDialog(String articleCreator, String userEmail);
+
+    void createChatRoom(String userEmail, String articleCreator, String message);
+
+    void searchForRoomId(String userNickname, String articleCreator, String message);
+
+    void createPersonalChatRoom(String roomId, String msgJson);
+
+    void reSearchRoomIdList();
+
+    void showToast(String message);
+
+    void searchUserData(String userEmail);
+
+    void searchCreatorData(String creatorEmail);
+
+    void updatePersonalUserData(String userJson, String userEmail);
+
+    void searchPersonChatRoomData(String userEmail, String articleCreator, String message, String roomId);
+
+    void updatePersonalChatData(String msgJson, String roomId);
 }

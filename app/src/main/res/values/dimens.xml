@@ -23,4 +23,9 @@
     <dimen name="pic_count_width">50dp</dimen>
     <dimen name="pic_count_height">25dp</dimen>
     <dimen name="share_item_photo">450dp</dimen>
+    <dimen name="btn_send_height">30dp</dimen>
+    <dimen name="btn_send_width">60dp</dimen>
+    <dimen name="main_icon_size">200dp</dimen>
+    <dimen name="small_icon_size">30dp</dimen>
+    <dimen name="smaller_icon_size">20dp</dimen>
 </resources>

@@ -18,6 +18,8 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -74,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
     private FirebaseFirestore firestore;
 
     private String email;
+
+    private AlertDialog waitDialog;
 
     private Handler handler;
 
@@ -289,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
 
     @Override
     public void intentToEditActivity() {
+        waitDialog.dismiss();
         Intent it = new Intent(this,EditActivity.class);
         startActivity(it);
         finish();
@@ -299,6 +304,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         this.email = email;
         handler = new Handler();
         handler.post(updateData);
+    }
+
+    @Override
+    public void showWaitDialog() {
+        View view = View.inflate(this,R.layout.waiting_dialog,null);
+        TextView tvContent = view.findViewById(R.id.wait_content);
+        tvContent.setText(getString(R.string.please_wait));
+        waitDialog = new AlertDialog.Builder(this)
+                .setView(view).setCancelable(false).create();
+        waitDialog.show();
     }
 
     private Runnable updateData = new Runnable() {
@@ -348,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN){
+        if (requestCode == RC_SIGN_IN && data != null){
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
@@ -365,6 +380,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
     }
 
     private void registerFirebaseAuth(final GoogleSignInAccount account) {
+        presenter.onShowWaitDialog();
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(),null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {

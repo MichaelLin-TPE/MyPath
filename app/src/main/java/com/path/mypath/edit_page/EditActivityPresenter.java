@@ -10,4 +10,6 @@ public interface EditActivityPresenter {
     void onCatchPhotoUrl(String downLoadUrl);
 
     void onDataUpdateSuccessfulListener();
+
+    void onCatchAccountMode(boolean isChecked);
 }

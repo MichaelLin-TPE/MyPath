@@ -9,9 +9,7 @@ public interface HomeActivityVu {
 
     void intentToShareActivity();
 
-    void googleLogout();
-
-    void showLogoutDialog();
+    void intentToMessageActivity();
 
     void showModeSelectDialog();
 

@@ -4,6 +4,16 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
+/**
+ * invite_status_code = 0;
+ * 0 = 正常
+ * 1 = 接受
+ * 2 = 拒絕
+ * 3 = 發送中
+ * 4 = 留言
+ */
+
+
 public class ArticleLikeNotification implements Serializable {
     @SerializedName("user_nickname")
     private String userNickname;
@@ -19,6 +29,36 @@ public class ArticleLikeNotification implements Serializable {
     private long articlePostTime;
     @SerializedName("pressed_current_time")
     private long pressedCurrentTime;
+    @SerializedName("is_invite")
+    private boolean isInvite;
+    @SerializedName("invite_status_code")
+    private int inviteStatusCode;
+    @SerializedName("reply_message")
+    private String replyMessage;
+
+    public void setReplyMessage(String replyMessage) {
+        this.replyMessage = replyMessage;
+    }
+
+    public String getReplyMessage() {
+        return replyMessage;
+    }
+
+    public int getinviteStatusCode() {
+        return inviteStatusCode;
+    }
+
+    public void setinviteStatusCode(int inviteStatusCode) {
+        this.inviteStatusCode = inviteStatusCode;
+    }
+
+    public boolean isInvite() {
+        return isInvite;
+    }
+
+    public void setInvite(boolean invite) {
+        isInvite = invite;
+    }
 
     public long getPressedCurrentTime() {
         return pressedCurrentTime;

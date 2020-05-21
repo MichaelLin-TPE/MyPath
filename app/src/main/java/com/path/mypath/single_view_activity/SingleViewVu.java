@@ -18,4 +18,6 @@ public interface SingleViewVu {
     String getUserPhoto();
 
     void update(String json);
+
+    void intentToReplyActivity(DataArray data);
 }

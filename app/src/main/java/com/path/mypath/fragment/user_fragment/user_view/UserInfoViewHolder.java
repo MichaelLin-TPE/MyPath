@@ -1,15 +1,27 @@
 package com.path.mypath.fragment.user_fragment.user_view;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.auth.User;
 import com.makeramen.roundedimageview.RoundedImageView;
+import com.path.mypath.MainActivity;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.tools.ImageLoaderProvider;
@@ -27,6 +39,8 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
 
     private Context context;
 
+    private ImageView ivEditName,ivEditSentence,ivLogout;
+
     private OnUserInformationClickListener listener;
 
     public void setOnUserInformationClickListener(OnUserInformationClickListener listener){
@@ -43,15 +57,17 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
         tvFriendCount = itemView.findViewById(R.id.user_friends_count);
         tvChasingCount = itemView.findViewById(R.id.user_chasing_count);
         btnEdit = itemView.findViewById(R.id.user_edit_info_btn);
+        ivEditName = itemView.findViewById(R.id.user_edit_nickname);
+        ivEditSentence = itemView.findViewById(R.id.user_edit_sentence);
+        ivLogout = itemView.findViewById(R.id.user_logout);
     }
 
     public void setData(DataObject data){
 
         ImageLoaderProvider.getInstance(context).setImage(data.getUserPhoto(),ivPhoto);
         String nickname = UserDataProvider.getInstance(context).getUserNickname();
-        String sentence = UserDataProvider.getInstance(context).getSentence();
         tvNickname.setText(nickname);
-        tvSentence.setText(sentence);
+        tvSentence.setText(data.getSentence());
         tvArticleCount.setText(String.format(Locale.getDefault(),"%d",data.getArticleCount()));
         tvFriendCount.setText(String.format(Locale.getDefault(),"%d",data.getFriendCount()));
         tvChasingCount.setText(String.format(Locale.getDefault(),"%d",data.getChasingCount()));
@@ -67,10 +83,32 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
                 listener.onEditBtnClick();
             }
         });
+        ivEditName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onEditNicknameClick();
+            }
+        });
+        ivEditSentence.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onEditSentenceClick();
+            }
+        });
+        ivLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onLogoutClick();
+
+            }
+        });
     }
 
     public interface OnUserInformationClickListener{
         void onPhotoClick();
         void onEditBtnClick();
+        void onEditNicknameClick();
+        void onEditSentenceClick();
+        void onLogoutClick();
     }
 }

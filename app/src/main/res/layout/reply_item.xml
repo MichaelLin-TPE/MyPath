@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="15dp"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/reply_item_photo"
+        app:riv_oval="true"
+        android:scaleType="centerCrop"
+        android:layout_width="@dimen/normal_icon_size"
+        android:layout_height="@dimen/normal_icon_size"/>
+
+    <TextView
+        android:id="@+id/reply_item_nickname"
+        app:layout_constraintTop_toTopOf="@id/reply_item_photo"
+        app:layout_constraintBottom_toBottomOf="@id/reply_item_photo"
+        app:layout_constraintLeft_toRightOf="@id/reply_item_photo"
+        android:layout_marginStart="10dp"
+        android:textSize="@dimen/normal_text_size"
+        android:textColor="@color/white"
+        tools:textColor="@color/black"
+        tools:text="Michael 說 :  "
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/reply_item_message"
+        app:layout_constraintTop_toTopOf="@id/reply_item_photo"
+        app:layout_constraintBottom_toBottomOf="@id/reply_item_photo"
+        app:layout_constraintLeft_toRightOf="@id/reply_item_nickname"
+        android:layout_marginStart="10dp"
+        android:textSize="@dimen/normal_text_size"
+        android:textColor="@color/white"
+        tools:textColor="@color/black"
+        tools:text="......"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

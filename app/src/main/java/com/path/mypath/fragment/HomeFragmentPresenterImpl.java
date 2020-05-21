@@ -6,11 +6,12 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.path.mypath.data_parser.ArticleLikeNotification;
 import com.path.mypath.data_parser.DataArray;
+import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.data_parser.DataUserPresHeart;
 import com.path.mypath.data_parser.FCMData;
 import com.path.mypath.data_parser.FCMNotification;
 import com.path.mypath.data_parser.FCMObject;
-import com.path.mypath.tools.FCMSender;
+import com.path.mypath.fragment.user_fragment.MessageObject;
 import com.path.mypath.tools.HttpConnection;
 
 import java.util.ArrayList;
@@ -28,7 +29,15 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
 
     private DataArray articleData;
 
-    private ArrayList<DataArray> dataArrayList , realTimeDataArray;
+    private ArrayList<DataArray> dataArrayList,realTimeDataArray;
+
+    private ArrayList<RoomIdObject> roomIdArray;
+
+    private String userEmail,creatorEmail,roomId;
+
+    private DataObject userData,creatorData;
+
+    private ArrayList<MessageObject> msgArray;
 
     public HomeFragmentPresenterImpl(HomeFragmentVu mView) {
         this.mView = mView;
@@ -136,8 +145,10 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
         notification.setUserEmail(mView.getUserEmail());
         notification.setUserNickname(mView.getNickname());
         notification.setUserPhoto(mView.getPhotoUrl());
+        notification.setinviteStatusCode(0);
+        notification.setInvite(false);
         notification.setPressedCurrentTime(System.currentTimeMillis());
-
+        notification.setReplyMessage("");
         if (json != null){
             ArrayList<ArticleLikeNotification> dataArray = gson.fromJson(json,new TypeToken<List<ArticleLikeNotification>>(){}.getType());
             if (dataArray != null){
@@ -162,6 +173,171 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
             String likeJson = gson.toJson(notificationArray);
 
             mView.saveUserLikeData(likeJson,articleData.getUserEmail());
+        }
+    }
+
+    @Override
+    public void onReplyButtonClickListener(DataArray data) {
+        mView.intentToReplyActivity(data);
+    }
+
+    @Override
+    public void onReplyCountClickListener(DataArray data) {
+        mView.intentToReplyActivity(data);
+    }
+
+    @Override
+    public void onUserPhotoClickListener(DataArray data) {
+        if (data.getUserNickName().equals(mView.getNickname())){
+            mView.intentToHomeActivity();
+        }else {
+            mView.intentToUserPageReviewActivity(data.getUserEmail());
+        }
+    }
+
+    @Override
+    public void onSendButtonClickListener(DataArray data) {
+        mView.showSendMessageDialog(data.getUserNickName(),data.getUserEmail());
+    }
+
+    @Override
+    public void onEditTextSendTypeListener(String message, String userEmail, String articleCreator) {
+        if (roomIdArray == null){
+            mView.createChatRoom(userEmail,articleCreator,message);
+        }else {
+            for (RoomIdObject object : roomIdArray){
+                if (object.getUser1().equals(userEmail) && object.getUser2().equals(articleCreator)){
+                    roomId = object.getRoomId();
+                    break;
+                }
+                if (object.getUser1().equals(articleCreator) && object.getUser2().equals(userEmail)){
+                    roomId = object.getRoomId();
+                    break;
+                }
+            }
+            if (roomId != null){
+                mView.searchPersonChatRoomData(userEmail,articleCreator,message,roomId);
+            }
+        }
+    }
+
+    @Override
+    public void onCatchRoomIdList(ArrayList<RoomIdObject> roomArray) {
+        if (roomArray.size() != 0){
+            roomIdArray = roomArray;
+        }
+    }
+
+    @Override
+    public void onCreateRoomSuccessful(String message, String userEmail, String articleCreator) {
+        mView.searchForRoomId(userEmail,articleCreator,message);
+    }
+
+    @Override
+    public void onCatchRoomIdSuccessful(String roomId, String userEmail, String articleCreator, String message) {
+        this.userEmail = userEmail;
+        this.creatorEmail = articleCreator;
+        ArrayList<MessageObject> msgArray = new ArrayList<>();
+        MessageObject data = new MessageObject();
+        data.setMessage(message);
+        data.setPhotoUrl("");
+        data.setUserEmail(mView.getUserEmail());
+        data.setUserNickname(mView.getNickname());
+        data.setUserPhotoUrl(mView.getPhotoUrl());
+        data.setTime(System.currentTimeMillis());
+        msgArray.add(data);
+        String msgJson = gson.toJson(msgArray);
+
+        mView.createPersonalChatRoom(roomId,msgJson);
+    }
+
+    @Override
+    public void onCreatePersonalChatRoomSuccessful(String roomId) {
+        this.roomId = roomId;
+        String message = "發送訊息成功";
+        mView.showToast(message);
+        mView.reSearchRoomIdList();
+        mView.searchUserData(userEmail);
+    }
+
+    @Override
+    public void onCatchPersonalUserDataSuccessful(String json, String userEmail) {
+        if (json != null){
+            userData = gson.fromJson(json,DataObject.class);
+            if (userData.getRoomIdArray() != null && userData.getRoomIdArray().size() != 0){
+
+                boolean isRoomRepeat = false;
+
+                for (String room : userData.getRoomIdArray()){
+                    if (room.equals(roomId)){
+                        isRoomRepeat = true;
+                        break;
+                    }
+                }
+                if (isRoomRepeat){
+                    return;
+                }
+                userData.getRoomIdArray().add(roomId);
+
+
+            }else {
+                ArrayList<String > roomIdArray = new ArrayList<>();
+                roomIdArray.add(roomId);
+                userData.setRoomIdArray(roomIdArray);
+            }
+            String userJson = gson.toJson(userData);
+            mView.updatePersonalUserData(userJson,userEmail);
+            mView.searchCreatorData(creatorEmail);
+        }
+    }
+
+    @Override
+    public void onCatchPersonalCreatorDataSuccessful(String json) {
+        if (json != null){
+            creatorData = gson.fromJson(json,DataObject.class);
+
+            if (creatorData.getRoomIdArray() != null && creatorData.getRoomIdArray().size() != 0){
+
+                boolean isRoomRepeat = false;
+
+                for (String room : creatorData.getRoomIdArray()){
+                    if (room.equals(roomId)){
+                        isRoomRepeat = true;
+                        break;
+                    }
+                }
+                if (isRoomRepeat){
+                    return;
+                }
+                creatorData.getRoomIdArray().add(roomId);
+
+
+            }else {
+                ArrayList<String > roomIdArray = new ArrayList<>();
+                roomIdArray.add(roomId);
+                creatorData.setRoomIdArray(roomIdArray);
+            }
+            String userJson = gson.toJson(creatorData);
+            mView.updatePersonalUserData(userJson,creatorEmail);
+        }
+    }
+
+    @Override
+    public void onCatchPersonalChatData(String json, String userEmail, String articleCreator, String message) {
+        if (json != null){
+            msgArray = gson.fromJson(json,new TypeToken<List<MessageObject>>(){}.getType());
+            if (msgArray != null){
+                MessageObject object = new MessageObject();
+                object.setUserPhotoUrl(mView.getPhotoUrl());
+                object.setUserNickname(mView.getNickname());
+                object.setUserEmail(mView.getUserEmail());
+                object.setPhotoUrl("");
+                object.setMessage(message);
+                object.setTime(System.currentTimeMillis());
+                msgArray.add(object);
+                String msgJson = gson.toJson(msgArray);
+                mView.updatePersonalChatData(msgJson,roomId);
+            }
         }
     }
 }

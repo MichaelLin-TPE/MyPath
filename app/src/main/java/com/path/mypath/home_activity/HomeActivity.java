@@ -1,5 +1,6 @@
 package com.path.mypath.home_activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -20,6 +21,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.path.mypath.MainActivity;
@@ -38,6 +44,17 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityVu {
     private ViewPager viewPager;
 
     private ImageView ivTabIcon;
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        TabLayout.Tab tab = tabLayout.getTabAt(3);
+        if (tab != null){
+            tab.select();
+        }
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,11 +106,11 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityVu {
         tabLayout = findViewById(R.id.home_tab_layout);
         viewPager = findViewById(R.id.home_view_pager);
         ImageView ivAdd = findViewById(R.id.home_toolbar_icon);
-        ImageView ivLogout = findViewById(R.id.home_toolbar_logout);
-        ivLogout.setOnClickListener(new View.OnClickListener() {
+        ImageView ivSend = findViewById(R.id.home_toolbar_send);
+        ivSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                presenter.onLogoutClickListener();
+                presenter.onSendMessageClickListener();
             }
         });
         ivAdd.setOnClickListener(new View.OnClickListener() {
@@ -174,30 +191,10 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityVu {
     }
 
     @Override
-    public void googleLogout() {
-        FirebaseAuth.getInstance().signOut();
-        Intent it = new Intent(this, MainActivity.class);
-        startActivity(it);
-        finish();
-    }
+    public void intentToMessageActivity() {
 
-    @Override
-    public void showLogoutDialog() {
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.information))
-                .setMessage(getString(R.string.confirm_to_logout))
-                .setPositiveButton(getString(R.string.confirm), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        presenter.onLogoutConfirmClickListener();
-                    }
-                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
 
-                    }
-                }).create();
-        dialog.show();
+
     }
 
     @Override

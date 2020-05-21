@@ -15,4 +15,6 @@ public interface MainActivityVu {
     void intentToEditActivity();
 
     void updateUserData(String email);
+
+    void showWaitDialog();
 }

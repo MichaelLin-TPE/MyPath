@@ -25,4 +25,20 @@ public interface UserFragmentVu {
     String getNickname();
 
     void updateHomeData(String homeJson);
+
+    void showEditNicknameDialog();
+
+    void showEditSentenceDialog();
+
+    void updateUserData(String newJson, String nickname);
+
+    void updatePersonalData(String newJson);
+
+    void updateLikeData(String likeJson);
+
+    void updateUserDataSentence(String json, String sentence);
+
+    void showLogoutConfirmDialog();
+
+    void logout();
 }

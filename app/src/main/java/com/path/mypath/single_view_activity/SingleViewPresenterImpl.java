@@ -99,4 +99,9 @@ public class SingleViewPresenterImpl implements SingleViewPresenter {
         }
 
     }
+
+    @Override
+    public void onReplyClickListener(DataArray data) {
+        mView.intentToReplyActivity(data);
+    }
 }

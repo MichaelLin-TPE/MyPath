@@ -42,13 +42,8 @@ public class HomeActivityPresenterImpl implements HomeActivityPresenter {
     }
 
     @Override
-    public void onLogoutClickListener() {
-        mView.showLogoutDialog();
-    }
-
-    @Override
-    public void onLogoutConfirmClickListener() {
-        mView.googleLogout();
+    public void onSendMessageClickListener() {
+        mView.intentToMessageActivity();
     }
 
     @Override

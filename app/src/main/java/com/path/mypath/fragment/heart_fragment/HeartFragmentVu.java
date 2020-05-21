@@ -9,4 +9,18 @@ public interface HeartFragmentVu {
     void setRecyclerView(ArrayList<ArticleLikeNotification> dataArray);
 
     void intentToSingleViewPage(DataArray homeData);
+
+    void updateLikeData(String json);
+
+    void updateUserData(String userJson);
+
+    void searchFansData(ArticleLikeNotification data);
+
+    String getEmail();
+
+    String getNickname();
+
+    String getPhoto();
+
+    void updateFansData(String userNickname, String fansJson);
 }

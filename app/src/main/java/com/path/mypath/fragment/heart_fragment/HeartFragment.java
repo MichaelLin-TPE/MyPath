@@ -16,11 +16,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.SetOptions;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.ArticleLikeNotification;
 import com.path.mypath.data_parser.DataArray;
@@ -28,6 +31,8 @@ import com.path.mypath.single_view_activity.SingleViewActivity;
 import com.path.mypath.tools.UserDataProvider;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class HeartFragment extends Fragment implements HeartFragmentVu{
@@ -119,6 +124,21 @@ public class HeartFragment extends Fragment implements HeartFragmentVu{
             }
         });
 
+        DocumentReference userShot = firestore.collection("personal_data").document(UserDataProvider.getInstance(context).getUserEmail());
+        userShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","個人資料取得失敗 : "+e.toString());
+                    return;
+                }
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("user_json");
+                    presenter.onCatchUserDataSuccessful(json);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -131,6 +151,18 @@ public class HeartFragment extends Fragment implements HeartFragmentVu{
                 Log.i("Michael","點擊了DATA");
                 presenter.onHeartLikeItemClickListener(data);
             }
+
+            @Override
+            public void onCancelClick(ArticleLikeNotification data) {
+                Log.i("Michael","點擊了取消");
+                presenter.onCancelButtonClickListener(data);
+            }
+
+            @Override
+            public void onAcceptClick(ArticleLikeNotification data) {
+                Log.i("Michael","點擊了接受");
+                presenter.onAcceptButtonClickListener(data);
+            }
         });
     }
 
@@ -139,5 +171,91 @@ public class HeartFragment extends Fragment implements HeartFragmentVu{
         Intent it = new Intent(context, SingleViewActivity.class);
         it.putExtra("data",homeData);
         context.startActivity(it);
+    }
+
+    @Override
+    public void updateLikeData(String json) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("json",json);
+        firestore.collection(USER_LIKE)
+                .document(UserDataProvider.getInstance(context).getUserEmail())
+                .set(map, SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","LIKE 資料更新成功");
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void updateUserData(String userJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("user_json",userJson);
+        firestore.collection("personal_data")
+                .document(UserDataProvider.getInstance(context).getUserEmail())
+                .set(map,SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","更新個人資料成功");
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void searchFansData(ArticleLikeNotification data) {
+        firestore.collection("personal_data")
+                .document(data.getUserEmail())
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            DocumentSnapshot snapshot = task.getResult();
+
+                            if (snapshot != null){
+                                String json = (String) snapshot.get("user_json");
+                                presenter.onCatchFansData(json,data);
+                            }
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public String getEmail() {
+        return UserDataProvider.getInstance(context).getUserEmail();
+    }
+
+    @Override
+    public String getNickname() {
+        return UserDataProvider.getInstance(context).getUserNickname();
+    }
+
+    @Override
+    public String getPhoto() {
+        return UserDataProvider.getInstance(context).getUserPHotoUrl();
+    }
+
+    @Override
+    public void updateFansData(String userNickname, String fansJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("user_json",fansJson);
+        firestore.collection("personal_data")
+                .document(userNickname)
+                .set(map,SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","粉絲資料成功");
+                        }
+                    }
+                });
     }
 }

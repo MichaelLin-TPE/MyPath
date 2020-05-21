@@ -10,4 +10,6 @@ public interface SingleViewPresenter {
     void onCatchHomeDataSuccessful(String json);
 
     void onHeartButtonClickListener(DataArray data);
+
+    void onReplyClickListener(DataArray data);
 }

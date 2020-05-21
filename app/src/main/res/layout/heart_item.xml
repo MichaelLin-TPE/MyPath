@@ -34,13 +34,15 @@
         android:id="@+id/heart_item_content"
         app:layout_constraintTop_toTopOf="@id/heart_item_photo"
         app:layout_constraintBottom_toBottomOf="@id/heart_item_photo"
+        app:layout_constraintRight_toLeftOf="@id/heart_item_second"
+        android:layout_marginEnd="10dp"
         app:layout_constraintLeft_toRightOf="@id/heart_item_photo"
         android:layout_marginStart="20dp"
         android:textSize="@dimen/normal_text_size"
         android:textColor="@color/white"
         tools:textColor="@color/black"
         tools:text="2020/05/09"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"/>
 
     <TextView
@@ -54,5 +56,30 @@
         tools:text="2020/05/09"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/heart_item_btn_cancel"
+        android:text="@string/rejected"
+        android:textColor="@color/white"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/btn_selector"
+        app:layout_constraintLeft_toLeftOf="@id/heart_item_content"
+        app:layout_constraintTop_toBottomOf="@id/heart_item_content"
+        app:layout_constraintRight_toLeftOf="@id/heart_item_btn_confirm"
+        android:layout_width="@dimen/normal_icon_size"
+        android:layout_height="@dimen/btn_send_height"/>
+    <Button
+        android:id="@+id/heart_item_btn_confirm"
+        android:text="@string/accept"
+        android:textColor="@color/white"
+        android:layout_marginStart="10dp"
+        android:background="@drawable/btn_selector"
+        app:layout_constraintLeft_toRightOf="@id/heart_item_btn_cancel"
+        app:layout_constraintRight_toLeftOf="@id/heart_item_second"
+        app:layout_constraintTop_toTopOf="@id/heart_item_btn_cancel"
+        app:layout_constraintBottom_toBottomOf="@id/heart_item_btn_cancel"
+        android:layout_width="@dimen/normal_icon_size"
+        android:layout_height="@dimen/btn_send_height"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

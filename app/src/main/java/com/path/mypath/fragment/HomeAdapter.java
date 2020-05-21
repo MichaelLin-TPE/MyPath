@@ -40,6 +40,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
     private OnHomeItemClickListener listener;
 
+    private String userNickname;
+
     public void setOnHomeItemClickListener(OnHomeItemClickListener listener) {
         this.listener = listener;
     }
@@ -63,11 +65,22 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
         holder.tvTime.setText(new SimpleDateFormat("yyyy/MM/dd", Locale.TAIWAN).format(new Date(itemData.getCurrentTime())));
         holder.tvContent.setText(String.format(Locale.getDefault(), "%s : %s", itemData.getUserNickName(), itemData.getArticleTitle()));
         holder.tvHeartCount.setText(String.format(Locale.getDefault(), "%d 個讚", itemData.getHeartCount()));
+        if (itemData.getReplyCount() == 0){
+            holder.tvReplyCount.setVisibility(View.INVISIBLE);
+        }else {
+            holder.tvReplyCount.setVisibility(View.VISIBLE);
+            holder.tvReplyCount.setText(String.format(Locale.getDefault(),"%d 則留言",itemData.getReplyCount()));
+        }
         if (itemData.getDistance() == 0){
             holder.tvDistance.setVisibility(View.GONE);
         }else {
             holder.tvDistance.setVisibility(View.VISIBLE);
             holder.tvDistance.setText(String.format(Locale.getDefault(),"#移動 %1$,.2f 公尺",itemData.getDistance()));
+        }
+        if (itemData.getUserNickName().equals(userNickname)){
+            holder.ivSend.setVisibility(View.GONE);
+        }else {
+            holder.ivSend.setVisibility(View.VISIBLE);
         }
 
         boolean isCheck = false;
@@ -175,19 +188,38 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
         holder.ivReply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onReplyClick();
+                listener.onReplyClick(itemData);
             }
         });
         holder.ivSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onSendClick();
+                listener.onSendClick(itemData);
             }
         });
         holder.ivSort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onSortClick();
+            }
+        });
+
+        holder.tvReplyCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onReplyCountClick(itemData);
+            }
+        });
+        holder.tvHeartCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onHeartCountClick(itemData);
+            }
+        });
+        holder.ivPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onUserPhotoClick(itemData);
             }
         });
 
@@ -202,11 +234,15 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
         this.dataArrayList = data;
     }
 
+    public void setUserNickname(String userNickname) {
+        this.userNickname = userNickname;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private RoundedImageView ivPhoto;
 
-        private TextView tvName, tvTime, tvContent, tvHeartCount,tvDistance;
+        private TextView tvName, tvTime, tvContent, tvHeartCount,tvDistance,tvReplyCount;
 
         private ImageView ivHeart, ivReply, ivSend, ivSort;
 
@@ -216,6 +252,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            tvReplyCount = itemView.findViewById(R.id.home_item_reply_count);
             viewPager = itemView.findViewById(R.id.home_item_view_pager);
             ivPhoto = itemView.findViewById(R.id.home_item_photo);
             tvName = itemView.findViewById(R.id.home_item_name);
@@ -234,10 +271,14 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
     public interface OnHomeItemClickListener {
         void onHeartClick(DataArray data, int position, boolean isCheck,int selectIndex);
 
-        void onReplyClick();
+        void onReplyClick(DataArray data);
 
-        void onSendClick();
+        void onSendClick(DataArray data);
 
         void onSortClick();
+
+        void onHeartCountClick(DataArray data);
+        void onReplyCountClick(DataArray data);
+        void onUserPhotoClick(DataArray data);
     }
 }

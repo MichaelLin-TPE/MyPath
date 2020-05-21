@@ -41,4 +41,19 @@
     <string name="public_data">公開</string>
     <string name="confirm_public_or_private">確認上傳資料要公開還是私人?</string>
     <string name="chasing">追蹤</string>
+    <string name="reply_something">留下些甚麼吧~</string>
+    <string name="chasing_info">發送追蹤請求給 Michael</string>
+    <string name="send">發送</string>
+    <string name="send_invite">追蹤起來!!</string>
+    <string name="private_information">此為私人帳號.</string>
+    <string name="send_invite_already">已發送追蹤邀請</string>
+    <string name="rejected">拒絕</string>
+    <string name="accept">接受</string>
+    <string name="please_wait">請稍後</string>
+    <string name="choose_to_login">請選擇下方登入方式↓</string>
+    <string name="enter_sentence">請輸入你的座右銘</string>
+    <string name="public_account">帳號設定 :</string>
+    <string name="public_account_set">公開</string>
+    <string name="edit_personal_info">修改個人資訊</string>
+    <string name="say_something">說點甚麼吧...</string>
 </resources>

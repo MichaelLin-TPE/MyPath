@@ -11,7 +11,11 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -57,6 +61,12 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
 
     private StorageReference storage;
 
+    private ImageView ivAdd;
+
+    private TextView tvAccountInfo;
+
+    private Switch swAccount;
+
     private static final String PERSONAL_DATA = "personal_data";
 
 
@@ -70,9 +80,27 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
     }
 
     private void initView() {
+        tvAccountInfo = findViewById(R.id.edit_public_account_info);
+        swAccount = findViewById(R.id.edit_switch_account);
+        ivAdd = findViewById(R.id.edit_add_icon);
         ivPhoto = findViewById(R.id.edit_photo);
         edNickname = findViewById(R.id.edit_edit_name);
         edSentence = findViewById(R.id.edit_edit_sentence);
+
+        ivAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onUserPhotoSelectClickListener();
+            }
+        });
+
+        swAccount.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Log.i("Michael","目前狀態 : "+isChecked);
+                presenter.onCatchAccountMode(isChecked);
+            }
+        });
 
         ivPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -208,5 +236,10 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
         UserDataProvider.getInstance(this).saveUserSentence(sentence);
         UserDataProvider.getInstance(this).saveUserNickname(nickname);
         UserDataProvider.getInstance(this).saveUserPhotoUrl(downloadUrl);
+    }
+
+    @Override
+    public void setAccountInfo(String message) {
+        tvAccountInfo.setText(message);
     }
 }
