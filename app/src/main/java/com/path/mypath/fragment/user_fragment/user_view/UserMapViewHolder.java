@@ -1,6 +1,7 @@
 package com.path.mypath.fragment.user_fragment.user_view;
 
 import android.content.Context;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,6 +15,8 @@ import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.tools.UserDataProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class UserMapViewHolder extends RecyclerView.ViewHolder {
 
@@ -29,6 +32,10 @@ public class UserMapViewHolder extends RecyclerView.ViewHolder {
 
     private OnUserDownClickListener listener;
 
+    private ArrayList<DataArray> dataArray;
+
+    private Handler handler = new Handler();
+
     public void setOnUserDownClickListener(OnUserDownClickListener listener){
         this.listener = listener;
     }
@@ -43,37 +50,54 @@ public class UserMapViewHolder extends RecyclerView.ViewHolder {
         ivIcon = itemView.findViewById(R.id.user_down_add_icon);
     }
 
+    private Runnable showView = new Runnable() {
+        @Override
+        public void run() {
+            ArrayList<DataArray> locationArray = new ArrayList<>();
 
-    public void setData(ArrayList<DataArray> dataArray){
-        ArrayList<DataArray> locationArray = new ArrayList<>();
-        if (dataArray != null && dataArray.size() != 0){
-            for (DataArray data : dataArray){
-                if (data.getUserNickName().equals(nickname)){
-                    locationArray.add(data);
+            if (dataArray != null && dataArray.size() != 0){
+
+                Collections.sort(dataArray, new Comparator<DataArray>() {
+                    @Override
+                    public int compare(DataArray o1, DataArray o2) {
+                        return (int) (o2.getCurrentTime() - o1.getCurrentTime());
+                    }
+                });
+
+
+                for (DataArray data : dataArray){
+                    if (data.getUserNickName().equals(nickname)){
+                        locationArray.add(data);
+                    }
                 }
             }
+            if (locationArray.size() != 0){
+                MapAdapter adapter = new MapAdapter(locationArray,context);
+                recyclerView.setAdapter(adapter);
+                tvNotice.setVisibility(View.GONE);
+                ivIcon.setVisibility(View.GONE);
+                adapter.setOnMapItemClickListener(new MapAdapter.OnMapItemClickListener() {
+                    @Override
+                    public void onClick(DataArray locationArray) {
+                        listener.onMapItemClick(locationArray);
+                    }
+                });
+            }else {
+                tvNotice.setVisibility(View.VISIBLE);
+                ivIcon.setVisibility(View.VISIBLE);
+                ivIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        listener.onIconClick();
+                    }
+                });
+            }
         }
-        if (locationArray.size() != 0){
-            MapAdapter adapter = new MapAdapter(locationArray,context);
-            recyclerView.setAdapter(adapter);
-            tvNotice.setVisibility(View.GONE);
-            ivIcon.setVisibility(View.GONE);
-            adapter.setOnMapItemClickListener(new MapAdapter.OnMapItemClickListener() {
-                @Override
-                public void onClick(DataArray locationArray) {
-                    listener.onMapItemClick(locationArray);
-                }
-            });
-        }else {
-            tvNotice.setVisibility(View.VISIBLE);
-            ivIcon.setVisibility(View.VISIBLE);
-            ivIcon.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onIconClick();
-                }
-            });
-        }
+    };
+
+    public void setData(ArrayList<DataArray> dataArray){
+        this.dataArray = dataArray;
+        handler.post(showView);
     }
 
     public interface OnUserDownClickListener{

@@ -172,11 +172,16 @@ public class ShareActivityPresenterImpl implements ShareActivityPresenter {
         //搜尋資料更新
         if (searchDataArray != null && searchDataArray.size() != 0){
             int index = 0;
+            boolean isDataFound = false;
             for (DataArray data : searchDataArray){
                 if (data.getUserNickName().equals(mView.getUserNickname())){
                     searchDataArray.set(index,dataArray);
+                    isDataFound = true;
                 }
                 index++;
+            }
+            if (!isDataFound){
+                searchDataArray.add(dataArray);
             }
         }else {
             searchDataArray = new ArrayList<>();

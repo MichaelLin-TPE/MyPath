@@ -25,7 +25,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".user_page_activity.UserPageActivity"></activity>
+        <activity android:name=".chat_room_activity.ChatRoomActivity"></activity>
+        <activity android:name=".message_activity.MessageActivity" />
+        <activity android:name=".user_page_activity.UserPageActivity" />
         <activity android:name=".reply_activity.ReplyActivity" />
         <activity android:name=".photo_activity.SelectPhotoActivity" />
         <activity android:name=".single_view_activity.SingleViewActivity" />

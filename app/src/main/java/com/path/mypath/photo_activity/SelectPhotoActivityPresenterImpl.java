@@ -1,5 +1,7 @@
 package com.path.mypath.photo_activity;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.path.mypath.data_parser.DataArray;
@@ -82,11 +84,18 @@ public class SelectPhotoActivityPresenterImpl implements SelectPhotoActivityPres
         //更新搜尋頁面資料
         if (searchDataArray != null){
             int index = 0;
+            boolean isDataFound = false;
             for (DataArray data : searchDataArray){
                 if (data.getUserNickName().equals(articleData.getUserNickName())){
+                    Log.i("Michael","有比對到資料 直接修改");
                     searchDataArray.set(index,articleData);
+                    isDataFound = true;
                 }
                 index ++;
+            }
+            if (!isDataFound){
+                Log.i("Michael","搜尋頁面沒有資料所以新增一個");
+                searchDataArray.add(articleData);
             }
         }else {
             searchDataArray = new ArrayList<>();

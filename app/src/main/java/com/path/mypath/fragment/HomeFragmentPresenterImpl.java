@@ -11,7 +11,6 @@ import com.path.mypath.data_parser.DataUserPresHeart;
 import com.path.mypath.data_parser.FCMData;
 import com.path.mypath.data_parser.FCMNotification;
 import com.path.mypath.data_parser.FCMObject;
-import com.path.mypath.fragment.user_fragment.MessageObject;
 import com.path.mypath.tools.HttpConnection;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
 
     private Gson gson;
 
-    private DataArray articleData;
+    private DataArray articleData,pressedData;
 
     private ArrayList<DataArray> dataArrayList,realTimeDataArray;
 
@@ -37,7 +36,7 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
 
     private DataObject userData,creatorData;
 
-    private ArrayList<MessageObject> msgArray;
+    private ArrayList<MessageArray> msgArray;
 
     public HomeFragmentPresenterImpl(HomeFragmentVu mView) {
         this.mView = mView;
@@ -197,6 +196,7 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
 
     @Override
     public void onSendButtonClickListener(DataArray data) {
+        this.pressedData = data;
         mView.showSendMessageDialog(data.getUserNickName(),data.getUserEmail());
     }
 
@@ -237,8 +237,16 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
     public void onCatchRoomIdSuccessful(String roomId, String userEmail, String articleCreator, String message) {
         this.userEmail = userEmail;
         this.creatorEmail = articleCreator;
-        ArrayList<MessageObject> msgArray = new ArrayList<>();
-        MessageObject data = new MessageObject();
+
+        MessageObject object = new MessageObject();
+        object.setUser1(userEmail);
+        object.setUser2(articleCreator);
+        object.setUser1Nickname(mView.getNickname());
+        object.setUser1PhotoUrl(mView.getPhotoUrl());
+        object.setUser2Nickname(pressedData.getUserNickName());
+        object.setUser2PhotoUrl(pressedData.getUserPhoto());
+        ArrayList<MessageArray> msgArray = new ArrayList<>();
+        MessageArray data = new MessageArray();
         data.setMessage(message);
         data.setPhotoUrl("");
         data.setUserEmail(mView.getUserEmail());
@@ -246,7 +254,8 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
         data.setUserPhotoUrl(mView.getPhotoUrl());
         data.setTime(System.currentTimeMillis());
         msgArray.add(data);
-        String msgJson = gson.toJson(msgArray);
+        object.setMessageArray(msgArray);
+        String msgJson = gson.toJson(object);
 
         mView.createPersonalChatRoom(roomId,msgJson);
     }
@@ -325,17 +334,24 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
     @Override
     public void onCatchPersonalChatData(String json, String userEmail, String articleCreator, String message) {
         if (json != null){
-            msgArray = gson.fromJson(json,new TypeToken<List<MessageObject>>(){}.getType());
-            if (msgArray != null){
-                MessageObject object = new MessageObject();
-                object.setUserPhotoUrl(mView.getPhotoUrl());
-                object.setUserNickname(mView.getNickname());
-                object.setUserEmail(mView.getUserEmail());
-                object.setPhotoUrl("");
-                object.setMessage(message);
-                object.setTime(System.currentTimeMillis());
-                msgArray.add(object);
-                String msgJson = gson.toJson(msgArray);
+
+            MessageObject object = gson.fromJson(json,MessageObject.class);
+            MessageArray data = new MessageArray();
+            data.setUserPhotoUrl(mView.getPhotoUrl());
+            data.setUserNickname(mView.getNickname());
+            data.setUserEmail(mView.getUserEmail());
+            data.setPhotoUrl("");
+            data.setMessage(message);
+            data.setTime(System.currentTimeMillis());
+            if (object.getMessageArray() != null && object.getMessageArray().size() != 0){
+                object.getMessageArray().add(data);
+                String msgJson = gson.toJson(object);
+                mView.updatePersonalChatData(msgJson,roomId);
+            }else {
+                msgArray = new ArrayList<>();
+                msgArray.add(data);
+                object.setMessageArray(msgArray);
+                String msgJson = gson.toJson(object);
                 mView.updatePersonalChatData(msgJson,roomId);
             }
         }

@@ -30,6 +30,8 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.path.mypath.MainActivity;
 import com.path.mypath.R;
+import com.path.mypath.message_activity.MessageActivity;
+import com.path.mypath.message_activity.MessageActivityPresenterImpl;
 import com.path.mypath.photo_activity.SelectPhotoActivity;
 import com.path.mypath.share_page.ShareActivity;
 
@@ -193,7 +195,8 @@ public class HomeActivity extends AppCompatActivity implements HomeActivityVu {
     @Override
     public void intentToMessageActivity() {
 
-
+        Intent it = new Intent(this, MessageActivity.class);
+        startActivity(it);
 
     }
 

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/chat_right_image_one"
+        android:padding="10dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:riv_corner_radius="5dip"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:layout_width="@dimen/chat_left_image_width"
+        android:layout_height="@dimen/chat_left_image_width"/>
+
+    <ImageView
+        app:layout_constraintTop_toTopOf="@id/chat_right_image_one"
+        app:layout_constraintBottom_toBottomOf="@id/chat_right_image_one"
+        app:layout_constraintRight_toLeftOf="@id/chat_right_image_one"
+        android:layout_marginEnd="2dp"
+        android:visibility="gone"
+        android:contentDescription="@null"
+        android:id="@+id/chat_right_share_one"
+        android:src="@drawable/share_chat"
+        android:layout_width="@dimen/share_chat_size"
+        android:layout_height="@dimen/share_chat_size"/>
+
+    <TextView
+        android:id="@+id/chat_right_item_time_one"
+        tools:text="15:00PM"
+        android:layout_marginEnd="2dp"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:textColor="@color/white"
+        app:layout_constraintRight_toLeftOf="@id/chat_right_image_one"
+        app:layout_constraintBottom_toBottomOf="@id/chat_right_image_one"
+        android:textSize="@dimen/smaller_text_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <com.makeramen.roundedimageview.RoundedImageView
+        android:id="@+id/chat_right_image_two"
+        android:padding="10dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="@id/chat_right_image_one"
+        app:layout_constraintRight_toLeftOf="@id/chat_right_image_one"
+        app:riv_corner_radius="5dip"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:layout_width="@dimen/chat_left_image_width"
+        android:layout_height="@dimen/chat_left_image_width"/>
+
+    <ImageView
+        app:layout_constraintTop_toTopOf="@id/chat_right_image_two"
+        app:layout_constraintBottom_toBottomOf="@id/chat_right_image_two"
+        app:layout_constraintRight_toLeftOf="@id/chat_right_image_two"
+        android:layout_marginEnd="2dp"
+        android:visibility="gone"
+        android:contentDescription="@null"
+        android:id="@+id/chat_right_share_two"
+        android:src="@drawable/share_chat"
+        android:layout_width="@dimen/share_chat_size"
+        android:layout_height="@dimen/share_chat_size"/>
+
+    <TextView
+        android:id="@+id/chat_right_item_time_two"
+        tools:text="15:00PM"
+        android:textColor="@color/white"
+        android:layout_marginEnd="2dp"
+        android:layout_marginBottom="5dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintRight_toLeftOf="@id/chat_right_image_two"
+        app:layout_constraintBottom_toBottomOf="@id/chat_right_image_two"
+        android:textSize="@dimen/smaller_text_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    
+
+    <TextView
+        android:background="@drawable/chat_shap_right"
+        android:padding="10dp"
+        android:gravity="center|start"
+        android:text="XXXXXXXXX"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:id="@+id/chat_item_message"
+        android:textSize="@dimen/big_text_size"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/chat_item_time"
+        app:layout_constraintRight_toLeftOf="@id/chat_item_message"
+        app:layout_constraintBottom_toBottomOf="@id/chat_item_message"
+        android:textSize="@dimen/smaller_text_size"
+        android:textColor="@color/white"
+        tools:text="12:00PM"
+        android:layout_marginEnd="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -11,11 +11,14 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
@@ -67,8 +70,8 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
             holder.ivPhoto.setVisibility(View.GONE);
             //設定MAP
             if (holder.mapView != null) {
-                holder.mapView.onCreate(null);
-                holder.mapView.onResume();
+//                holder.mapView.onCreate(null);
+//                holder.mapView.onResume();
                 holder.mapView.getMapAsync(new OnMapReadyCallback() {
                     @Override
                     public void onMapReady(GoogleMap googleMap) {
@@ -106,34 +109,15 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
         }
 
 
-//        if (holder.mapView != null){
-//
-//            holder.mapView.onCreate(null);
-//            holder.mapView.onResume();
-//            holder.mapView.getMapAsync(new OnMapReadyCallback() {
-//                @Override
-//                public void onMapReady(GoogleMap map) {
-//                    PolylineOptions rectOptions = new PolylineOptions();
-//                    //繪製路線
-//                    ArrayList<LatLng> locationArray = data.getLocationArray();
-//                    for (LatLng latLng : locationArray) {
-//                        rectOptions.add(latLng).color(Color.RED);
-//                    }
-//                    holder.googleMap = map;
-//                    holder.googleMap.addPolyline(rectOptions);
-//                    holder.googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArray.get(data.getLocationArray().size() - 1)));
-//                    holder.googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-//                    holder.googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-//                        @Override
-//                        public void onMapClick(LatLng latLng) {
-//                            listener.onClick(data);
-//                        }
-//                    });
-//                }
-//            });
-//        }
+    }
 
-
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder.googleMap != null){
+            holder.googleMap.clear();
+            holder.googleMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+        }
     }
 
     @Override
@@ -179,16 +163,6 @@ public class MapAdapter extends RecyclerView.Adapter<MapAdapter.ViewHolder> {
                     @Override
                     public void onMapReady(GoogleMap map) {
                         googleMap = map;
-                        //        holder.googleMap.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
-//                location.getLongitude())).title("目前位置"));
-                        googleMap.setMyLocationEnabled(true);
-                        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-                        googleMap.getUiSettings().setZoomControlsEnabled(true);  // 右下角的放大縮小功能
-                        googleMap.getUiSettings().setCompassEnabled(true);       // 左上角的指南針，要兩指旋轉才會出現
-                        googleMap.getUiSettings().setMapToolbarEnabled(true);    // 右下角的導覽及開啟 Google Map功能
-
-//        holder.googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
-                        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
                     }
                 });
             }

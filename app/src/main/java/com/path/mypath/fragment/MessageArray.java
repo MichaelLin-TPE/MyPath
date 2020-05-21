@@ -1,10 +1,10 @@
-package com.path.mypath.fragment.user_fragment;
+package com.path.mypath.fragment;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class MessageObject implements Serializable {
+public class MessageArray implements Serializable {
     @SerializedName("user_email")
     private String userEmail;
     @SerializedName("user_nickname")
