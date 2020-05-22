@@ -21,6 +21,16 @@ public class MessageObject implements Serializable {
     private String user2Nickname;
     @SerializedName("user2PhotoUrl")
     private String user2PhotoUrl;
+    @SerializedName("room_id")
+    private String roomId;
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
 
     public String getUser1Nickname() {
         return user1Nickname;

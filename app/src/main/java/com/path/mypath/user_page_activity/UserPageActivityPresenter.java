@@ -1,5 +1,7 @@
 package com.path.mypath.user_page_activity;
 
+import com.path.mypath.data_parser.DataArray;
+
 public interface UserPageActivityPresenter {
     void onBackButtonClickListener();
 
@@ -10,4 +12,8 @@ public interface UserPageActivityPresenter {
     void onCatchUserLikeDataSuccessful(String json);
 
     void onCatchUserDataSuccessful(String json);
+
+    void onCatchHomeDataSuccessful(String json);
+
+    void onMapItemClickListener(DataArray locationArray);
 }

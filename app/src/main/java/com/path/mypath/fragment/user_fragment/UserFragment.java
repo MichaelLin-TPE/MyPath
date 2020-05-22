@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -36,6 +38,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -48,6 +52,7 @@ import com.path.mypath.MainActivity;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
+import com.path.mypath.fragment.MessageArray;
 import com.path.mypath.fragment.user_fragment.user_presenter.UserPresenter;
 import com.path.mypath.fragment.user_fragment.user_presenter.UserPresenterImpl;
 import com.path.mypath.fragment.user_fragment.user_view.UserInfoViewHolder;
@@ -59,6 +64,7 @@ import com.path.mypath.tools.UserDataProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +90,10 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     private static final String HOME_DATA = "home_data";
 
     private GoogleSignInClient googleSignInClient;
+
+    private byte[] byteArray;
+
+    private Handler handler = new Handler();
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -182,6 +192,74 @@ public class UserFragment extends Fragment implements UserFragmentVu {
                     }
                 }
             });
+
+            firestore.collection("personal_chat")
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
+                            if (e != null){
+                                Log.i("Michael","Chat DATA 取得資料失敗 : "+e.toString());
+                                return;
+                            }
+                            if (snapshots != null){
+                                ArrayList<String> chatJsonArray = new ArrayList<>();
+                                ArrayList<String> roomIdArray = new ArrayList<>();
+                                for (QueryDocumentSnapshot data : snapshots){
+                                    String json = (String) data.get("json");
+                                    chatJsonArray.add(json);
+                                    roomIdArray.add(data.getId());
+                                }
+                                if (chatJsonArray.size() != 0){
+                                    presenter.onCatchPersonalChatData(chatJsonArray,roomIdArray);
+                                }
+                            }
+                        }
+                    });
+
+            firestore.collection(PERSONAL_DATA)
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
+                            if (e != null){
+                                Log.i("Michael","使用者資料取得失敗 : "+e.toString());
+                                return;
+                            }
+                            if (snapshots != null){
+                                ArrayList<String> userJsonArray = new ArrayList<>();
+                                for (QueryDocumentSnapshot data : snapshots){
+                                    String json = (String) data.get("user_json");
+                                    userJsonArray.add(json);
+                                }
+                                if (userJsonArray.size() != 0){
+                                    presenter.onCatchAllUserData(userJsonArray);
+                                }
+                            }
+                        }
+                    });
+
+            firestore.collection("user_like")
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
+                            if (e != null){
+                                Log.i("Michael","所有 愛心頁面資料取得失敗 : "+e.toString());
+                                return;
+                            }
+                            if (snapshots != null){
+                                ArrayList<String> likeJsonArray = new ArrayList<>();
+                                ArrayList<String> emailArray = new ArrayList<>();
+                                for (QueryDocumentSnapshot data : snapshots){
+                                    String json = (String) data.get("json");
+                                    likeJsonArray.add(json);
+                                    emailArray.add(data.getId());
+                                }
+                                if (likeJsonArray.size() != 0){
+                                    presenter.onCatchAllLikeData(likeJsonArray,emailArray);
+                                }
+                            }
+                        }
+                    });
+
         }
 
     }
@@ -295,32 +373,39 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     @Override
     public void updateUserPhoto(byte[] byteArray) {
 
-
-        if (user != null && user.getEmail() != null){
-            StorageReference river = storageReference.child(user.getEmail() + "/" + "user_photo" + "/" + user.getEmail() + ".jpg");
-            UploadTask task = river.putBytes(byteArray);
-            task.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    river.getDownloadUrl()
-                            .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    String downLoadUrl = uri.toString();
-                                    presenter.onCatchPhotoUrl(downLoadUrl);
-                                }
-                            });
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.i("Michael", "上傳錯誤 : " + e.toString());
-                }
-            });
-        }
-
+        this.byteArray = byteArray;
+        handler.post(updatePhoto);
 
     }
+
+    private Runnable updatePhoto = new Runnable() {
+        @Override
+        public void run() {
+            if (user != null && user.getEmail() != null){
+                StorageReference river = storageReference.child(user.getEmail() + "/" + "user_photo" + "/" + user.getEmail() + ".jpg");
+                UploadTask task = river.putBytes(byteArray);
+                task.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        river.getDownloadUrl()
+                                .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        String downLoadUrl = uri.toString();
+
+                                        presenter.onCatchPhotoUrl(downLoadUrl);
+                                    }
+                                });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i("Michael", "上傳錯誤 : " + e.toString());
+                    }
+                });
+            }
+        }
+    };
 
     @Override
     public void updateFirebaseData(String json) {
@@ -345,7 +430,16 @@ public class UserFragment extends Fragment implements UserFragmentVu {
 
     @Override
     public void showToast(String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        if (getActivity() != null){
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+
     }
 
     @Override
@@ -526,5 +620,64 @@ public class UserFragment extends Fragment implements UserFragmentVu {
             getActivity().finish();
         }
 
+    }
+
+    @Override
+    public void updateChatData(String chatJson, String roomId) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("json",chatJson);
+        firestore.collection("personal_chat")
+                .document(roomId)
+                .set(map,SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","update chat data good");
+                            presenter.onUpdateNextChatData();
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void updateAllUserData(String userEmail, String userJson) {
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("json",userJson);
+
+        firestore.collection(PERSONAL_DATA)
+                .document(userEmail)
+                .set(map,SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","update user data good");
+                            presenter.onUpdateNextUserData();
+                        }
+                    }
+                });
+
+    }
+
+    @Override
+    public void updateAllLikeData(String likeJson, String email) {
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("json",likeJson);
+
+        firestore.collection("user_like")
+                .document(email)
+                .set(map,SetOptions.merge())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Log.i("Michael","update user like good");
+                            presenter.onUpdateNextLikeData();
+                        }
+                    }
+                });
     }
 }

@@ -41,4 +41,10 @@ public interface UserFragmentVu {
     void showLogoutConfirmDialog();
 
     void logout();
+
+    void updateChatData(String chatJson, String roomId);
+
+    void updateAllUserData(String userEmail, String userJson);
+
+    void updateAllLikeData(String likeJson, String email);
 }

@@ -124,13 +124,12 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
             }
         });
         firestore.collection(CHAT_ROOM)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful() && task.getResult() != null){
+                    public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
+                        if (snapshots != null){
                             ArrayList<RoomIdObject> roomArray = new ArrayList<>();
-                            for (QueryDocumentSnapshot data : task.getResult()){
+                            for (QueryDocumentSnapshot data : snapshots){
                                 String user1 = (String) data.get("user1");
                                 String user2 = (String) data.get("user2");
                                 RoomIdObject object = new RoomIdObject();
@@ -140,6 +139,7 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
                                 roomArray.add(object);
                             }
                             presenter.onCatchRoomIdList(roomArray);
+                            Log.i("Michael","有取道聊天室資料 : "+roomArray.get(0).getRoomId());
                         }
                     }
                 });

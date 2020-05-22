@@ -202,23 +202,35 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
 
     @Override
     public void onEditTextSendTypeListener(String message, String userEmail, String articleCreator) {
-        if (roomIdArray == null){
-            mView.createChatRoom(userEmail,articleCreator,message);
+
+        if (message != null && !message.isEmpty()){
+            if (roomIdArray == null){
+                mView.createChatRoom(userEmail,articleCreator,message);
+            }else {
+                roomId = "";
+
+                for (RoomIdObject object : roomIdArray){
+                    if (object.getUser1().equals(userEmail) && object.getUser2().equals(articleCreator)){
+                        roomId = object.getRoomId();
+                        break;
+                    }
+                    if (object.getUser1().equals(articleCreator) && object.getUser2().equals(userEmail)){
+                        roomId = object.getRoomId();
+                        break;
+                    }
+                }
+                if (roomId != null && !roomId.isEmpty()){
+                    mView.searchPersonChatRoomData(userEmail,articleCreator,message,roomId);
+                }else {
+                    mView.createChatRoom(userEmail,articleCreator,message);
+                }
+            }
         }else {
-            for (RoomIdObject object : roomIdArray){
-                if (object.getUser1().equals(userEmail) && object.getUser2().equals(articleCreator)){
-                    roomId = object.getRoomId();
-                    break;
-                }
-                if (object.getUser1().equals(articleCreator) && object.getUser2().equals(userEmail)){
-                    roomId = object.getRoomId();
-                    break;
-                }
-            }
-            if (roomId != null){
-                mView.searchPersonChatRoomData(userEmail,articleCreator,message,roomId);
-            }
+            String content = "說點話吧!!!";
+            mView.showToast(content);
         }
+
+
     }
 
     @Override
@@ -245,6 +257,7 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
         object.setUser1PhotoUrl(mView.getPhotoUrl());
         object.setUser2Nickname(pressedData.getUserNickName());
         object.setUser2PhotoUrl(pressedData.getUserPhoto());
+        object.setRoomId(roomId);
         ArrayList<MessageArray> msgArray = new ArrayList<>();
         MessageArray data = new MessageArray();
         data.setMessage(message);

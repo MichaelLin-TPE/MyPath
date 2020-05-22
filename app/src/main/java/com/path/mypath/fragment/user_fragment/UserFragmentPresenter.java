@@ -2,6 +2,8 @@ package com.path.mypath.fragment.user_fragment;
 
 import com.path.mypath.data_parser.DataArray;
 
+import java.util.ArrayList;
+
 public interface UserFragmentPresenter {
     void onSearchDataFromFirebase();
 
@@ -36,4 +38,16 @@ public interface UserFragmentPresenter {
     void onLogoutClickListener();
 
     void onLogoutConfirmClickListener();
+
+    void onCatchPersonalChatData(ArrayList<String> chatJsonArray, ArrayList<String> roomIdArray);
+
+    void onUpdateNextChatData();
+
+    void onCatchAllUserData(ArrayList<String> userJsonArray);
+
+    void onUpdateNextUserData();
+
+    void onCatchAllLikeData(ArrayList<String> likeJsonArray, ArrayList<String> emailArray);
+
+    void onUpdateNextLikeData();
 }

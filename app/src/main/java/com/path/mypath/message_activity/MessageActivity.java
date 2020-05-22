@@ -64,12 +64,13 @@ public class MessageActivity extends AppCompatActivity implements MessageActivit
                             ArrayList<MessageListDTO> msgArray = new ArrayList<>();
                             ArrayList<String> roomIdArray = new ArrayList<>();
                             for (QueryDocumentSnapshot snapshot : task.getResult()){
-                                roomIdArray.add(snapshot.getId());
+
                                 String json = (String) snapshot.get("json");
                                 Log.i("Michael","取到的JSON : "+json);
                                 MessageObject object = gson.fromJson(json, MessageObject.class);
                                 if (object.getUser1().equals(email)) {
                                     MessageListDTO dto = new MessageListDTO();
+                                    roomIdArray.add(snapshot.getId());
                                     dto.setTime(object.getMessageArray().get(object.getMessageArray().size() - 1).getTime());
                                     dto.setUserEmail(object.getUser2());
                                     dto.setUserPhoto(object.getUser2PhotoUrl());
@@ -78,6 +79,7 @@ public class MessageActivity extends AppCompatActivity implements MessageActivit
                                     msgArray.add(dto);
                                 } else if (object.getUser2().equals(email)) {
                                     MessageListDTO dto = new MessageListDTO();
+                                    roomIdArray.add(snapshot.getId());
                                     dto.setTime(object.getMessageArray().get(object.getMessageArray().size() - 1).getTime());
                                     dto.setUserEmail(object.getUser1());
                                     dto.setUserPhoto(object.getUser1PhotoUrl());

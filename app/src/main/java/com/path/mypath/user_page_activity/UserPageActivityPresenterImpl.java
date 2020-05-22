@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.path.mypath.data_parser.ArticleLikeNotification;
+import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.data_parser.FCMData;
 import com.path.mypath.data_parser.FCMNotification;
@@ -27,6 +28,8 @@ public class UserPageActivityPresenterImpl implements UserPageActivityPresenter 
     private String token;
 
     private ArrayList<ArticleLikeNotification> notificationDataArray;
+
+    private ArrayList<DataArray> dataArray;
 
     public UserPageActivityPresenterImpl(UserPageActivityVu mView) {
         this.mView = mView;
@@ -113,5 +116,30 @@ public class UserPageActivityPresenterImpl implements UserPageActivityPresenter 
     @Override
     public void onCatchUserDataSuccessful(String token) {
         this.token = token;
+    }
+
+    @Override
+    public void onCatchHomeDataSuccessful(String json) {
+        if (json != null){
+            dataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
+        }
+    }
+
+    @Override
+    public void onMapItemClickListener(DataArray locationArray) {
+        boolean isDataFound = false;
+        if (dataArray != null){
+            for (DataArray data : dataArray){
+                if (data.getArticleTitle().equals(locationArray.getArticleTitle()) && data.getCurrentTime() == locationArray.getCurrentTime()){
+                    mView.intentToSingleViewActivity(data);
+                    isDataFound = true;
+                    break;
+                }
+            }
+            if (!isDataFound){
+                mView.intentToSingleViewActivity(locationArray);
+            }
+
+        }
     }
 }

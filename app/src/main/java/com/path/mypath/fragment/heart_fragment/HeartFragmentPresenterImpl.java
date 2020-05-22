@@ -42,6 +42,7 @@ public class HeartFragmentPresenterImpl implements HeartFragmentPresenter {
         if (json != null){
             likeArray = gson.fromJson(json,new TypeToken<List<ArticleLikeNotification>>(){}.getType());
             if (likeArray != null){
+                mView.setView(true);
                 Collections.sort(likeArray, new Comparator<ArticleLikeNotification>() {
                     @Override
                     public int compare(ArticleLikeNotification o1, ArticleLikeNotification o2) {
@@ -52,6 +53,7 @@ public class HeartFragmentPresenterImpl implements HeartFragmentPresenter {
             }
         }else {
             Log.i("Michael","likeJson = null");
+            mView.setView(false);
         }
     }
 

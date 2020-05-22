@@ -49,7 +49,7 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
 
     private SingleViewPresenter presenter;
 
-    private ImageView ivBack, ivHeart, ivReply, ivSend, ivSort;
+    private ImageView ivBack, ivHeart, ivReply, ivSend, ivSort ,ivLogout;
 
     private RoundedImageView ivPhoto;
 
@@ -110,6 +110,7 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
     }
 
     private void initView() {
+
         tvReplyCount = findViewById(R.id.single_item_reply_count);
         ivBack = findViewById(R.id.single_toolbar_icon);
         ivHeart = findViewById(R.id.single_item_heart);

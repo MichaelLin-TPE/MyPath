@@ -36,6 +36,8 @@ public class InformationViewHolder extends RecyclerView.ViewHolder {
 
     private TextView tvNickname,tvSentence,tvArticleCount,tvFriendCount,tvChasingCount;
 
+    private ImageView ivLogout;
+
     private Button btnEdit,btnSend;
 
     private ImageView ivEditName,ivEditSentence;
@@ -65,6 +67,7 @@ public class InformationViewHolder extends RecyclerView.ViewHolder {
     public InformationViewHolder(@NonNull View itemView, Context context) {
         super(itemView);
         this.context = context;
+        ivLogout = itemView.findViewById(R.id.user_logout);
         ivPhoto = itemView.findViewById(R.id.user_photo);
         tvNickname = itemView.findViewById(R.id.user_nickname);
         tvSentence = itemView.findViewById(R.id.user_sentence);
@@ -79,7 +82,7 @@ public class InformationViewHolder extends RecyclerView.ViewHolder {
         btnSend.setVisibility(View.VISIBLE);
         ivEditName.setVisibility(View.GONE);
         ivEditSentence.setVisibility(View.GONE);
-
+        ivLogout.setVisibility(View.GONE);
         //initFirebase
         gson = new Gson();
         firestore = FirebaseFirestore.getInstance();

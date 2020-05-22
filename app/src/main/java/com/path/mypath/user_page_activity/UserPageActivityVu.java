@@ -1,5 +1,6 @@
 package com.path.mypath.user_page_activity;
 
+import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 
 public interface UserPageActivityVu {
@@ -14,4 +15,6 @@ public interface UserPageActivityVu {
     String getUserPhoto();
 
     String getUserEmail();
+
+    void intentToSingleViewActivity(DataArray data);
 }

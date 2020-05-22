@@ -10,6 +10,7 @@
     <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/message_item_photo"
         app:riv_oval="true"
+        android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_width="@dimen/normal_icon_size"

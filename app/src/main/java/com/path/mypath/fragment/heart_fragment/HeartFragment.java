@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -48,6 +50,10 @@ public class HeartFragment extends Fragment implements HeartFragmentVu{
     private static final String USER_LIKE = "user_like";
 
     private static final String HOME_DATA = "home_data";
+
+    private ImageView ivIcon;
+
+    private TextView tvInfo;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -89,6 +95,8 @@ public class HeartFragment extends Fragment implements HeartFragmentVu{
     private void initView(View view) {
         recyclerView = view.findViewById(R.id.heart_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        ivIcon = view.findViewById(R.id.heart_icon);
+        tvInfo = view.findViewById(R.id.heart_info);
     }
 
     @Override
@@ -257,5 +265,11 @@ public class HeartFragment extends Fragment implements HeartFragmentVu{
                         }
                     }
                 });
+    }
+
+    @Override
+    public void setView(boolean isShow) {
+        tvInfo.setVisibility(isShow ? View.GONE : View.VISIBLE);
+        ivIcon.setVisibility(isShow ? View.GONE : View.VISIBLE);
     }
 }

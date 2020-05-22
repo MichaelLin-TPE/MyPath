@@ -24,6 +24,7 @@ import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.fragment.user_fragment.user_view.MapAdapter;
+import com.path.mypath.single_view_activity.SingleViewActivity;
 import com.path.mypath.tools.UserDataProvider;
 import com.path.mypath.user_page_activity.user_presenter.UserPresenter;
 import com.path.mypath.user_page_activity.user_presenter.UserPresenterImpl;
@@ -52,6 +53,8 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
 
     private static final String USER = "user";
 
+    private static final String HOME_DATA = "home_data";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,8 +64,8 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
         initBundle();
         initView();
         if (articleCreatorEmail != null){
-            DocumentReference homeShot = firestore.collection(PERSONAL_DATA).document(articleCreatorEmail);
-            homeShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            DocumentReference personalShot = firestore.collection(PERSONAL_DATA).document(articleCreatorEmail);
+            personalShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
                 public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                     if (e != null){
@@ -100,6 +103,21 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
                     if (documentSnapshot != null){
                         String json = (String) documentSnapshot.get("cloud_token");
                         presenter.onCatchUserDataSuccessful(json);
+                    }
+                }
+            });
+
+            DocumentReference homeShot = firestore.collection(HOME_DATA).document(HOME_DATA);
+            homeShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                    if (e != null){
+                        Log.i("Michael","主頁面資料取得失敗 : "+e.toString());
+                        return;
+                    }
+                    if (documentSnapshot != null){
+                        String json = (String) documentSnapshot.get("json");
+                        presenter.onCatchHomeDataSuccessful(json);
                     }
                 }
             });
@@ -149,7 +167,7 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
         adapter.setOnMapItemClickListener(new MapAdapter.OnMapItemClickListener() {
             @Override
             public void onClick(DataArray locationArray) {
-
+                presenter.onMapItemClickListener(locationArray);
             }
         });
         adapter.setOnUserPageClickListener(new InformationViewHolder.OnUserPageClickListener() {
@@ -190,5 +208,12 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
     @Override
     public String getUserEmail() {
         return UserDataProvider.getInstance(this).getUserEmail();
+    }
+
+    @Override
+    public void intentToSingleViewActivity(DataArray data) {
+        Intent it = new Intent(this, SingleViewActivity.class);
+        it.putExtra("data",data);
+        startActivity(it);
     }
 }

@@ -57,4 +57,5 @@
     <string name="edit_personal_info">修改個人資訊</string>
     <string name="say_something">說點甚麼吧...</string>
     <string name="my_message">訊息</string>
+    <string name="no_information_heart">還沒有任何訊息,在等等吧..</string>
 </resources>
