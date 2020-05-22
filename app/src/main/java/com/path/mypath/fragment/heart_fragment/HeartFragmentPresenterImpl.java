@@ -150,7 +150,7 @@ public class HeartFragmentPresenterImpl implements HeartFragmentPresenter {
                 fansObject.setChasingCount(fansObject.getChaseArray().size());
             }
             String fansJson = gson.toJson(fansObject);
-            mView.updateFansData(data.getUserNickname(),fansJson);
+            mView.updateFansData(data.getUserEmail(),fansJson);
         }
 
     }

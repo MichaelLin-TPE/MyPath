@@ -217,16 +217,13 @@ public class UserFragment extends Fragment implements UserFragmentVu {
                     });
 
             firestore.collection(PERSONAL_DATA)
-                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
-                        public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
-                            if (e != null){
-                                Log.i("Michael","使用者資料取得失敗 : "+e.toString());
-                                return;
-                            }
-                            if (snapshots != null){
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful() && task.getResult() != null){
                                 ArrayList<String> userJsonArray = new ArrayList<>();
-                                for (QueryDocumentSnapshot data : snapshots){
+                                for (QueryDocumentSnapshot data : task.getResult()){
                                     String json = (String) data.get("user_json");
                                     userJsonArray.add(json);
                                 }
@@ -238,17 +235,14 @@ public class UserFragment extends Fragment implements UserFragmentVu {
                     });
 
             firestore.collection("user_like")
-                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
-                        public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
-                            if (e != null){
-                                Log.i("Michael","所有 愛心頁面資料取得失敗 : "+e.toString());
-                                return;
-                            }
-                            if (snapshots != null){
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful() && task.getResult() != null){
                                 ArrayList<String> likeJsonArray = new ArrayList<>();
                                 ArrayList<String> emailArray = new ArrayList<>();
-                                for (QueryDocumentSnapshot data : snapshots){
+                                for (QueryDocumentSnapshot data : task.getResult()){
                                     String json = (String) data.get("json");
                                     likeJsonArray.add(json);
                                     emailArray.add(data.getId());
@@ -259,7 +253,6 @@ public class UserFragment extends Fragment implements UserFragmentVu {
                             }
                         }
                     });
-
         }
 
     }
@@ -644,7 +637,7 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     public void updateAllUserData(String userEmail, String userJson) {
 
         Map<String,Object> map = new HashMap<>();
-        map.put("json",userJson);
+        map.put("user_json",userJson);
 
         firestore.collection(PERSONAL_DATA)
                 .document(userEmail)

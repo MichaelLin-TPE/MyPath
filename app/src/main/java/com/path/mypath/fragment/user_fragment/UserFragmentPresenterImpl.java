@@ -191,9 +191,10 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
         if (likeCount < allLikeArray.size()){
             String likeJson = gson.toJson(allLikeArray.get(likeCount));
             String email = emailArray.get(likeCount);
-            Log.i("Michael","被更新的 EMAIL : "+email);
+            Log.i("Michael","被更新的 EMAIL : "+email+" , json : "+likeJson);
             mView.updateAllLikeData(likeJson,email);
         }else {
+            Log.i("Michael","likeData更新結束");
             likeCount = 0;
         }
     }
@@ -204,6 +205,7 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
             String userEmail = allUserArray.get(userCount).getEmail();
             mView.updateAllUserData(userEmail, userJson);
         } else {
+            Log.i("Michael","allUserData更新結束");
             userCount = 0;
         }
     }
@@ -214,6 +216,7 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
             String roomId = msgArray.get(chatCount).getRoomId();
             mView.updateChatData(chatJson, roomId);
         } else {
+            Log.i("Michael","chatData更新結束");
             chatCount = 0;
         }
     }
@@ -385,15 +388,21 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
         //更新所有愛心頁面的資料
         if (allLikeArray != null && allLikeArray.size() != 0) {
             Log.i("Michael","舊的 名字 : "+oldNickname+ " , 新的名字 : "+nickname);
+            int index = 0;
             for (ArrayList<ArticleLikeNotification> data : allLikeArray) {
                 for (ArticleLikeNotification object : data) {
                     if (object.getUserNickname().equals(oldNickname)) {
+                        Log.i("Michael","即將改變的名字 : "+object.getUserNickname() + "第"+index+"筆"+ " , 擁有者 : "+object.getArticleCreatorName());
                         object.setUserNickname(nickname);
+                        Log.i("Michael","改變後的名字 : "+object.getUserNickname() + "第"+index+"筆"+ " , 擁有者 : "+object.getArticleCreatorName());
                     }
                     if (object.getArticleCreatorName().equals(oldNickname)){
+                        Log.i("Michael","即將改變的名字 : "+object.getArticleCreatorName() + "第"+index+"筆"+ " , 擁有者 : "+object.getArticleCreatorName());
                         object.setArticleCreatorName(nickname);
+                        Log.i("Michael","改變後的名字 : "+object.getArticleCreatorName() + "第"+index+"筆"+ " , 擁有者 : "+object.getArticleCreatorName());
                     }
                 }
+                index ++;
             }
             updateAllLikeData();
         }

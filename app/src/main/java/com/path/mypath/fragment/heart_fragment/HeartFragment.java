@@ -251,11 +251,11 @@ public class HeartFragment extends Fragment implements HeartFragmentVu{
     }
 
     @Override
-    public void updateFansData(String userNickname, String fansJson) {
+    public void updateFansData(String userEmail, String fansJson) {
         Map<String,Object> map = new HashMap<>();
         map.put("user_json",fansJson);
         firestore.collection("personal_data")
-                .document(userNickname)
+                .document(userEmail)
                 .set(map,SetOptions.merge())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
