@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.ArticleLikeNotification;
+import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.tools.ImageLoaderProvider;
 import com.path.mypath.tools.UserDataProvider;
@@ -144,11 +145,20 @@ public class InformationViewHolder extends RecyclerView.ViewHolder {
             }
         });
 
+        tvArticleCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onArticleCountClick(data.getDataArray());
+            }
+        });
+
 
 
     }
 
     public interface OnUserPageClickListener{
         void onBtnSendClick(String creatorEmail);
+
+        void onArticleCountClick(ArrayList<DataArray> dataArray);
     }
 }

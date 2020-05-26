@@ -50,6 +50,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.path.mypath.MainActivity;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
+import com.path.mypath.tools.DistanceTool;
 import com.path.mypath.tools.UserDataProvider;
 
 import java.lang.ref.WeakReference;
@@ -261,6 +262,7 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
                             googleMap.getUiSettings().setMapToolbarEnabled(true);    // 右下角的導覽及開啟 Google Map功能
 
                             googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())));
+
                             googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
                             Log.i("Michael", "錄製到的經度 : " + location.getLatitude() + " , 緯度 : " + location.getLongitude());
                         }
@@ -604,6 +606,8 @@ public class ShareActivity extends AppCompatActivity implements ShareActivityVu 
                                                 ,lastSecondLat.latitude,lastSecondLat.longitude);
 
                                         mainActivity.tvDistance.setText(String.format(Locale.getDefault(),"已經移動了 %1$,.2f 公尺",mainActivity.distance));
+
+                                        mainActivity.googleMap.moveCamera(CameraUpdateFactory.zoomTo(DistanceTool.getInstance().getZoomKmLevel(mainActivity.distance)));
 
                                         Log.i("Michael",String.format(Locale.getDefault(),"已經移動了 : %1$.4f",mainActivity.distance));
                                     }

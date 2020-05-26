@@ -24,6 +24,7 @@ import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.data_parser.DataUserPresHeart;
+import com.path.mypath.tools.DistanceTool;
 import com.path.mypath.tools.ImageLoaderProvider;
 import com.path.mypath.tools.UserDataProvider;
 
@@ -41,6 +42,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
     private OnHomeItemClickListener listener;
 
     private String userNickname;
+
+    private static final double EARTH_RADIUS = 6378.137;
 
     public void setOnHomeItemClickListener(OnHomeItemClickListener listener) {
         this.listener = listener;
@@ -132,7 +135,22 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
                         googleMap.addPolyline(rectOptions);
                         int centerIndex = itemData.getLocationArray().size() / 2;
                         googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArray.get(centerIndex)));
-                        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+                        if (itemData.getDistance() != 0){
+
+                            double firstLat = locationArray.get(0).latitude;
+
+                            double firstLng = locationArray.get(0).longitude;
+
+                            double secondLat = locationArray.get(locationArray.size() -1).latitude;
+
+                            double secondLng = locationArray.get(locationArray.size() -1).longitude;
+
+                            double distance = getDistance(firstLat,firstLng,secondLat,secondLng);
+
+                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(DistanceTool.getInstance().getZoomKmLevel(distance)));
+                        }else {
+                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+                        }
                     }
                 });
             }
@@ -223,6 +241,29 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
             }
         });
 
+    }
+
+    //轉弧度
+    private double rad (double radius){
+        return radius * Math.PI/180.0;
+    }
+
+    private double getDistance(double lat1,double long1,double lat2, double long2){
+
+        double firstRadLat = rad(lat1);
+        double firstRadLng = rad(long1);
+        double secondRadLat = rad(lat2);
+        double secondRadLng = rad(long2);
+
+        double a = firstRadLat - secondRadLat;
+        double b = firstRadLng - secondRadLng;
+
+        double cal = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(firstRadLat)
+                * Math.cos(secondRadLat) * Math.pow(Math.sin(b / 2), 2))) * EARTH_RADIUS;
+        double result = Math.round(cal * 10000d) / 10000d;
+
+        Log.i("Michael","計算出的距離 公尺 : "+result*1024);
+        return result*1024;
     }
 
     @Override

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".heart_activity.HeartActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/heart_toolbar"
+        android:background="@color/black_lite"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height">
+
+        <ImageView
+            android:layout_gravity="center|start"
+            android:contentDescription="@null"
+            android:id="@+id/heart_toolbar_icon"
+            android:src="@drawable/back"
+            android:layout_width="@dimen/back_icon_size"
+            android:layout_height="@dimen/back_icon_size"/>
+
+        <TextView
+            android:id="@+id/heart_toolbar_title"
+            android:textColor="@color/white"
+            android:layout_gravity="center"
+            android:textSize="@dimen/toolbar_title_size"
+            android:text="@string/heart_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+    </androidx.appcompat.widget.Toolbar>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/heart_recycler_view"
+        app:layout_constraintTop_toBottomOf="@id/heart_toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

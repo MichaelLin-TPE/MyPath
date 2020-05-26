@@ -1,26 +1,22 @@
-package com.path.mypath.fragment;
-
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
+package com.path.mypath.article_activity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,9 +32,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
+import com.path.mypath.fragment.HomeAdapter;
+import com.path.mypath.fragment.RoomIdObject;
 import com.path.mypath.heart_activity.HeartActivity;
-import com.path.mypath.heart_activity.HeartUserAdapter;
-import com.path.mypath.home_activity.HomeActivity;
 import com.path.mypath.reply_activity.ReplyActivity;
 import com.path.mypath.tools.UserDataProvider;
 import com.path.mypath.user_page_activity.UserPageActivity;
@@ -47,84 +43,46 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+public class ArticleActivity extends AppCompatActivity implements ArticleActivityVu{
 
-public class HomeFragment extends Fragment implements HomeFragmentVu {
+    private static final String USER_LIKE = "user_like";
+    private static final String PERSONAL_CHAT = "personal_chat";
+    private static final String PERSONAL_DATA = "personal_data";
+    private ArticleActivityPresenter presenter;
 
-    private Context context;
-
-    private HomeFragmentPresenter presenter;
+    private ImageView ivBack;
 
     private RecyclerView recyclerView;
 
-    private FirebaseFirestore firestore;
-
-    private HomeAdapter adapter;
-
-    private static final String PERSONAL_DATA = "personal_data";
-
     private static final String HOME_DATA = "home_data";
 
-    private static final String USER_LIKE = "user_like";
+    private FirebaseFirestore firestore;
 
     private static final String CHAT_ROOM = "chat_room";
 
-    private static final String PERSONAL_CHAT = "personal_chat";
-
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        this.context = context;
-    }
-
-    public static HomeFragment newInstance() {
-        HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_article);
         initPresenter();
-        initFriebase();
-
-    }
-
-    private void initFriebase() {
-        firestore = FirebaseFirestore.getInstance();
-    }
-
-    private void initPresenter() {
-        presenter = new HomeFragmentPresenterImpl(this);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
-        initView(view);
-        return view;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        DocumentReference snapshot = firestore.collection(HOME_DATA).document(HOME_DATA);
-        snapshot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        initView();
+        initBundle();
+        initFirebase();
+        DocumentReference homeShot = firestore.collection(HOME_DATA).document(HOME_DATA);
+        homeShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
                 if (e != null){
-                    Log.i("Michael","取得資料錯誤 : "+e.toString());
+                    Log.i("Michael","取得主頁資訊失敗 : "+e.toString());
                     return;
                 }
-                String json = (String) snapshot.get("json");
-                presenter.onCatchRealTimeData(json);
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("json");
+                    presenter.onCatchHomeDataSuccessful(json);
+                }
             }
         });
+
         firestore.collection(CHAT_ROOM)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -145,74 +103,69 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
                         }
                     }
                 });
-
-
-
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        firestore.collection(HOME_DATA)
-                .document(HOME_DATA)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult() != null){
-                            DocumentSnapshot snapshot = task.getResult();
-                            if (snapshot != null){
-                                String json = (String) snapshot.get("json");
-                                presenter.onCatchUserDataSuccessful(json);
-                            }else {
-                                Log.i("Michael","取得資料失敗");
-                            }
-                        }
-                    }
-                });
+    private void initFirebase() {
+        firestore = FirebaseFirestore.getInstance();
     }
 
-    private void initView(View view) {
-        recyclerView = view.findViewById(R.id.home_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-    }
-
-
-    @Override
-    public void setRecyclerView(ArrayList<DataArray> dataArrayList) {
-
-        if (adapter != null){
-            adapter.setData(dataArrayList);
-            adapter.notifyDataSetChanged();
+    private void initBundle() {
+        Intent it = getIntent();
+        Bundle bundle = it.getExtras();
+        if (bundle != null){
+            ArrayList<DataArray> dataArray = bundle.getParcelableArrayList("data");
+            presenter.onCatchUserArticleData(dataArray);
         }
+    }
 
-        adapter = new HomeAdapter(context);
-        adapter.setData(dataArrayList);
-        adapter.setUserNickname(UserDataProvider.getInstance(context).getUserNickname());
+    private void initView() {
+        ivBack = findViewById(R.id.article_toolbar_icon);
+        recyclerView = findViewById(R.id.article_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        ivBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onBackButtonClickListener();
+            }
+        });
+    }
+
+    private void initPresenter() {
+        presenter = new ArticleActivityPresenterImpl(this);
+    }
+
+    @Override
+    public void closePage() {
+        finish();
+    }
+
+    @Override
+    public void setRecyclerView(ArrayList<DataArray> dataArray) {
+        HomeAdapter adapter = new HomeAdapter(this);
+        adapter.setData(dataArray);
+        adapter.setUserNickname(UserDataProvider.getInstance(this).getUserNickname());
         recyclerView.setAdapter(adapter);
-
         adapter.setOnHomeItemClickListener(new HomeAdapter.OnHomeItemClickListener() {
             @Override
-            public void onHeartClick(DataArray articleData, int position, boolean isCheck,int selectIndex) {
+            public void onHeartClick(DataArray data, int position, boolean isCheck, int selectIndex) {
                 Log.i("Michael","點擊Heart");
-                presenter.onHeartClickListener(articleData,position,isCheck,selectIndex);
+                presenter.onHeartClickListener(data,position,isCheck,selectIndex);
                 adapter.notifyItemChanged(position);
             }
+
             @Override
             public void onReplyClick(DataArray data) {
-                Log.i("Michael","點擊reply");
-                presenter.onReplyButtonClickListener(data);
+                presenter.onReplyClickListener(data);
             }
 
             @Override
             public void onSendClick(DataArray data) {
-                Log.i("Michael","點擊send");
-                presenter.onSendButtonClickListener(data);
+                presenter.onSendClickListener(data);
             }
 
             @Override
             public void onSortClick() {
-                Log.i("Michael","點擊sort");
+
             }
 
             @Override
@@ -227,34 +180,26 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
 
             @Override
             public void onUserPhotoClick(DataArray data) {
-                presenter.onUserPhotoClickListener(data);
+
             }
         });
     }
 
     @Override
-    public String getNickname() {
-        return UserDataProvider.getInstance(context).getUserNickname();
+    public String getPhotoUrl() {
+        return UserDataProvider.getInstance(this).getUserPHotoUrl();
     }
 
     @Override
-    public String getPhotoUrl() {
-        return UserDataProvider.getInstance(context).getUserPHotoUrl();
+    public String getNickname() {
+        return UserDataProvider.getInstance(this).getUserNickname();
     }
 
     @Override
     public void updateUserData(Map<String, Object> map) {
         firestore.collection(HOME_DATA)
                 .document(HOME_DATA)
-                .set(map, SetOptions.merge())
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()){
-                            Log.i("Michael","資料更新成功");
-                        }
-                    }
-                });
+                .set(map, SetOptions.merge());
     }
 
     @Override
@@ -278,11 +223,26 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
     }
 
     @Override
-    public String getUserEmail() {
-        return UserDataProvider.getInstance(context).getUserEmail();
+    public void searchCreatorLikeData(String userEmail) {
+        firestore.collection(USER_LIKE)
+                .document(userEmail)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult()!= null){
+                            DocumentSnapshot snapshot = task.getResult();
+                            String json = (String) snapshot.get("json");
+                            presenter.onCatchCreatorLikeData(json);
+                        }
+                    }
+                });
     }
 
-
+    @Override
+    public String getUserEmail() {
+        return UserDataProvider.getInstance(this).getUserEmail();
+    }
 
     @Override
     public void saveUserLikeData(String likeJson, String userEmail) {
@@ -302,54 +262,24 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
     }
 
     @Override
-    public void searchCreatorLikeData(String userEmail) {
-        firestore.collection(USER_LIKE)
-                .document(userEmail)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult()!= null){
-                            DocumentSnapshot snapshot = task.getResult();
-                            String json = (String) snapshot.get("json");
-                            presenter.onCatchCreatorLikeData(json);
-                        }
-                    }
-                });
-    }
-
-    @Override
     public void intentToReplyActivity(DataArray data) {
-        Intent it = new Intent(context, ReplyActivity.class);
+        Intent it = new Intent(this, ReplyActivity.class);
         it.putExtra("data",data);
-        context.startActivity(it);
-    }
-
-    @Override
-    public void intentToHomeActivity() {
-        Intent it = new Intent(context, HomeActivity.class);
-        context.startActivity(it);
-    }
-
-    @Override
-    public void intentToUserPageReviewActivity(String userEmail) {
-        Intent it = new Intent(context, UserPageActivity.class);
-        it.putExtra("email",userEmail);
-        context.startActivity(it);
+        startActivity(it);
     }
 
     @Override
     public void showSendMessageDialog(String articleCreator, String creatorEmail) {
-        View view = View.inflate(context,R.layout.send_message_dialog,null);
+        View view = View.inflate(this,R.layout.send_message_dialog,null);
         TextView tvInfo = view.findViewById(R.id.send_message_info);
         EditText editMsg = view.findViewById(R.id.send_message_edit_message);
         tvInfo.setText(String.format("發送訊息給 %s",articleCreator));
-        AlertDialog dialog = new AlertDialog.Builder(context)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(view).create();
 
         Window window = dialog.getWindow();
         if (window != null){
-            window.setBackgroundDrawable(ContextCompat.getDrawable(context, R.color.picture_color_transparent));
+            window.setBackgroundDrawable(ContextCompat.getDrawable(this, R.color.picture_color_transparent));
         }
         dialog.show();
 
@@ -358,13 +288,18 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
                 if (actionId == EditorInfo.IME_ACTION_SEND){
-                    presenter.onEditTextSendTypeListener(editMsg.getText().toString(),UserDataProvider.getInstance(context).getUserEmail(),creatorEmail);
+                    presenter.onEditTextSendTypeListener(editMsg.getText().toString(),UserDataProvider.getInstance(ArticleActivity.this).getUserEmail(),creatorEmail);
                     dialog.dismiss();
                 }
 
                 return true;
             }
         });
+    }
+
+    @Override
+    public void showToast(String content) {
+        Toast.makeText(this,content,Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -456,11 +391,6 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
     }
 
     @Override
-    public void showToast(String message) {
-        Toast.makeText(context,message,Toast.LENGTH_LONG).show();
-    }
-
-    @Override
     public void searchUserData(String userEmail) {
         firestore.collection(PERSONAL_DATA)
                 .document(userEmail)
@@ -478,6 +408,16 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
     }
 
     @Override
+    public void updatePersonalUserData(String userJson, String userEmail) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("user_json",userJson);
+        firestore.collection(PERSONAL_DATA)
+                .document(userEmail)
+                .set(map,SetOptions.merge());
+        Log.i("Michael",userEmail +" 使用者資料 ROOM ID 新增成功 ");
+    }
+
+    @Override
     public void searchCreatorData(String creatorEmail) {
         firestore.collection(PERSONAL_DATA)
                 .document(creatorEmail)
@@ -492,17 +432,6 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
                         }
                     }
                 });
-    }
-
-    @Override
-    public void updatePersonalUserData(String userJson, String userEmail) {
-        Map<String,Object> map = new HashMap<>();
-        map.put("user_json",userJson);
-        firestore.collection(PERSONAL_DATA)
-                .document(userEmail)
-                .set(map,SetOptions.merge());
-        Log.i("Michael",userEmail +" 使用者資料 ROOM ID 新增成功 ");
-
     }
 
     @Override
@@ -534,9 +463,9 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
 
     @Override
     public void intentToHeartActivity(DataArray data) {
-        Intent it = new Intent(context, HeartActivity.class);
+        Intent it = new Intent(this, HeartActivity.class);
         it.putExtra("data",data);
         it.putExtra("mode","heart");
-        context.startActivity(it);
+        startActivity(it);
     }
 }

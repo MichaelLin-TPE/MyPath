@@ -1,4 +1,4 @@
-package com.path.mypath.fragment;
+package com.path.mypath.article_activity;
 
 import android.util.Log;
 
@@ -11,51 +11,52 @@ import com.path.mypath.data_parser.DataUserPresHeart;
 import com.path.mypath.data_parser.FCMData;
 import com.path.mypath.data_parser.FCMNotification;
 import com.path.mypath.data_parser.FCMObject;
+import com.path.mypath.fragment.MessageArray;
+import com.path.mypath.fragment.MessageObject;
+import com.path.mypath.fragment.RoomIdObject;
 import com.path.mypath.tools.HttpConnection;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
-    private HomeFragmentVu mView;
+public class ArticleActivityPresenterImpl implements ArticleActivityPresenter {
 
-    private Gson gson;
+    private ArticleActivityVu mView;
 
     private DataArray articleData,pressedData;
-
-    private ArrayList<DataArray> dataArrayList,realTimeDataArray;
+    
+    private ArrayList<DataArray> dataArray,homeDataArray;
 
     private ArrayList<RoomIdObject> roomIdArray;
 
-    private String userEmail,creatorEmail,roomId;
+    private String roomId;
+    
+    private Gson gson;
+
+    private String userEmail,creatorEmail;
 
     private DataObject userData,creatorData;
 
     private ArrayList<MessageArray> msgArray;
 
-    public HomeFragmentPresenterImpl(HomeFragmentVu mView) {
+    public ArticleActivityPresenterImpl(ArticleActivityVu mView) {
         this.mView = mView;
         gson = new Gson();
     }
 
     @Override
-    public void onCatchUserDataSuccessful(String json) {
-        if (json != null){
-            dataArrayList = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
-            Collections.sort(dataArrayList, new Comparator<DataArray>() {
-                @Override
-                public int compare(DataArray o1, DataArray o2) {
-                    return (int) (o2.getCurrentTime() - o1.getCurrentTime());
-                }
-            });
-            if (dataArrayList != null) {
-                mView.setRecyclerView(dataArrayList);
-            }
+    public void onBackButtonClickListener() {
+        mView.closePage();
+    }
+
+    @Override
+    public void onCatchUserArticleData(ArrayList<DataArray> dataArray) {
+        if (dataArray != null){
+            this.dataArray = dataArray;
+            mView.setRecyclerView(dataArray);
         }
     }
 
@@ -65,7 +66,7 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
         if (isCheck){
             int currentHeartCount = articleData.getHeartCount() - 1;
             articleData.setHeartCount(currentHeartCount);
-            dataArrayList.get(position).getHeartPressUsers().remove(selectIndex);
+            dataArray.get(position).getHeartPressUsers().remove(selectIndex);
         }else {
             int currentHeartCount = articleData.getHeartCount() + 1;
             DataUserPresHeart data = new DataUserPresHeart();
@@ -73,15 +74,25 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
             data.setName(mView.getNickname());
             articleData.setHeartCount(currentHeartCount);
             articleData.getHeartPressUsers().add(data);
-            dataArrayList.set(position,articleData);
+            dataArray.set(position,articleData);
+        }
+        if (homeDataArray != null){
+            for (DataArray data : homeDataArray){
+                for (DataArray object : dataArray){
+                    if (data.getUserNickName().equals(object.getUserNickName()) && data.getArticleTitle().equals(object.getArticleTitle()) && data.getCurrentTime() == object.getCurrentTime()){
+                        data.setHeartPressUsers(object.getHeartPressUsers());
+                        data.setHeartCount(object.getHeartCount());
+                    }
+                }
+            }
+            String json = gson.toJson(homeDataArray);
+
+            Map<String,Object> map = new HashMap<>();
+            map.put("json",json);
+
+            mView.updateUserData(map);
         }
 
-        String json = gson.toJson(dataArrayList);
-
-        Map<String,Object> map = new HashMap<>();
-        map.put("json",json);
-
-        mView.updateUserData(map);
 
         //發送推播
         if (!isCheck){
@@ -91,17 +102,14 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
 
                 //發送點讚訊息給發文者
                 mView.searchCreatorLikeData(articleData.getUserEmail());
-
             }
         }
-
-
     }
 
     @Override
-    public void onCatchRealTimeData(String json) {
+    public void onCatchHomeDataSuccessful(String json) {
         if (json != null){
-            realTimeDataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
+            homeDataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
         }
     }
 
@@ -136,7 +144,6 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
 
     @Override
     public void onCatchCreatorLikeData(String json) {
-
         ArticleLikeNotification notification = new ArticleLikeNotification();
         notification.setArticleCreatorName(articleData.getUserNickName());
         notification.setArticlePostTime(articleData.getCurrentTime());
@@ -176,33 +183,18 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
     }
 
     @Override
-    public void onReplyButtonClickListener(DataArray data) {
+    public void onReplyClickListener(DataArray data) {
         mView.intentToReplyActivity(data);
     }
 
     @Override
-    public void onReplyCountClickListener(DataArray data) {
-        mView.intentToReplyActivity(data);
-    }
-
-    @Override
-    public void onUserPhotoClickListener(DataArray data) {
-        if (data.getUserNickName().equals(mView.getNickname())){
-            mView.intentToHomeActivity();
-        }else {
-            mView.intentToUserPageReviewActivity(data.getUserEmail());
-        }
-    }
-
-    @Override
-    public void onSendButtonClickListener(DataArray data) {
+    public void onSendClickListener(DataArray data) {
         this.pressedData = data;
         mView.showSendMessageDialog(data.getUserNickName(),data.getUserEmail());
     }
 
     @Override
     public void onEditTextSendTypeListener(String message, String userEmail, String articleCreator) {
-
         if (message != null && !message.isEmpty()){
             if (roomIdArray == null){
                 mView.createChatRoom(userEmail,articleCreator,message);
@@ -229,8 +221,6 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
             String content = "說點話吧!!!";
             mView.showToast(content);
         }
-
-
     }
 
     @Override
@@ -246,7 +236,7 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
     }
 
     @Override
-    public void onCatchRoomIdSuccessful(String roomId, String userEmail, String articleCreator, String message) {
+    public void onCatchRoomIdSuccessful(String id, String userEmail, String articleCreator, String message) {
         this.userEmail = userEmail;
         this.creatorEmail = articleCreator;
 
@@ -285,7 +275,7 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
     @Override
     public void onCatchPersonalUserDataSuccessful(String json, String userEmail) {
         if (json != null){
-            userData = gson.fromJson(json,DataObject.class);
+            userData = gson.fromJson(json, DataObject.class);
             if (userData.getRoomIdArray() != null && userData.getRoomIdArray().size() != 0){
 
                 boolean isRoomRepeat = false;
@@ -371,7 +361,14 @@ public class HomeFragmentPresenterImpl implements HomeFragmentPresenter {
     }
 
     @Override
+    public void onReplyCountClickListener(DataArray data) {
+        mView.intentToReplyActivity(data);
+    }
+
+    @Override
     public void onHeartCountClickListener(DataArray data) {
         mView.intentToHeartActivity(data);
     }
+
+
 }

@@ -3,6 +3,8 @@ package com.path.mypath.user_page_activity;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 
+import java.util.ArrayList;
+
 public interface UserPageActivityVu {
     void closePage();
 
@@ -17,4 +19,6 @@ public interface UserPageActivityVu {
     String getUserEmail();
 
     void intentToSingleViewActivity(DataArray data);
+
+    void intentToMyArticleActivity(ArrayList<DataArray> userDataArray);
 }

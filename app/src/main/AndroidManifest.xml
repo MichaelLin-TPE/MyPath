@@ -25,15 +25,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".chat_room_activity.ChatRoomActivity"></activity>
-        <activity android:name=".message_activity.MessageActivity" />
-        <activity android:name=".user_page_activity.UserPageActivity" />
-        <activity android:name=".reply_activity.ReplyActivity" />
-        <activity android:name=".photo_activity.SelectPhotoActivity" />
-        <activity android:name=".single_view_activity.SingleViewActivity" />
+        <activity android:name=".heart_activity.HeartActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".article_activity.ArticleActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".chat_room_activity.ChatRoomActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".message_activity.MessageActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".user_page_activity.UserPageActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
+        <activity android:name=".reply_activity.ReplyActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".photo_activity.SelectPhotoActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".single_view_activity.SingleViewActivity"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTop"/>
         <activity
             android:name=".home_activity.HomeActivity"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".edit_page.EditActivity"
             android:screenOrientation="portrait" />

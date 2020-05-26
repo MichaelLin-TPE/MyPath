@@ -26,7 +26,6 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -50,13 +49,14 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.path.mypath.MainActivity;
 import com.path.mypath.R;
+import com.path.mypath.article_activity.ArticleActivity;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
-import com.path.mypath.fragment.MessageArray;
 import com.path.mypath.fragment.user_fragment.user_presenter.UserPresenter;
 import com.path.mypath.fragment.user_fragment.user_presenter.UserPresenterImpl;
 import com.path.mypath.fragment.user_fragment.user_view.UserInfoViewHolder;
 import com.path.mypath.fragment.user_fragment.user_view.UserMapViewHolder;
+import com.path.mypath.heart_activity.HeartActivity;
 import com.path.mypath.share_page.ShareActivity;
 import com.path.mypath.single_view_activity.SingleViewActivity;
 import com.path.mypath.tools.GlideEngine;
@@ -312,6 +312,21 @@ public class UserFragment extends Fragment implements UserFragmentVu {
             @Override
             public void onLogoutClick() {
                 presenter.onLogoutClickListener();
+            }
+
+            @Override
+            public void onArticleCountClick(ArrayList<DataArray> dataArray) {
+                presenter.onArticleCountClick(dataArray);
+            }
+
+            @Override
+            public void onChasingCountClick(DataObject data) {
+                presenter.onChasingCountClickListener(data);
+            }
+
+            @Override
+            public void onFansCountClick(DataObject data) {
+                presenter.onFansCountClickListener(data);
             }
         });
         //下半部VIEW的點擊事件
@@ -672,5 +687,20 @@ public class UserFragment extends Fragment implements UserFragmentVu {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void intentToMyArticleActivity(ArrayList<DataArray> userDataArray) {
+        Intent it = new Intent(context, ArticleActivity.class);
+        it.putExtra("data",userDataArray);
+        context.startActivity(it);
+    }
+
+    @Override
+    public void intentToHeartActivity(DataObject data, String mode) {
+        Intent it = new Intent(context, HeartActivity.class);
+        it.putExtra("mode_data",data);
+        it.putExtra("mode",mode);
+        startActivity(it);
     }
 }

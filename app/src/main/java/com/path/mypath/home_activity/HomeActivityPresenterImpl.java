@@ -17,13 +17,13 @@ public class HomeActivityPresenterImpl implements HomeActivityPresenter {
 
         ArrayList<Integer> iconNotPress = new ArrayList<>();
         iconNotPress.add(R.drawable.home_not_press);
-        iconNotPress.add(R.drawable.add_not_press);
+        iconNotPress.add(R.drawable.search_not_press);
         iconNotPress.add(R.drawable.heart_not_press);
         iconNotPress.add(R.drawable.user_not_press);
 
         ArrayList<Integer> iconPress = new ArrayList<>();
         iconPress.add(R.drawable.home_press);
-        iconPress.add(R.drawable.add_press);
+        iconPress.add(R.drawable.search_press);
         iconPress.add(R.drawable.heart_press);
         iconPress.add(R.drawable.user_press);
 

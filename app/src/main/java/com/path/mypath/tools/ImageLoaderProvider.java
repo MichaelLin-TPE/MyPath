@@ -24,6 +24,7 @@ public class ImageLoaderProvider {
                 .showImageOnFail(R.drawable.user_not_press)
                 .showImageOnLoading(R.drawable.user_not_press)
                 .cacheInMemory(true)
+                .cacheOnDisk(true)
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .build();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)

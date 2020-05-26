@@ -493,4 +493,44 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
         likeCount++;
         updateAllLikeData();
     }
+
+    @Override
+    public void onArticleCountClick(ArrayList<DataArray> userDataArray) {
+        for (DataArray data : dataArray){
+            for (DataArray object : userDataArray){
+                if (data.getUserNickName().equals(object.getUserNickName()) && data.getArticleTitle().equals(object.getArticleTitle()) && data.getCurrentTime() == object.getCurrentTime()){
+                    object.setUserNickName(data.getUserNickName());
+                    object.setReplyCount(data.getReplyCount());
+                    object.setPhotoArray(data.getPhotoArray());
+                    object.setReplyArray(data.getReplyArray());
+                    object.setHeartCount(data.getHeartCount());
+                    object.setHeartPressUsers(data.getHeartPressUsers());
+                    object.setCurrentTime(data.getCurrentTime());
+                    object.setLocationArray(data.getLocationArray());
+                    object.setUserEmail(data.getUserEmail());
+                    object.setUserPhoto(data.getUserPhoto());
+                    object.setArticleTitle(data.getArticleTitle());
+                    object.setDistance(data.getDistance());
+                }
+            }
+        }
+
+        mView.intentToMyArticleActivity(userDataArray);
+    }
+
+    @Override
+    public void onChasingCountClickListener(DataObject data) {
+        if (data.getChaseArray() == null || data.getChaseArray().size() == 0){
+            return;
+        }
+        mView.intentToHeartActivity(data,"chasing");
+    }
+
+    @Override
+    public void onFansCountClickListener(DataObject data) {
+        if (data.getFansArray() == null || data.getFansArray().size() == 0){
+            return;
+        }
+        mView.intentToHeartActivity(data,"fans");
+    }
 }

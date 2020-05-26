@@ -21,6 +21,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.SetOptions;
 import com.path.mypath.R;
+import com.path.mypath.article_activity.ArticleActivity;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.fragment.user_fragment.user_view.MapAdapter;
@@ -30,6 +31,7 @@ import com.path.mypath.user_page_activity.user_presenter.UserPresenter;
 import com.path.mypath.user_page_activity.user_presenter.UserPresenterImpl;
 import com.path.mypath.user_page_activity.view.InformationViewHolder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -175,6 +177,11 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
             public void onBtnSendClick(String creatorEmail) {
                 presenter.onSendButtonClickListener(creatorEmail);
             }
+
+            @Override
+            public void onArticleCountClick(ArrayList<DataArray> dataArray) {
+                presenter.onArticleCountClickListener(dataArray);
+            }
         });
     }
 
@@ -214,6 +221,13 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
     public void intentToSingleViewActivity(DataArray data) {
         Intent it = new Intent(this, SingleViewActivity.class);
         it.putExtra("data",data);
+        startActivity(it);
+    }
+
+    @Override
+    public void intentToMyArticleActivity(ArrayList<DataArray> userDataArray) {
+        Intent it = new Intent(this, ArticleActivity.class);
+        it.putExtra("data",userDataArray);
         startActivity(it);
     }
 }

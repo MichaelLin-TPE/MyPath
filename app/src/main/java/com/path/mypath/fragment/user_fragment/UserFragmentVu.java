@@ -3,6 +3,8 @@ package com.path.mypath.fragment.user_fragment;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 
+import java.util.ArrayList;
+
 public interface UserFragmentVu {
     void searchDataFromFirebase();
 
@@ -47,4 +49,8 @@ public interface UserFragmentVu {
     void updateAllUserData(String userEmail, String userJson);
 
     void updateAllLikeData(String likeJson, String email);
+
+    void intentToMyArticleActivity(ArrayList<DataArray> userDataArray);
+
+    void intentToHeartActivity(DataObject data, String mode);
 }

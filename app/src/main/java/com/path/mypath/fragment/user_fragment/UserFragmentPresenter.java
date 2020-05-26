@@ -1,6 +1,7 @@
 package com.path.mypath.fragment.user_fragment;
 
 import com.path.mypath.data_parser.DataArray;
+import com.path.mypath.data_parser.DataObject;
 
 import java.util.ArrayList;
 
@@ -50,4 +51,10 @@ public interface UserFragmentPresenter {
     void onCatchAllLikeData(ArrayList<String> likeJsonArray, ArrayList<String> emailArray);
 
     void onUpdateNextLikeData();
+
+    void onArticleCountClick(ArrayList<DataArray> dataArray);
+
+    void onChasingCountClickListener(DataObject data);
+
+    void onFansCountClickListener(DataObject data);
 }

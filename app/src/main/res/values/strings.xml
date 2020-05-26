@@ -58,4 +58,7 @@
     <string name="say_something">說點甚麼吧...</string>
     <string name="my_message">訊息</string>
     <string name="no_information_heart">還沒有任何訊息,在等等吧..</string>
+    <string name="heart_count">點讚的用戶</string>
+    <string name="chasing_user">追蹤的用戶</string>
+    <string name="fans_user">你的粉絲</string>
 </resources>

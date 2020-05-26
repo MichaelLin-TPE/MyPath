@@ -23,10 +23,12 @@ import com.google.firebase.firestore.auth.User;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.path.mypath.MainActivity;
 import com.path.mypath.R;
+import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.tools.ImageLoaderProvider;
 import com.path.mypath.tools.UserDataProvider;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class UserInfoViewHolder extends RecyclerView.ViewHolder {
@@ -102,6 +104,24 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
 
             }
         });
+        tvArticleCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onArticleCountClick(data.getDataArray());
+            }
+        });
+        tvFriendCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onFansCountClick(data);
+            }
+        });
+        tvChasingCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onChasingCountClick(data);
+            }
+        });
     }
 
     public interface OnUserInformationClickListener{
@@ -110,5 +130,8 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
         void onEditNicknameClick();
         void onEditSentenceClick();
         void onLogoutClick();
+        void onArticleCountClick(ArrayList<DataArray> dataArray);
+        void onChasingCountClick(DataObject data);
+        void onFansCountClick(DataObject data);
     }
 }

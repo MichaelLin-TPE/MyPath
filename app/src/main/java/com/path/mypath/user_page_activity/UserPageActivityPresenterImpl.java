@@ -142,4 +142,27 @@ public class UserPageActivityPresenterImpl implements UserPageActivityPresenter 
 
         }
     }
+
+    @Override
+    public void onArticleCountClickListener(ArrayList<DataArray> userDataArray) {
+        for (DataArray data : dataArray){
+            for (DataArray object : userDataArray){
+                if (data.getUserNickName().equals(object.getUserNickName()) && data.getArticleTitle().equals(object.getArticleTitle()) && data.getCurrentTime() == object.getCurrentTime()){
+                    object.setUserNickName(data.getUserNickName());
+                    object.setReplyCount(data.getReplyCount());
+                    object.setPhotoArray(data.getPhotoArray());
+                    object.setReplyArray(data.getReplyArray());
+                    object.setHeartCount(data.getHeartCount());
+                    object.setHeartPressUsers(data.getHeartPressUsers());
+                    object.setCurrentTime(data.getCurrentTime());
+                    object.setLocationArray(data.getLocationArray());
+                    object.setUserEmail(data.getUserEmail());
+                    object.setUserPhoto(data.getUserPhoto());
+                    object.setArticleTitle(data.getArticleTitle());
+                    object.setDistance(data.getDistance());
+                }
+            }
+        }
+        mView.intentToMyArticleActivity(userDataArray);
+    }
 }

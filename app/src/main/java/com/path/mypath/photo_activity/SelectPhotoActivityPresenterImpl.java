@@ -169,6 +169,15 @@ public class SelectPhotoActivityPresenterImpl implements SelectPhotoActivityPres
     @Override
     public void onFinishButtonClickListener(String articleTitle) {
         this.articleTitle = articleTitle;
+
+        if (byteArray == null || byteArray.size() == 0){
+
+            message = "你還沒上傳照片喔";
+            mView.showToast(message);
+
+            return;
+        }
+
         if (articleTitle != null && !articleTitle.isEmpty()){
             isUploading = true;
             message = "上傳照片中.....請稍後";

@@ -38,4 +38,6 @@ public interface HomeFragmentPresenter {
     void onCatchPersonalCreatorDataSuccessful(String json);
 
     void onCatchPersonalChatData(String s, String userEmail, String articleCreator, String json);
+
+    void onHeartCountClickListener(DataArray data);
 }

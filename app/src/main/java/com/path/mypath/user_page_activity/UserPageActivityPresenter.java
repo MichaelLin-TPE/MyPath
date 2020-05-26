@@ -2,6 +2,8 @@ package com.path.mypath.user_page_activity;
 
 import com.path.mypath.data_parser.DataArray;
 
+import java.util.ArrayList;
+
 public interface UserPageActivityPresenter {
     void onBackButtonClickListener();
 
@@ -16,4 +18,6 @@ public interface UserPageActivityPresenter {
     void onCatchHomeDataSuccessful(String json);
 
     void onMapItemClickListener(DataArray locationArray);
+
+    void onArticleCountClickListener(ArrayList<DataArray> dataArray);
 }

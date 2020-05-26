@@ -27,6 +27,7 @@ import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.fragment.PhotoViewPagerAdapter;
 import com.path.mypath.fragment.user_fragment.user_view.MapAdapter;
+import com.path.mypath.tools.DistanceTool;
 import com.path.mypath.tools.ImageLoaderProvider;
 
 import java.util.ArrayList;
@@ -84,7 +85,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
                         googleMap.addPolyline(rectOptions);
                         int centerIndex = locationArray.size() / 2;
                         googleMap.moveCamera(CameraUpdateFactory.newLatLng(locationArray.get(centerIndex)));
-                        googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+                        if (data.getDistance() != 0){
+                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(DistanceTool.getInstance().getZoomKmLevel(data.getDistance())));
+                        }else {
+                            googleMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+                        }
                         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                             @Override
                             public void onMapClick(LatLng latLng) {
