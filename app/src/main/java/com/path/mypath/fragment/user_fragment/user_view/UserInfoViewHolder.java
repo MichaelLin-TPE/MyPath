@@ -35,7 +35,7 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
 
     private RoundedImageView ivPhoto;
 
-    private TextView tvNickname,tvSentence,tvArticleCount,tvFriendCount,tvChasingCount;
+    private TextView tvNickname,tvSentence,tvArticleCount,tvFriendCount,tvChasingCount,tvArticleInfo,tvFriendInfo,tvChasingInfo;
 
     private Button btnEdit;
 
@@ -62,6 +62,9 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
         ivEditName = itemView.findViewById(R.id.user_edit_nickname);
         ivEditSentence = itemView.findViewById(R.id.user_edit_sentence);
         ivLogout = itemView.findViewById(R.id.user_logout);
+        tvArticleInfo = itemView.findViewById(R.id.user_article_info);
+        tvChasingInfo = itemView.findViewById(R.id.user_chasing_info);
+        tvFriendInfo = itemView.findViewById(R.id.user_fans_info);
     }
 
     public void setData(DataObject data){
@@ -117,6 +120,24 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
             }
         });
         tvChasingCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onChasingCountClick(data);
+            }
+        });
+        tvArticleInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onArticleCountClick(data.getDataArray());
+            }
+        });
+        tvFriendInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onFansCountClick(data);
+            }
+        });
+        tvChasingInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.onChasingCountClick(data);

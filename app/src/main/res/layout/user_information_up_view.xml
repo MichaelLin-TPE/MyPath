@@ -116,6 +116,7 @@
         android:layout_height="wrap_content"/>
 
     <TextView
+        android:id="@+id/user_article_info"
         android:textColor="@color/white"
         android:text="@string/article"
         tools:textColor="@color/black"
@@ -128,6 +129,7 @@
         android:layout_height="wrap_content"/>
 
     <TextView
+        android:id="@+id/user_fans_info"
         android:textColor="@color/white"
         android:text="@string/friend"
         tools:textColor="@color/black"
@@ -140,6 +142,7 @@
         android:layout_height="wrap_content"/>
 
     <TextView
+        android:id="@+id/user_chasing_info"
         android:textColor="@color/white"
         android:text="@string/chasing"
         tools:textColor="@color/black"

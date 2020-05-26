@@ -35,7 +35,7 @@ public class InformationViewHolder extends RecyclerView.ViewHolder {
 
     private RoundedImageView ivPhoto;
 
-    private TextView tvNickname,tvSentence,tvArticleCount,tvFriendCount,tvChasingCount;
+    private TextView tvNickname,tvSentence,tvArticleCount,tvFriendCount,tvChasingCount,tvArticleInfo,tvFriendInfo,tvChasingInfo;
 
     private ImageView ivLogout;
 
@@ -79,6 +79,9 @@ public class InformationViewHolder extends RecyclerView.ViewHolder {
         btnSend = itemView.findViewById(R.id.user_btn_send_invite);
         ivEditName = itemView.findViewById(R.id.user_edit_nickname);
         ivEditSentence = itemView.findViewById(R.id.user_edit_sentence);
+        tvArticleInfo = itemView.findViewById(R.id.user_article_info);
+        tvChasingInfo = itemView.findViewById(R.id.user_chasing_info);
+        tvFriendInfo = itemView.findViewById(R.id.user_fans_info);
         btnEdit.setVisibility(View.GONE);
         btnSend.setVisibility(View.VISIBLE);
         ivEditName.setVisibility(View.GONE);
@@ -152,6 +155,37 @@ public class InformationViewHolder extends RecyclerView.ViewHolder {
             }
         });
 
+        tvChasingCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onChasingCountClick(data);
+            }
+        });
+
+        tvFriendCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onFansCountClick(data);
+            }
+        });
+        tvArticleInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onArticleCountClick(data.getDataArray());
+            }
+        });
+        tvFriendInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onFansCountClick(data);
+            }
+        });
+        tvChasingInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onChasingCountClick(data);
+            }
+        });
 
 
     }
@@ -160,5 +194,9 @@ public class InformationViewHolder extends RecyclerView.ViewHolder {
         void onBtnSendClick(String creatorEmail);
 
         void onArticleCountClick(ArrayList<DataArray> dataArray);
+
+        void onFansCountClick(DataObject data);
+
+        void onChasingCountClick(DataObject data);
     }
 }

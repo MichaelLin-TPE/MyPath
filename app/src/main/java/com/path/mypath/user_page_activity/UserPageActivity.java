@@ -25,6 +25,7 @@ import com.path.mypath.article_activity.ArticleActivity;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.fragment.user_fragment.user_view.MapAdapter;
+import com.path.mypath.heart_activity.HeartActivity;
 import com.path.mypath.single_view_activity.SingleViewActivity;
 import com.path.mypath.tools.UserDataProvider;
 import com.path.mypath.user_page_activity.user_presenter.UserPresenter;
@@ -182,6 +183,16 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
             public void onArticleCountClick(ArrayList<DataArray> dataArray) {
                 presenter.onArticleCountClickListener(dataArray);
             }
+
+            @Override
+            public void onChasingCountClick(DataObject data) {
+                presenter.onChasingCountClickListener(data);
+            }
+
+            @Override
+            public void onFansCountClick(DataObject data) {
+                presenter.onFansCountClickListener(data);
+            }
         });
     }
 
@@ -228,6 +239,14 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
     public void intentToMyArticleActivity(ArrayList<DataArray> userDataArray) {
         Intent it = new Intent(this, ArticleActivity.class);
         it.putExtra("data",userDataArray);
+        startActivity(it);
+    }
+
+    @Override
+    public void intentToHeartActivity(DataObject data, String mode) {
+        Intent it = new Intent(this, HeartActivity.class);
+        it.putExtra("mode_data",data);
+        it.putExtra("mode",mode);
         startActivity(it);
     }
 }

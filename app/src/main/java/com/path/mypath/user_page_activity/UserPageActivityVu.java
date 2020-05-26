@@ -21,4 +21,6 @@ public interface UserPageActivityVu {
     void intentToSingleViewActivity(DataArray data);
 
     void intentToMyArticleActivity(ArrayList<DataArray> userDataArray);
+
+    void intentToHeartActivity(DataObject data, String chasing);
 }

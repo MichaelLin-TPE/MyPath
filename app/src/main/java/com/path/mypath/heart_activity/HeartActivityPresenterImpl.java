@@ -65,6 +65,7 @@ public class HeartActivityPresenterImpl implements HeartActivityPresenter {
 
     @Override
     public void onCatchFansData(DataObject userData,String mode) {
+        mView.setTitle(mode);
         if (mode.equals(CHASING)){
             mView.setNewRecyclerView(userData.getChaseArray());
         }else {

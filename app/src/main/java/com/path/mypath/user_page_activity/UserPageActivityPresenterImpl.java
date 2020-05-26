@@ -165,4 +165,20 @@ public class UserPageActivityPresenterImpl implements UserPageActivityPresenter 
         }
         mView.intentToMyArticleActivity(userDataArray);
     }
+
+    @Override
+    public void onChasingCountClickListener(DataObject data) {
+        if (data.getChaseArray() == null || data.getChaseArray().size() == 0){
+            return;
+        }
+        mView.intentToHeartActivity(data,"chasing");
+    }
+
+    @Override
+    public void onFansCountClickListener(DataObject data) {
+        if (data.getFansArray() == null || data.getFansArray().size() == 0){
+            return;
+        }
+        mView.intentToHeartActivity(data,"fans");
+    }
 }

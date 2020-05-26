@@ -1,12 +1,15 @@
 package com.path.mypath.data_parser;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 import com.path.mypath.fragment.FansData;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class DataObject implements Serializable {
+public class DataObject implements Parcelable {
     @SerializedName("user_photo")
     private String userPhoto;
     @SerializedName("user_nickname")
@@ -31,6 +34,10 @@ public class DataObject implements Serializable {
     private ArrayList<FansData> chaseArray;
     @SerializedName("room_id_list")
     private ArrayList<String> roomIdArray;
+
+    public DataObject() {
+
+    }
 
     public ArrayList<String> getRoomIdArray() {
         return roomIdArray;
@@ -127,4 +134,93 @@ public class DataObject implements Serializable {
     public void setDataArray(ArrayList<DataArray> dataArray) {
         this.dataArray = dataArray;
     }
+
+    public DataObject(Parcel in) {
+        userPhoto = in.readString();
+        userNickname = in.readString();
+        articleCount = in.readInt();
+        friendCount = in.readInt();
+        chasingCount = in.readInt();
+        if (in.readByte() == 0x01) {
+            dataArray = new ArrayList<DataArray>();
+            in.readList(dataArray, DataArray.class.getClassLoader());
+        } else {
+            dataArray = null;
+        }
+        isPublicAccount = in.readByte() != 0x00;
+        sentence = in.readString();
+        email = in.readString();
+        if (in.readByte() == 0x01) {
+            fansArray = new ArrayList<FansData>();
+            in.readList(fansArray, FansData.class.getClassLoader());
+        } else {
+            fansArray = null;
+        }
+        if (in.readByte() == 0x01) {
+            chaseArray = new ArrayList<FansData>();
+            in.readList(chaseArray, FansData.class.getClassLoader());
+        } else {
+            chaseArray = null;
+        }
+        if (in.readByte() == 0x01) {
+            roomIdArray = new ArrayList<String>();
+            in.readList(roomIdArray, String.class.getClassLoader());
+        } else {
+            roomIdArray = null;
+        }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(userPhoto);
+        dest.writeString(userNickname);
+        dest.writeInt(articleCount);
+        dest.writeInt(friendCount);
+        dest.writeInt(chasingCount);
+        if (dataArray == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(dataArray);
+        }
+        dest.writeByte((byte) (isPublicAccount ? 0x01 : 0x00));
+        dest.writeString(sentence);
+        dest.writeString(email);
+        if (fansArray == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(fansArray);
+        }
+        if (chaseArray == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(chaseArray);
+        }
+        if (roomIdArray == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(roomIdArray);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<DataObject> CREATOR = new Parcelable.Creator<DataObject>() {
+        @Override
+        public DataObject createFromParcel(Parcel in) {
+            return new DataObject(in);
+        }
+
+        @Override
+        public DataObject[] newArray(int size) {
+            return new DataObject[size];
+        }
+    };
 }
