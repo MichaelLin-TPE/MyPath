@@ -3,7 +3,6 @@ package com.path.mypath.fragment.add_fragment;
 import com.path.mypath.data_parser.DataArray;
 
 public interface AddFragmentPresenter {
-    void onShowPublicData();
 
     void onCatchPublicDataSuccessful(String json);
 

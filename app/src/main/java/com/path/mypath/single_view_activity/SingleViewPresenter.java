@@ -39,4 +39,12 @@ public interface SingleViewPresenter {
     void onCatchPersonalChatData(String json, String userEmail, String articleCreator, String message);
 
     void onPhotoClickListener(DataArray data);
+
+    void onSortClickListener(DataArray data);
+
+    void onDeleteItemClickListener(DataArray data);
+
+    void onCatchPublicData(String json);
+
+    void onReportItemClickListener(DataArray data);
 }

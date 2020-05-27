@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -271,5 +272,10 @@ public class HeartFragment extends Fragment implements HeartFragmentVu{
     public void setView(boolean isShow) {
         tvInfo.setVisibility(isShow ? View.GONE : View.VISIBLE);
         ivIcon.setVisibility(isShow ? View.GONE : View.VISIBLE);
+    }
+
+    @Override
+    public void showToast(String message) {
+        Toast.makeText(context,message,Toast.LENGTH_LONG).show();
     }
 }

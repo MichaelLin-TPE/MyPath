@@ -52,4 +52,14 @@ public interface SingleViewVu {
     void updatePersonalChatData(String msgJson, String roomId);
 
     void intentToUserPageReviewActivity(String userEmail);
+
+    void showDeleteDialog(DataArray data);
+
+    void showReportDialog(DataArray data);
+
+    void updateHomeData(String json);
+
+    void updatePublicData(String pubJson);
+
+    void sendEmailToCreator(String emailBody);
 }

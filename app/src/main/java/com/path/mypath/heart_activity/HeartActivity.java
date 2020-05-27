@@ -26,6 +26,7 @@ import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.data_parser.DataUserPresHeart;
 import com.path.mypath.fragment.FansData;
 import com.path.mypath.fragment.heart_fragment.HeartFragmentVu;
+import com.path.mypath.tools.UserDataProvider;
 import com.path.mypath.user_page_activity.UserPageActivity;
 
 import java.util.ArrayList;
@@ -170,5 +171,10 @@ public class HeartActivity extends AppCompatActivity implements HeartActivityVu 
         }else if (mode.equals(FANS)){
             tvTitle.setText(getString(R.string.fans_user));
         }
+    }
+
+    @Override
+    public String getEmail() {
+        return UserDataProvider.getInstance(this).getUserEmail();
     }
 }

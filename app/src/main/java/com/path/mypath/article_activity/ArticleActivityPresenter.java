@@ -41,4 +41,14 @@ public interface ArticleActivityPresenter {
     void onReplyCountClickListener(DataArray data);
 
     void onHeartCountClickListener(DataArray data);
+
+    void onSortClickListener(DataArray data);
+
+    void onDeleteItemClickListener(DataArray data);
+
+    void onCatchPersonalData(String json);
+
+    void onCatchPublicData(String json);
+
+    void onReportItemClickListener(DataArray data);
 }

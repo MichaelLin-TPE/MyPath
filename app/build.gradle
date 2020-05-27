@@ -1,6 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 android {
+
+
+
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
@@ -11,10 +14,24 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    buildTypes {
+
+    signingConfigs {
         release {
+            storeFile file('myPath.jks')
+            keyAlias 'michael.lin'
+            keyPassword 'Tommy88yy'
+            storePassword 'Tommy88yy'
+        }
+    }
+
+    buildTypes {
+        debug{
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        release {
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -60,4 +77,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     implementation 'com.github.LuckSiege.PictureSelector:picture_library:v2.4.6'
+
+    //facebook
+    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
 }

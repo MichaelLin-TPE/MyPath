@@ -65,6 +65,8 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
         tvArticleInfo = itemView.findViewById(R.id.user_article_info);
         tvChasingInfo = itemView.findViewById(R.id.user_chasing_info);
         tvFriendInfo = itemView.findViewById(R.id.user_fans_info);
+        //先藏起來
+        btnEdit.setVisibility(View.GONE);
     }
 
     public void setData(DataObject data){

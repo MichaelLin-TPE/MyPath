@@ -39,14 +39,14 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
     }
 
     @Override
-    public void onCatchNoData(String email, String uid) {
+    public void onCatchNoData(String email, String uid, String token) {
         Map<String,Object> userMap = new HashMap<>();
         userMap.put("email",email);
         userMap.put("uid",uid);
         userMap.put("display_name","");
         userMap.put("photo","");
         userMap.put("sentence","");
-        userMap.put("cloud_token","");
+        userMap.put("cloud_token",token);
 
 
         DataObject data = new DataObject();
@@ -61,6 +61,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
         data.setEmail("");
         data.setFansArray(new ArrayList<>());
         data.setChaseArray(new ArrayList<>());
+        data.setRoomIdArray(new ArrayList<>());
         Gson gson = new Gson();
         String userJson = gson.toJson(data);
 
@@ -71,4 +72,6 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
     public void onShowWaitDialog() {
         mView.showWaitDialog();
     }
+
+
 }

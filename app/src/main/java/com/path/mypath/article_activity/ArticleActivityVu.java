@@ -49,4 +49,14 @@ public interface ArticleActivityVu {
     void updatePersonalChatData(String msgJson, String roomId);
 
     void intentToHeartActivity(DataArray data);
+
+    void showDeleteDialog(DataArray data);
+
+    void showReportDialog(DataArray data);
+
+    void updateHomeData(String json);
+
+    void updatePublicData(String pubJson);
+
+    void sendEmailToCreator(String emailBody);
 }

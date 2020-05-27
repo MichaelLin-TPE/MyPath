@@ -2,8 +2,9 @@ package com.path.mypath.fragment;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -37,7 +38,6 @@ import com.google.firebase.firestore.SetOptions;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.heart_activity.HeartActivity;
-import com.path.mypath.heart_activity.HeartUserAdapter;
 import com.path.mypath.home_activity.HomeActivity;
 import com.path.mypath.reply_activity.ReplyActivity;
 import com.path.mypath.tools.UserDataProvider;
@@ -69,6 +69,8 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
     private static final String CHAT_ROOM = "chat_room";
 
     private static final String PERSONAL_CHAT = "personal_chat";
+
+    private static final String PUBLIC_DATA = "public_data";
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -125,6 +127,37 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
                 presenter.onCatchRealTimeData(json);
             }
         });
+
+        DocumentReference userSnapshot = firestore.collection(PERSONAL_DATA).document(UserDataProvider.getInstance(context).getUserEmail());
+        userSnapshot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","取得個人資料失敗 : "+e.toString());
+                    return;
+                }
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("user_json");
+                    presenter.onCatchRealTimeUserData(json);
+                }
+            }
+        });
+
+        DocumentReference publicSnapshot = firestore.collection(PUBLIC_DATA).document(PUBLIC_DATA);
+        publicSnapshot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","取得公開資料失敗 : "+e.toString());
+                    return;
+                }
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("public_json");
+                    presenter.onCatchPublicData(json);
+                }
+            }
+        });
+
         firestore.collection(CHAT_ROOM)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -211,8 +244,10 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
             }
 
             @Override
-            public void onSortClick() {
+            public void onSortClick(DataArray data) {
                 Log.i("Michael","點擊sort");
+                presenter.onSortClickListener(data);
+
             }
 
             @Override
@@ -538,5 +573,89 @@ public class HomeFragment extends Fragment implements HomeFragmentVu {
         it.putExtra("data",data);
         it.putExtra("mode","heart");
         context.startActivity(it);
+    }
+
+    @Override
+    public void searchCreatorUserData(String articleCreator, String message) {
+        firestore.collection("user")
+                .document(articleCreator)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            DocumentSnapshot snapshot = task.getResult();
+                            String token = (String) snapshot.get("cloud_token");
+                            presenter.onCatchCreatorUserToken(token,message);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void showDeleteDialog(DataArray data) {
+        String[] items = new String[]{"刪除"};
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0){
+                            presenter.onDeleteItemClickListener(data);
+                            dialog.dismiss();
+                        }
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void updateHomeData(String json) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("json",json);
+        firestore.collection(HOME_DATA)
+                .document(HOME_DATA)
+                .set(map,SetOptions.merge());
+        Log.i("Michael","刪除玩並更新");
+    }
+
+    @Override
+    public void updatePublicData(String pubJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("public_json",pubJson);
+        firestore.collection(PUBLIC_DATA)
+                .document(PUBLIC_DATA)
+                .set(map,SetOptions.merge());
+        Log.i("Michael","公開資料更新成功");
+    }
+
+    @Override
+    public void showReportDialog(DataArray data) {
+        String[] items = new String[]{"檢舉"};
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0){
+                            presenter.onReportItemClickListener(data);
+                            dialog.dismiss();
+                        }
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void sendEmailToCreator(String emailBody) {
+        try {
+            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+            emailIntent.setData(Uri.parse("mailto:"));
+            emailIntent.setType("message/rfc822");
+            emailIntent.putExtra(Intent.EXTRA_EMAIL,new String[]{"go.hiking.together@gmail.com"});
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.impeachment_report));
+            emailIntent.putExtra(Intent.EXTRA_TEXT, emailBody);
+            startActivity(emailIntent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

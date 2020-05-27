@@ -5,7 +5,6 @@ import com.path.mypath.data_parser.DataArray;
 import java.util.ArrayList;
 
 public interface AddFragmentVu {
-    void searchFirebaseData();
 
     void setRecyclerView(ArrayList<DataArray> dataArray);
 

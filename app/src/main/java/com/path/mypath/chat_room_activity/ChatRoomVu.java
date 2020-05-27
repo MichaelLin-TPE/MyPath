@@ -20,4 +20,8 @@ public interface ChatRoomVu {
     String getUserEmail();
 
     void updateChatData(String json);
+
+    void searchFriendData(String friendEmail, String message);
+
+    String getNickname();
 }

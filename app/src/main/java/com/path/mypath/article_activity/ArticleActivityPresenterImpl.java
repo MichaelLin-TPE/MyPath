@@ -28,7 +28,7 @@ public class ArticleActivityPresenterImpl implements ArticleActivityPresenter {
 
     private DataArray articleData,pressedData;
     
-    private ArrayList<DataArray> dataArray,homeDataArray;
+    private ArrayList<DataArray> dataArray,homeDataArray,publicDataArray;
 
     private ArrayList<RoomIdObject> roomIdArray;
 
@@ -38,7 +38,7 @@ public class ArticleActivityPresenterImpl implements ArticleActivityPresenter {
 
     private String userEmail,creatorEmail;
 
-    private DataObject userData,creatorData;
+    private DataObject userData,creatorData,realTimeUserData;
 
     private ArrayList<MessageArray> msgArray;
 
@@ -368,6 +368,94 @@ public class ArticleActivityPresenterImpl implements ArticleActivityPresenter {
     @Override
     public void onHeartCountClickListener(DataArray data) {
         mView.intentToHeartActivity(data);
+    }
+
+    @Override
+    public void onSortClickListener(DataArray data) {
+        if (data.getUserNickName().equals(mView.getNickname())) {
+            mView.showDeleteDialog(data);
+        }else {
+            mView.showReportDialog(data);
+        }
+    }
+
+    @Override
+    public void onDeleteItemClickListener(DataArray data) {
+        for (DataArray homeData : homeDataArray) {
+            String title = homeData.getArticleTitle();
+            long currentTime = homeData.getCurrentTime();
+            if (title.equals(data.getArticleTitle()) && currentTime == data.getCurrentTime()) {
+                homeDataArray.remove(homeData);
+                break;
+            }
+        }
+        String json = gson.toJson(homeDataArray);
+
+        mView.updateHomeData(json);
+        if (realTimeUserData == null) {
+            return;
+        }
+        for (DataArray userData : realTimeUserData.getDataArray()) {
+            if (userData.getArticleTitle().equals(data.getArticleTitle()) && userData.getCurrentTime() == data.getCurrentTime()) {
+                realTimeUserData.getDataArray().remove(userData);
+                break;
+            }
+        }
+        realTimeUserData.setArticleCount(realTimeUserData.getDataArray().size());
+        String userJson = gson.toJson(realTimeUserData);
+        mView.updatePersonalUserData(userJson, mView.getUserEmail());
+        if (publicDataArray == null) {
+            return;
+        }
+        for (DataArray publicData : publicDataArray) {
+            if (publicData.getArticleTitle().equals(data.getArticleTitle()) && publicData.getCurrentTime() == data.getCurrentTime()) {
+                publicDataArray.remove(publicData);
+                if (realTimeUserData.getDataArray().size() != 0) {
+                    int randomIndex = (int) Math.floor(Math.random() * realTimeUserData.getDataArray().size());
+                    publicDataArray.add(realTimeUserData.getDataArray().get(randomIndex));
+                }
+                String pubJson = gson.toJson(publicDataArray);
+                mView.updatePublicData(pubJson);
+                break;
+            }
+        }
+        //呈現畫面
+        dataArray = new ArrayList<>();
+        for (DataArray homeData : homeDataArray){
+            String homeTitle = homeData.getArticleTitle();
+            long currentTime = homeData.getCurrentTime();
+            for (DataArray userData : realTimeUserData.getDataArray()){
+                if (userData.getArticleTitle().equals(homeTitle) && userData.getCurrentTime() == currentTime){
+                    dataArray.add(homeData);
+                    break;
+                }
+            }
+        }
+        if (dataArray.size() != 0){
+            mView.setRecyclerView(dataArray);
+        }
+
+
+    }
+
+    @Override
+    public void onCatchPersonalData(String json) {
+        if (json != null){
+            realTimeUserData = gson.fromJson(json,DataObject.class);
+        }
+    }
+
+    @Override
+    public void onCatchPublicData(String json) {
+        if (json != null){
+            publicDataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
+        }
+    }
+
+    @Override
+    public void onReportItemClickListener(DataArray data) {
+        String emailBody = String.format(Locale.getDefault(),"文章 : %s\n還有其他想說的可以打在下方(檢舉文若屬實,我會立即處理請放心,處理完會在回信給您. 請耐心等候:\n",data.getArticleTitle());
+        mView.sendEmailToCreator(emailBody);
     }
 
 

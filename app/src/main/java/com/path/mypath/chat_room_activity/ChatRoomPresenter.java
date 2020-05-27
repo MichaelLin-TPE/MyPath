@@ -6,4 +6,6 @@ public interface ChatRoomPresenter {
     void onCatchChatDataSuccessful(String json);
 
     void onSendMessageClickListener(String toString);
+
+    void onCatchFriendToken(String token, String message);
 }

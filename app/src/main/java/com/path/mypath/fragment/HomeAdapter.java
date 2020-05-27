@@ -218,7 +218,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
         holder.ivSort.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onSortClick();
+                listener.onSortClick(itemData);
             }
         });
 
@@ -316,7 +316,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder> {
 
         void onSendClick(DataArray data);
 
-        void onSortClick();
+        void onSortClick(DataArray data);
 
         void onHeartCountClick(DataArray data);
         void onReplyCountClick(DataArray data);

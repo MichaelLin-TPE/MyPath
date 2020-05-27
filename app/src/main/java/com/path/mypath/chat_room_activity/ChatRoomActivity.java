@@ -1,5 +1,6 @@
 package com.path.mypath.chat_room_activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -184,5 +187,27 @@ public class ChatRoomActivity extends AppCompatActivity implements ChatRoomVu{
                 .document(roomId)
                 .set(map, SetOptions.merge());
         Log.i("Michael","對話更新成功");
+    }
+
+    @Override
+    public void searchFriendData(String friendEmail, String message) {
+        firestore.collection("user")
+                .document(friendEmail)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            DocumentSnapshot snapshot = task.getResult();
+                            String token = (String) snapshot.get("cloud_token");
+                            presenter.onCatchFriendToken(token,message);
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public String getNickname() {
+        return UserDataProvider.getInstance(this).getUserNickname();
     }
 }

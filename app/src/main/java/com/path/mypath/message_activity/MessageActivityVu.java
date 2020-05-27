@@ -8,4 +8,6 @@ public interface MessageActivityVu {
     void setRecyclerView(ArrayList<MessageListDTO> msgArray, ArrayList<String> roomIdArray);
 
     void intentToChatRoomActivity(String roomId);
+
+    void showMessageInfo(boolean isShow);
 }

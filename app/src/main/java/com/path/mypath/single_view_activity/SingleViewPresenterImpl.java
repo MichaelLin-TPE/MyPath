@@ -13,17 +13,18 @@ import com.path.mypath.fragment.RoomIdObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SingleViewPresenterImpl implements SingleViewPresenter {
 
     private SingleViewVu mView;
     private Gson gson;
     
-    private ArrayList<DataArray> homeDataArray;
+    private ArrayList<DataArray> homeDataArray,publicDataArray;
     
     private DataArray homeData,pressedData;
 
-    private DataObject userData,creatorData;
+    private DataObject userData,creatorData,realTimeUserData;
 
     private ArrayList<RoomIdObject> roomIdArray;
 
@@ -241,6 +242,7 @@ public class SingleViewPresenterImpl implements SingleViewPresenter {
     @Override
     public void onCatchPersonalData(String json) {
         //這裡先不做
+        realTimeUserData = gson.fromJson(json,DataObject.class);
     }
 
     @Override
@@ -307,5 +309,69 @@ public class SingleViewPresenterImpl implements SingleViewPresenter {
         }else {
             mView.intentToUserPageReviewActivity(data.getUserEmail());
         }
+    }
+
+    @Override
+    public void onSortClickListener(DataArray data) {
+        if (data.getUserNickName().equals(mView.getNickname())) {
+            mView.showDeleteDialog(data);
+        }else {
+            mView.showReportDialog(data);
+        }
+    }
+
+    @Override
+    public void onDeleteItemClickListener(DataArray data) {
+        for (DataArray homeData : homeDataArray) {
+            String title = homeData.getArticleTitle();
+            long currentTime = homeData.getCurrentTime();
+            if (title.equals(data.getArticleTitle()) && currentTime == data.getCurrentTime()) {
+                homeDataArray.remove(homeData);
+                break;
+            }
+        }
+        String json = gson.toJson(homeDataArray);
+        mView.updateHomeData(json);
+        if (realTimeUserData == null) {
+            return;
+        }
+        for (DataArray userData : realTimeUserData.getDataArray()) {
+            if (userData.getArticleTitle().equals(data.getArticleTitle()) && userData.getCurrentTime() == data.getCurrentTime()) {
+                realTimeUserData.getDataArray().remove(userData);
+                break;
+            }
+        }
+        realTimeUserData.setArticleCount(realTimeUserData.getDataArray().size());
+        String userJson = gson.toJson(realTimeUserData);
+        mView.updatePersonalUserData(userJson, mView.getUserEmail());
+        if (publicDataArray == null) {
+            return;
+        }
+        for (DataArray publicData : publicDataArray) {
+            if (publicData.getArticleTitle().equals(data.getArticleTitle()) && publicData.getCurrentTime() == data.getCurrentTime()) {
+                publicDataArray.remove(publicData);
+                if (realTimeUserData.getDataArray().size() != 0) {
+                    int randomIndex = (int) Math.floor(Math.random() * realTimeUserData.getDataArray().size());
+                    publicDataArray.add(realTimeUserData.getDataArray().get(randomIndex));
+                }
+                String pubJson = gson.toJson(publicDataArray);
+                mView.updatePublicData(pubJson);
+                break;
+            }
+        }
+        mView.closePage();
+    }
+
+    @Override
+    public void onCatchPublicData(String json) {
+        if (json != null){
+            publicDataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
+        }
+    }
+
+    @Override
+    public void onReportItemClickListener(DataArray data) {
+        String emailBody = String.format(Locale.getDefault(),"文章 : %s\n還有其他想說的可以打在下方(檢舉文若屬實,我會立即處理請放心,處理完會在回信給您. 請耐心等候:\n",data.getArticleTitle());
+        mView.sendEmailToCreator(emailBody);
     }
 }

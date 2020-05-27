@@ -10,17 +10,28 @@ import androidx.core.app.NotificationManagerCompat;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,6 +42,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -43,6 +55,8 @@ import com.path.mypath.edit_page.EditActivity;
 import com.path.mypath.home_activity.HomeActivity;
 import com.path.mypath.tools.UserDataProvider;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,6 +95,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
 
     private Handler handler;
 
+    private LoginButton fbLoginBtn;
+
+    private CallbackManager callbackManager;
 
     @Override
     protected void onStart() {
@@ -101,7 +118,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         initView();
         handler = new Handler();
 
+
+        //紀錄FB應用程式的啟用作業
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
+
         verifyLocationPermissions(this);
+
+
 
     }
 
@@ -130,6 +154,54 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
                 presenter.onButtonLoginClickListener();
             }
         });
+        callbackManager = CallbackManager.Factory.create();
+        fbLoginBtn  = findViewById(R.id.facebook_login_btn);
+        fbLoginBtn.setReadPermissions("email");
+        fbLoginBtn.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                handelFacebookAccessToken(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.i("Michael","FB登入取消");
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.i("Michael","FB登入錯誤 : "+error.toString());
+            }
+        });
+    }
+
+    private void handelFacebookAccessToken(AccessToken token) {
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()){
+                            //登入成功
+                            Log.i("Michael","登入成功");
+                            user = mAuth.getCurrentUser();
+                            if (user != null){
+                                presenter.onShowWaitDialog();
+                                presenter.onRegisterAccountToFirebase(user.getEmail(),user.getUid());
+                            }
+                        }else {
+                            //登入失敗
+                            user = mAuth.getCurrentUser();
+                            if (user != null){
+                                Log.i("Michael","有用戶");
+                            }else {
+                                Log.i("Michael","沒用互");
+                            }
+                            Log.i("Michael",task.getException().toString());
+                            Toast.makeText(MainActivity.this,getString(R.string.login_fail)+task.getException().toString(),Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 
     private void initPresenter() {
@@ -279,12 +351,34 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
                             if (snapshot != null){
                                 String mail = (String) snapshot.get("email");
                                 if (mail == null){
-                                    presenter.onCatchNoData(email,uid);
+                                    FirebaseInstanceId.getInstance().getInstanceId()
+                                            .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                                    if (!task.isSuccessful()){
+                                                        Log.i("Michael","申請TOKEN 失敗 : "+task.getException());
+                                                        return;
+                                                    }
+                                                    String token = task.getResult().getToken();
+                                                    presenter.onCatchNoData(email,uid,token);
+                                                }
+                                            });
                                 }else {
                                     presenter.onCatchCurrentUser(user.getEmail());
                                 }
                             }else {
-                                presenter.onCatchNoData(email,uid);
+                                FirebaseInstanceId.getInstance().getInstanceId()
+                                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                                if (!task.isSuccessful()){
+                                                    Log.i("Michael","申請TOKEN 失敗 : "+task.getException());
+                                                    return;
+                                                }
+                                                String token = task.getResult().getToken();
+                                                presenter.onCatchNoData(email,uid,token);
+                                            }
+                                        });
                             }
                         }
                     }
@@ -311,8 +405,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         View view = View.inflate(this,R.layout.waiting_dialog,null);
         TextView tvContent = view.findViewById(R.id.wait_content);
         tvContent.setText(getString(R.string.please_wait));
-        waitDialog = new AlertDialog.Builder(this)
-                .setView(view).setCancelable(false).create();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setView(view).setCancelable(false);
+
+        if (waitDialog == null){
+            waitDialog = builder.create();
+        }
         waitDialog.show();
     }
 
@@ -363,6 +461,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        callbackManager.onActivityResult(requestCode,resultCode,data);
+
         if (requestCode == RC_SIGN_IN && data != null){
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
@@ -392,6 +493,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
                                 presenter.onRegisterAccountToFirebase(user.getEmail(),user.getUid());
                             }
                         }else {
+                            task.getException().printStackTrace();
                             Log.i("Michael","signInWithCredential:failure : "+task.getException());
                         }
                     }

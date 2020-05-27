@@ -39,6 +39,8 @@ public class MessageActivity extends AppCompatActivity implements MessageActivit
 
     private Gson gson;
 
+    private TextView tvInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +94,7 @@ public class MessageActivity extends AppCompatActivity implements MessageActivit
                                 Log.i("Michael","聊天有資料唷");
                                 presenter.onCatchPersonChatData(msgArray,roomIdArray);
                             }else{
+                                presenter.onCatchNoData();
                                 Log.i("Michael","msgArray.size = 0");
                             }
                         }
@@ -116,6 +119,7 @@ public class MessageActivity extends AppCompatActivity implements MessageActivit
         tvTitle.setText(getString(R.string.my_message));
         recyclerView = findViewById(R.id.message_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        tvInfo = findViewById(R.id.message_info);
     }
 
     private void initPresenter() {
@@ -145,5 +149,10 @@ public class MessageActivity extends AppCompatActivity implements MessageActivit
         Intent it = new Intent(this, ChatRoomActivity.class);
         it.putExtra("roomId",roomId);
         startActivity(it);
+    }
+
+    @Override
+    public void showMessageInfo(boolean isShow) {
+        tvInfo.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 }

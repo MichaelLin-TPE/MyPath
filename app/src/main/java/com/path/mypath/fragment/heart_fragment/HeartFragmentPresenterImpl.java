@@ -66,11 +66,19 @@ public class HeartFragmentPresenterImpl implements HeartFragmentPresenter {
 
     @Override
     public void onHeartLikeItemClickListener(ArticleLikeNotification data) {
+
+        boolean isDataFound = false;
+
         for (DataArray homeData : dataArray){
             if (homeData.getArticleTitle().equals(data.getArticleTitle())&& homeData.getCurrentTime() == data.getArticlePostTime()){
                 mView.intentToSingleViewPage(homeData);
+                isDataFound = true;
                 break;
             }
+        }
+        if (!isDataFound){
+            String message = "資料已經被刪除~";
+            mView.showToast(message);
         }
     }
 

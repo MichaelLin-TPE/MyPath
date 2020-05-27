@@ -10,7 +10,8 @@ public interface MainActivityPresenter {
 
     void onSetFirebaseDataSuccessful();
 
-    void onCatchNoData(String email, String uid);
+    void onCatchNoData(String email, String uid, String token);
 
     void onShowWaitDialog();
+
 }

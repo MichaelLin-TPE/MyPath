@@ -21,11 +21,6 @@ public class AddFragmentPresenterImpl implements AddFragmentPresenter {
     }
 
     @Override
-    public void onShowPublicData() {
-        mView.searchFirebaseData();
-    }
-
-    @Override
     public void onCatchPublicDataSuccessful(String json) {
         ArrayList<DataArray> dataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
         if (dataArray != null){

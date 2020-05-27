@@ -21,11 +21,17 @@ public class MessageActivityPresenterImpl implements MessageActivityPresenter {
 
     @Override
     public void onCatchPersonChatData(ArrayList<MessageListDTO> msgArray, ArrayList<String> roomIdArray) {
+        mView.showMessageInfo(false);
         mView.setRecyclerView(msgArray,roomIdArray);
     }
 
     @Override
     public void onMessageItemClickListener(String roomId) {
         mView.intentToChatRoomActivity(roomId);
+    }
+
+    @Override
+    public void onCatchNoData() {
+        mView.showMessageInfo(true);
     }
 }

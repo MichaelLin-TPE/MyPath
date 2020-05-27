@@ -40,4 +40,16 @@ public interface HomeFragmentPresenter {
     void onCatchPersonalChatData(String s, String userEmail, String articleCreator, String json);
 
     void onHeartCountClickListener(DataArray data);
+
+    void onCatchCreatorUserToken(String token, String message);
+
+    void onSortClickListener(DataArray data);
+
+    void onDeleteItemClickListener(DataArray data);
+
+    void onCatchRealTimeUserData(String json);
+
+    void onCatchPublicData(String json);
+
+    void onReportItemClickListener(DataArray data);
 }

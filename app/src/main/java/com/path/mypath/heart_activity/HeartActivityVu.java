@@ -15,4 +15,6 @@ public interface HeartActivityVu {
     void setNewRecyclerView(ArrayList<FansData> fansArray);
 
     void setTitle(String mode);
+
+    String getEmail();
 }

@@ -1,5 +1,6 @@
 package com.path.mypath.article_activity;
 
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,7 +9,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -42,12 +45,14 @@ import com.path.mypath.user_page_activity.UserPageActivity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ArticleActivity extends AppCompatActivity implements ArticleActivityVu{
 
     private static final String USER_LIKE = "user_like";
     private static final String PERSONAL_CHAT = "personal_chat";
     private static final String PERSONAL_DATA = "personal_data";
+    private static final String PUBLIC_DATA = "public_data";
     private ArticleActivityPresenter presenter;
 
     private ImageView ivBack;
@@ -82,6 +87,35 @@ public class ArticleActivity extends AppCompatActivity implements ArticleActivit
                 }
             }
         });
+
+        DocumentReference userShot = firestore.collection(PERSONAL_DATA).document(UserDataProvider.getInstance(this).getUserEmail());
+        userShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+
+                if (e != null){
+                    Log.i("Michael","取得個人資料失敗 : "+e.toString());
+                    return;
+                }
+
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("user_json");
+                    presenter.onCatchPersonalData(json);
+                }
+            }
+        });
+
+        DocumentReference pubShot = firestore.collection(PUBLIC_DATA).document(PUBLIC_DATA);
+        pubShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("public_json");
+                    presenter.onCatchPublicData(json);
+                }
+            }
+        });
+
 
         firestore.collection(CHAT_ROOM)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -164,8 +198,8 @@ public class ArticleActivity extends AppCompatActivity implements ArticleActivit
             }
 
             @Override
-            public void onSortClick() {
-
+            public void onSortClick(DataArray data) {
+                presenter.onSortClickListener(data);
             }
 
             @Override
@@ -467,5 +501,72 @@ public class ArticleActivity extends AppCompatActivity implements ArticleActivit
         it.putExtra("data",data);
         it.putExtra("mode","heart");
         startActivity(it);
+    }
+
+    @Override
+    public void showDeleteDialog(DataArray data) {
+        String[] items = new String[]{"刪除"};
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0){
+                            presenter.onDeleteItemClickListener(data);
+                            dialog.dismiss();
+                        }
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void showReportDialog(DataArray data) {
+        String[] items = new String[]{"檢舉"};
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0){
+                            presenter.onReportItemClickListener(data);
+                            dialog.dismiss();
+                        }
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void updateHomeData(String json) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("json",json);
+        firestore.collection(HOME_DATA)
+                .document(HOME_DATA)
+                .set(map, SetOptions.merge());
+        Log.i("Michael","主畫面資料更新成功");
+    }
+
+    @Override
+    public void updatePublicData(String pubJson) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("public_json",pubJson);
+        firestore.collection(PUBLIC_DATA)
+                .document(PUBLIC_DATA)
+                .set(map,SetOptions.merge());
+        Log.i("Michael","公開資料更新成功");
+    }
+
+    @Override
+    public void sendEmailToCreator(String emailBody) {
+        try {
+            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+            emailIntent.setData(Uri.parse("mailto:"));
+            emailIntent.setType("message/rfc822");
+            emailIntent.putExtra(Intent.EXTRA_EMAIL,new String[]{"go.hiking.together@gmail.com"});
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.impeachment_report));
+            emailIntent.putExtra(Intent.EXTRA_TEXT, emailBody);
+            startActivity(emailIntent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -53,51 +53,50 @@ public class UserMapViewHolder extends RecyclerView.ViewHolder {
     private Runnable showView = new Runnable() {
         @Override
         public void run() {
-            ArrayList<DataArray> locationArray = new ArrayList<>();
 
-            if (dataArray != null && dataArray.size() != 0){
-
-                Collections.sort(dataArray, new Comparator<DataArray>() {
-                    @Override
-                    public int compare(DataArray o1, DataArray o2) {
-                        return (int) (o2.getCurrentTime() - o1.getCurrentTime());
-                    }
-                });
-
-
-                for (DataArray data : dataArray){
-                    if (data.getUserNickName().equals(nickname)){
-                        locationArray.add(data);
-                    }
-                }
-            }
-            if (locationArray.size() != 0){
-                MapAdapter adapter = new MapAdapter(locationArray,context);
-                recyclerView.setAdapter(adapter);
-                tvNotice.setVisibility(View.GONE);
-                ivIcon.setVisibility(View.GONE);
-                adapter.setOnMapItemClickListener(new MapAdapter.OnMapItemClickListener() {
-                    @Override
-                    public void onClick(DataArray locationArray) {
-                        listener.onMapItemClick(locationArray);
-                    }
-                });
-            }else {
-                tvNotice.setVisibility(View.VISIBLE);
-                ivIcon.setVisibility(View.VISIBLE);
-                ivIcon.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        listener.onIconClick();
-                    }
-                });
-            }
         }
     };
 
     public void setData(ArrayList<DataArray> dataArray){
-        this.dataArray = dataArray;
-        handler.post(showView);
+        ArrayList<DataArray> locationArray = new ArrayList<>();
+
+        if (dataArray != null && dataArray.size() != 0){
+
+            Collections.sort(dataArray, new Comparator<DataArray>() {
+                @Override
+                public int compare(DataArray o1, DataArray o2) {
+                    return (int) (o2.getCurrentTime() - o1.getCurrentTime());
+                }
+            });
+
+
+            for (DataArray data : dataArray){
+                if (data.getUserNickName().equals(nickname)){
+                    locationArray.add(data);
+                }
+            }
+        }
+        if (locationArray.size() != 0){
+            MapAdapter adapter = new MapAdapter(locationArray,context);
+            recyclerView.setAdapter(adapter);
+            tvNotice.setVisibility(View.GONE);
+            ivIcon.setVisibility(View.GONE);
+            adapter.setOnMapItemClickListener(new MapAdapter.OnMapItemClickListener() {
+                @Override
+                public void onClick(DataArray locationArray) {
+                    listener.onMapItemClick(locationArray);
+                }
+            });
+        }else {
+            tvNotice.setVisibility(View.VISIBLE);
+            ivIcon.setVisibility(View.VISIBLE);
+            ivIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onIconClick();
+                }
+            });
+        }
     }
 
     public interface OnUserDownClickListener{

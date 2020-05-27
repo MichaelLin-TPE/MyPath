@@ -51,4 +51,16 @@ public interface HomeFragmentVu {
     void updatePersonalChatData(String msgJson, String roomId);
 
     void intentToHeartActivity(DataArray data);
+
+    void searchCreatorUserData(String articleCreator,String message);
+
+    void showDeleteDialog(DataArray data);
+
+    void updateHomeData(String json);
+
+    void updatePublicData(String pubJson);
+
+    void showReportDialog(DataArray data);
+
+    void sendEmailToCreator(String emailBody);
 }

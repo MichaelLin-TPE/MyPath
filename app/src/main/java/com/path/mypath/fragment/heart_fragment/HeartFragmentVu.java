@@ -25,4 +25,6 @@ public interface HeartFragmentVu {
     void updateFansData(String userNickname, String fansJson);
 
     void setView(boolean isShow);
+
+    void showToast(String message);
 }

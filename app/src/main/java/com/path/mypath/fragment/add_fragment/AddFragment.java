@@ -113,31 +113,22 @@ public class AddFragment extends Fragment implements AddFragmentVu {
             }
         });
 
-
-        presenter.onShowPublicData();
+        DocumentReference publicSnapshot = firestore.collection(PUBLIC_DATA).document(PUBLIC_DATA);
+        publicSnapshot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","公開資料失敗 : "+e.toString());
+                    return;
+                }
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("public_json");
+                    presenter.onCatchPublicDataSuccessful(json);
+                }
+            }
+        });
     }
 
-    @Override
-    public void searchFirebaseData() {
-        firestore.collection(PUBLIC_DATA)
-                .document(PUBLIC_DATA)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful() && task.getResult() != null){
-                            DocumentSnapshot snapshot = task.getResult();
-                            if (snapshot != null){
-                                String json = (String) snapshot.get("public_json");
-                                if (json != null){
-                                    presenter.onCatchPublicDataSuccessful(json);
-                                }
-                            }
-                        }
-                    }
-                });
-
-    }
 
     @Override
     public void setRecyclerView(ArrayList<DataArray> dataArray) {

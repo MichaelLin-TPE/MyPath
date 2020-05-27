@@ -48,7 +48,10 @@ public class HeartActivityPresenterImpl implements HeartActivityPresenter {
                 }
             }
             if (email != null && !email.isEmpty()){
-                mView.intentToUserPageActivity(email);
+                if (!email.equals(mView.getEmail())){
+                    mView.intentToUserPageActivity(email);
+                }
+
             }else {
                 Log.i("Michael","email == null");
             }

@@ -9,4 +9,6 @@ public interface MessageActivityPresenter {
     void onCatchPersonChatData(ArrayList<MessageListDTO> msgArray, ArrayList<String> roomIdArray);
 
     void onMessageItemClickListener(String roomId);
+
+    void onCatchNoData();
 }

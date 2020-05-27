@@ -1,5 +1,6 @@
 package com.path.mypath.single_view_activity;
 
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,8 +8,10 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -63,6 +66,7 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
     private static final String CHAT_ROOM = "chat_room";
     private static final String PERSONAL_CHAT = "personal_chat";
     private static final String PERSONAL_DATA = "personal_data";
+    private static final String PUBLIC_DATA = "public_data";
     private SingleViewPresenter presenter;
 
     private ImageView ivBack, ivHeart, ivReply, ivSend, ivSort ,ivLogout;
@@ -120,6 +124,20 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
                 if (documentSnapshot != null){
                     String json = (String) documentSnapshot.get("user_json");
                     presenter.onCatchPersonalData(json);
+                }
+            }
+        });
+        DocumentReference publicShot = firestore.collection(PUBLIC_DATA).document(PUBLIC_DATA);
+        publicShot.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                if (e != null){
+                    Log.i("Michael","公開資料取得失敗 : "+e.toString());
+                    return;
+                }
+                if (documentSnapshot != null){
+                    String json = (String) documentSnapshot.get("public_json");
+                    presenter.onCatchPublicData(json);
                 }
             }
         });
@@ -218,6 +236,12 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
             @Override
             public void onClick(View v) {
                 presenter.onPhotoClickListener(data);
+            }
+        });
+        ivSort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onSortClickListener(data);
             }
         });
 
@@ -621,5 +645,72 @@ public class SingleViewActivity extends AppCompatActivity implements SingleViewV
         Intent it = new Intent(this, UserPageActivity.class);
         it.putExtra("email",userEmail);
         startActivity(it);
+    }
+
+    @Override
+    public void showDeleteDialog(DataArray data) {
+        String[] items = new String[]{"刪除"};
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0){
+                            presenter.onDeleteItemClickListener(data);
+                            dialog.dismiss();
+                        }
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void showReportDialog(DataArray data) {
+        String[] items = new String[]{"檢舉"};
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setItems(items, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0){
+                            presenter.onReportItemClickListener(data);
+                            dialog.dismiss();
+                        }
+                    }
+                }).create();
+        dialog.show();
+    }
+
+    @Override
+    public void updateHomeData(String json) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("json",json);
+        firestore.collection(HOME_DATA)
+                .document(HOME_DATA)
+                .set(map,SetOptions.merge());
+        Log.i("Michael","主頁資料更新成功");
+    }
+
+    @Override
+    public void updatePublicData(String pubJson) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("public_json",pubJson);
+        firestore.collection(PUBLIC_DATA)
+                .document(PUBLIC_DATA)
+                .set(map,SetOptions.merge());
+        Log.i("Michael","公開資料更新成功");
+    }
+
+    @Override
+    public void sendEmailToCreator(String emailBody) {
+        try {
+            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+            emailIntent.setData(Uri.parse("mailto:"));
+            emailIntent.setType("message/rfc822");
+            emailIntent.putExtra(Intent.EXTRA_EMAIL,new String[]{"go.hiking.together@gmail.com"});
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.impeachment_report));
+            emailIntent.putExtra(Intent.EXTRA_TEXT, emailBody);
+            startActivity(emailIntent);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
