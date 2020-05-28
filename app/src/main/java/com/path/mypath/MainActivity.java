@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         user = mAuth.getCurrentUser();
         if (user != null){
             //這邊導下一頁
+
             presenter.onCatchCurrentUser(user.getEmail());
         }
     }
@@ -302,6 +303,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
 
     @Override
     public void intentToShareActivity() {
+        waitDialog.dismiss();
         Intent it = new Intent(this, HomeActivity.class);
         startActivity(it);
         finish();
@@ -411,7 +413,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         if (waitDialog == null){
             waitDialog = builder.create();
         }
-        waitDialog.show();
+        if (!waitDialog.isShowing()){
+            waitDialog.show();
+        }
+
     }
 
     private Runnable updateData = new Runnable() {
@@ -429,28 +434,36 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
                                 String nickname = (String) snapshot.get("display_name");
                                 String photoUrl = (String) snapshot.get("photo");
                                 String sentence = (String) snapshot.get("sentence");
-                                UserDataProvider.getInstance(MainActivity.this).saveUserNickname(nickname);
-                                UserDataProvider.getInstance(MainActivity.this).saveUserPhotoUrl(photoUrl);
-                                UserDataProvider.getInstance(MainActivity.this).saveUserSentence(sentence);
-                                UserDataProvider.getInstance(MainActivity.this).saveUserEmail(email);
-                                Log.i("Michael","更新資料完成");
-                                FirebaseInstanceId.getInstance().getInstanceId()
-                                        .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<InstanceIdResult> task) {
-                                                if (!task.isSuccessful()){
-                                                    Log.i("Michael","申請TOKEN 失敗 : "+task.getException());
-                                                    return;
+                                if (nickname != null && !nickname.isEmpty()
+                                        && sentence != null && !sentence.isEmpty()
+                                        && photoUrl != null && !photoUrl.isEmpty()){
+                                    UserDataProvider.getInstance(MainActivity.this).saveUserNickname(nickname);
+                                    UserDataProvider.getInstance(MainActivity.this).saveUserPhotoUrl(photoUrl);
+                                    UserDataProvider.getInstance(MainActivity.this).saveUserSentence(sentence);
+                                    UserDataProvider.getInstance(MainActivity.this).saveUserEmail(email);
+                                    Log.i("Michael","更新資料完成");
+                                    FirebaseInstanceId.getInstance().getInstanceId()
+                                            .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                                                    if (!task.isSuccessful()){
+                                                        Log.i("Michael","申請TOKEN 失敗 : "+task.getException());
+                                                        return;
+                                                    }
+                                                    String token = task.getResult().getToken();
+                                                    Map<String,Object> map = new HashMap<>();
+                                                    map.put("cloud_token",token);
+                                                    Log.i("Michael",token);
+                                                    firestore.collection(USER)
+                                                            .document(email)
+                                                            .set(map, SetOptions.merge());
+                                                    presenter.onUpdateDataSuccessful();
                                                 }
-                                                String token = task.getResult().getToken();
-                                                Map<String,Object> map = new HashMap<>();
-                                                map.put("cloud_token",token);
-                                                Log.i("Michael",token);
-                                                firestore.collection(USER)
-                                                        .document(email)
-                                                        .set(map, SetOptions.merge());
-                                            }
-                                        });
+                                            });
+                                }else {
+                                    presenter.onCheckUserDataFail();
+                                }
+
                             }
                         }
                     });
@@ -474,6 +487,11 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
         try{
             Log.i("Michael","Google登入成功");
             GoogleSignInAccount account = task.getResult(ApiException.class);
+            if (account == null){
+                Log.i("Michael","account 不存在");
+                Toast.makeText(this,"account 不存在",Toast.LENGTH_LONG).show();
+                return;
+            }
             registerFirebaseAuth(account);
         }catch (ApiException e){
             Log.i("Michael","SignInResult:failed code = "+e.getStatusCode());

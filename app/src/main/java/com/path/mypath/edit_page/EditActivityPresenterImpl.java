@@ -18,10 +18,15 @@ public class EditActivityPresenterImpl implements EditActivityPresenter {
 
     private String message;
 
+    private DataObject userData;
+
+    private Gson gson;
+
     private boolean isPublicAccount;
 
     public EditActivityPresenterImpl(EditActivityVu mView) {
         this.mView = mView;
+        gson = new Gson();
     }
 
     @Override
@@ -36,36 +41,61 @@ public class EditActivityPresenterImpl implements EditActivityPresenter {
             mView.showToast(message);
             return;
         }
-        if (downloadUrl == null || downloadUrl.isEmpty()){
-            message = "新增一張照片來增加豐富度呀~";
-            mView.showToast(message);
-            return;
+        if (userData.getUserPhoto() == null || userData.getUserPhoto().isEmpty()){
+            if (downloadUrl == null || downloadUrl.isEmpty()){
+                message = "新增一張照片來增加豐富度呀~";
+                mView.showToast(message);
+                return;
+            }
         }
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("email",email);
-        map.put("photo",downloadUrl);
-        map.put("display_name",nickname);
-        map.put("sentence",sentence);
+        if (userData.getDataArray() != null && userData.getDataArray().size() != 0){
+            Map<String, Object> map = new HashMap<>();
+            map.put("email",email);
+            if (downloadUrl != null && !downloadUrl.isEmpty()){
+                map.put("photo",downloadUrl);
+            }
+            map.put("display_name",nickname);
+            map.put("sentence",sentence);
+            userData.setUserNickname(nickname);
+            userData.setSentence(sentence);
+            if (downloadUrl != null && !downloadUrl.isEmpty()){
+                userData.setUserPhoto(downloadUrl);
+                mView.saveUserData(email,downloadUrl,nickname,sentence);
+            }else {
+                mView.saveUserData(email,userData.getUserPhoto(),nickname,sentence);
+            }
+            String userJson = gson.toJson(userData);
+            Map<String,Object> mapJson = new HashMap<>();
+            mapJson.put("user_json",userJson);
+            mView.setDataToFirebase(map,mapJson);
+        }else {
+            Map<String, Object> map = new HashMap<>();
+            map.put("email",email);
+            map.put("photo",downloadUrl);
+            map.put("display_name",nickname);
+            map.put("sentence",sentence);
 
-        DataObject data = new DataObject();
-        data.setArticleCount(0);
-        data.setChasingCount(0);
-        data.setDataArray(new ArrayList<>());
-        data.setFriendCount(0);
-        data.setUserNickname(nickname);
-        data.setUserPhoto(downloadUrl);
-        data.setChaseArray(new ArrayList<>());
-        data.setFansArray(new ArrayList<>());
-        data.setSentence(sentence);
-        data.setEmail(email);
-        data.setPublicAccount(isPublicAccount);
-        Gson gson = new Gson();
-        String userJson = gson.toJson(data);
-        Map<String,Object> mapJson = new HashMap<>();
-        mapJson.put("user_json",userJson);
-        mView.saveUserData(email,downloadUrl,nickname,sentence);
-        mView.setDataToFirebase(map,mapJson);
+            DataObject data = new DataObject();
+            data.setArticleCount(0);
+            data.setChasingCount(0);
+            data.setDataArray(new ArrayList<>());
+            data.setFriendCount(0);
+            data.setUserNickname(nickname);
+            data.setUserPhoto(downloadUrl);
+            data.setChaseArray(new ArrayList<>());
+            data.setFansArray(new ArrayList<>());
+            data.setSentence(sentence);
+            data.setEmail(email);
+            data.setPublicAccount(isPublicAccount);
+            Gson gson = new Gson();
+            String userJson = gson.toJson(data);
+            Map<String,Object> mapJson = new HashMap<>();
+            mapJson.put("user_json",userJson);
+            mView.saveUserData(email,downloadUrl,nickname,sentence);
+            mView.setDataToFirebase(map,mapJson);
+        }
+
     }
 
     @Override
@@ -98,6 +128,14 @@ public class EditActivityPresenterImpl implements EditActivityPresenter {
         }else {
             message = "私人";
             mView.setAccountInfo(message);
+        }
+    }
+
+    @Override
+    public void onCatchPersonalData(String json) {
+        if (json != null){
+            userData = gson.fromJson(json,DataObject.class);
+            mView.setView(userData);
         }
     }
 }

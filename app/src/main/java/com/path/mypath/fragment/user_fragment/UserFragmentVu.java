@@ -53,4 +53,8 @@ public interface UserFragmentVu {
     void intentToMyArticleActivity(ArrayList<DataArray> userDataArray);
 
     void intentToHeartActivity(DataObject data, String mode);
+
+    void showWaitDialog();
+
+    void closeWaitDialog();
 }

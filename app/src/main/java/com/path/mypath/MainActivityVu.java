@@ -17,4 +17,5 @@ public interface MainActivityVu {
     void updateUserData(String email);
 
     void showWaitDialog();
+
 }

@@ -20,12 +20,11 @@
         android:layout_width="@dimen/pic_count_width"
         android:layout_height="@dimen/pic_count_height"/>
 
-    <com.makeramen.roundedimageview.RoundedImageView
+    <ImageView
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:id="@+id/share_select_photo"
-        app:riv_corner_radius="10dip"
         android:scaleType="centerCrop"
         android:layout_width="match_parent"
         android:layout_height="@dimen/home_map_height"/>

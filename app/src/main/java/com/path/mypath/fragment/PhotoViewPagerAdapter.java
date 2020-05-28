@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -48,7 +49,7 @@ public class PhotoViewPagerAdapter extends PagerAdapter {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.view_pager_item,null);
         TextView tvCount = view.findViewById(R.id.share_text_pic_count);
-        RoundedImageView ivPhoto = view.findViewById(R.id.share_select_photo);
+        ImageView ivPhoto = view.findViewById(R.id.share_select_photo);
         String url = dataArray.get(position);
         ImageLoaderProvider.getInstance(context).setImage(url,ivPhoto);
         tvCount.setText(String.format(Locale.getDefault(),"%d/%d",position+1,dataArray.size()));

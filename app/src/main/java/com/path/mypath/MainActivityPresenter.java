@@ -14,4 +14,7 @@ public interface MainActivityPresenter {
 
     void onShowWaitDialog();
 
+    void onUpdateDataSuccessful();
+
+    void onCheckUserDataFail();
 }

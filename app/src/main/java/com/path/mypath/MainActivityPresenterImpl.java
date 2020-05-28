@@ -24,8 +24,9 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
 
     @Override
     public void onCatchCurrentUser(String email) {
+        mView.showWaitDialog();
         mView.updateUserData(email);
-        mView.intentToShareActivity();
+
     }
 
     @Override
@@ -58,7 +59,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
         data.setUserPhoto("");
         data.setPublicAccount(true);
         data.setSentence("");
-        data.setEmail("");
+        data.setEmail(email);
         data.setFansArray(new ArrayList<>());
         data.setChaseArray(new ArrayList<>());
         data.setRoomIdArray(new ArrayList<>());
@@ -71,6 +72,16 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
     @Override
     public void onShowWaitDialog() {
         mView.showWaitDialog();
+    }
+
+    @Override
+    public void onUpdateDataSuccessful() {
+        mView.intentToShareActivity();
+    }
+
+    @Override
+    public void onCheckUserDataFail() {
+        mView.intentToEditActivity();
     }
 
 

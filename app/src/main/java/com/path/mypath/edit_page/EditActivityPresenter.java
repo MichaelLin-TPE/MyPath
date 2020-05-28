@@ -12,4 +12,6 @@ public interface EditActivityPresenter {
     void onDataUpdateSuccessfulListener();
 
     void onCatchAccountMode(boolean isChecked);
+
+    void onCatchPersonalData(String json);
 }

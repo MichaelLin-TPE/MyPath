@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -35,9 +36,11 @@ import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.listener.OnResultCallbackListener;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.path.mypath.R;
+import com.path.mypath.data_parser.DataObject;
 import com.path.mypath.home_activity.HomeActivity;
 import com.path.mypath.share_page.ShareActivity;
 import com.path.mypath.tools.GlideEngine;
+import com.path.mypath.tools.ImageLoaderProvider;
 import com.path.mypath.tools.UserDataProvider;
 
 import java.io.ByteArrayOutputStream;
@@ -77,6 +80,24 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
         initFirebase();
         initPresenter();
         initView();
+
+        if (user != null && user.getEmail() != null){
+            firestore.collection(PERSONAL_DATA)
+                    .document(user.getEmail())
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful() && task.getResult() != null){
+                                DocumentSnapshot snapshot = task.getResult();
+                                String json = (String) snapshot.get("user_json");
+                                presenter.onCatchPersonalData(json);
+                            }
+                        }
+                    });
+        }
+
+
     }
 
     private void initView() {
@@ -241,5 +262,18 @@ public class EditActivity extends AppCompatActivity implements EditActivityVu {
     @Override
     public void setAccountInfo(String message) {
         tvAccountInfo.setText(message);
+    }
+
+    @Override
+    public void setView(DataObject userData) {
+        if (userData.getUserPhoto() != null && !userData.getUserPhoto().isEmpty()){
+            ImageLoaderProvider.getInstance(this).setImage(userData.getUserPhoto(),ivPhoto);
+        }
+        if (userData.getUserNickname() != null && !userData.getUserNickname().isEmpty()){
+            edNickname.setText(userData.getUserNickname());
+        }
+        if (userData.getSentence() != null && !userData.getSentence().isEmpty()){
+            edSentence.setText(userData.getSentence());
+        }
     }
 }

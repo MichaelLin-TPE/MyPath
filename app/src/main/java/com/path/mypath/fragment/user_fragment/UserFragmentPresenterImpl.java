@@ -73,6 +73,7 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
     public void onCatchUserPhotoByte(byte[] byteArray) {
         message = "上傳中....請稍後";
         mView.showToast(message);
+        mView.showWaitDialog();
         mView.updateUserPhoto(byteArray);
     }
 
@@ -149,7 +150,7 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
         }
 
         /**
-         * 修正所有使用者資料的照片
+         * 修正所有使用者資料的照片(粉絲與追蹤的)
          */
         if (allUserArray != null && allUserArray.size() != 0) {
             for (DataObject data : allUserArray) {
@@ -206,6 +207,7 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
             mView.updateAllUserData(userEmail, userJson);
         } else {
             Log.i("Michael","allUserData更新結束");
+            mView.closeWaitDialog();
             userCount = 0;
         }
     }
@@ -270,8 +272,17 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
 
     @Override
     public void onEditConfirmClickListener(String nickname, String oldNickname) {
+
+        if (nickname == null || nickname.isEmpty()){
+            message = "請輸入名字";
+            mView.showToast(message);
+            return;
+        }
+
+
         //更改personal data 的 array
         if (data != null) {
+            mView.showWaitDialog();
             data.setUserNickname(nickname);
             for (DataArray object : data.getDataArray()) {
                 if (object.getUserNickName().equals(oldNickname)) {
@@ -367,15 +378,37 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
         //更新所有使用者資料
         if (allUserArray != null && allUserArray.size() != 0) {
             for (DataObject data : allUserArray) {
-                if (data.getFansArray() != null && data.getFansArray().size() != 0) {
-                    for (FansData object : data.getFansArray()) {
+
+                if (data.getUserNickname().equals(oldNickname)){
+                    data.setUserNickname(nickname);
+                }
+                ArrayList<FansData> fansArray = data.getFansArray();
+                ArrayList<FansData> chasArray = data.getChaseArray();
+
+                ArrayList<DataArray> articleArray = data.getDataArray();
+
+                for (DataArray object : articleArray){
+
+                    if (object.getUserNickName().equals(oldNickname)) {
+                        object.setUserNickName(nickname);
+                    }
+                    if (object.getReplyCount() != 0) {
+                        for (DataReply reply : object.getReplyArray()) {
+                            if (reply.getNickname().equals(oldNickname)) {
+                                reply.setNickname(nickname);
+                            }
+                        }
+                    }
+                }
+                if (fansArray != null && fansArray.size() != 0) {
+                    for (FansData object : fansArray) {
                         if (object.getNickname().equals(oldNickname)) {
                             object.setNickname(nickname);
                         }
                     }
                 }
-                if (data.getChaseArray() != null && data.getChaseArray().size() != 0) {
-                    for (FansData object : data.getChaseArray()) {
+                if (chasArray != null && chasArray.size() != 0) {
+                    for (FansData object : chasArray) {
                         if (object.getNickname().equals(oldNickname)) {
                             object.setNickname(nickname);
                         }
@@ -442,8 +475,7 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
     }
 
     @Override
-    public void onCatchPersonalChatData
-            (ArrayList<String> chatJsonArray, ArrayList<String> roomIdArray) {
+    public void onCatchPersonalChatData(ArrayList<String> chatJsonArray, ArrayList<String> roomIdArray) {
 
         msgArray = new ArrayList<>();
         this.roomIdArray = roomIdArray;

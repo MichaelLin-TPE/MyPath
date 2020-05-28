@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -92,6 +93,8 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     private GoogleSignInClient googleSignInClient;
 
     private byte[] byteArray;
+
+    private AlertDialog waitDialog;
 
     private Handler handler = new Handler();
 
@@ -194,20 +197,17 @@ public class UserFragment extends Fragment implements UserFragmentVu {
             });
 
             firestore.collection("personal_chat")
-                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
-                        public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException e) {
-                            if (e != null){
-                                Log.i("Michael","Chat DATA 取得資料失敗 : "+e.toString());
-                                return;
-                            }
-                            if (snapshots != null){
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful() && task.getResult() != null){
                                 ArrayList<String> chatJsonArray = new ArrayList<>();
                                 ArrayList<String> roomIdArray = new ArrayList<>();
-                                for (QueryDocumentSnapshot data : snapshots){
-                                    String json = (String) data.get("json");
+                                for (QueryDocumentSnapshot snapshot : task.getResult()){
+                                    String json = (String) snapshot.get("json");
                                     chatJsonArray.add(json);
-                                    roomIdArray.add(data.getId());
+                                    roomIdArray.add(snapshot.getId());
                                 }
                                 if (chatJsonArray.size() != 0){
                                     presenter.onCatchPersonalChatData(chatJsonArray,roomIdArray);
@@ -228,6 +228,7 @@ public class UserFragment extends Fragment implements UserFragmentVu {
                                     userJsonArray.add(json);
                                 }
                                 if (userJsonArray.size() != 0){
+                                    Log.i("Michael","取得所有使用者的資料");
                                     presenter.onCatchAllUserData(userJsonArray);
                                 }
                             }
@@ -459,6 +460,11 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     @Override
     public void saveUserPhoto(String downLoadUrl) {
         UserDataProvider.getInstance(context).saveUserPhotoUrl(downLoadUrl);
+        Map<String,Object> map = new HashMap<>();
+        map.put("photo",downLoadUrl);
+        firestore.collection("user")
+                .document(UserDataProvider.getInstance(context).getUserEmail())
+                .set(map,SetOptions.merge());
     }
 
     @Override
@@ -702,5 +708,24 @@ public class UserFragment extends Fragment implements UserFragmentVu {
         it.putExtra("mode_data",data);
         it.putExtra("mode",mode);
         startActivity(it);
+    }
+
+    @Override
+    public void showWaitDialog() {
+        View view = View.inflate(context,R.layout.waiting_dialog,null);
+        TextView tvContent = view.findViewById(R.id.wait_content);
+        tvContent.setText(getString(R.string.please_wait));
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setView(view).setCancelable(false);
+
+        if (waitDialog == null){
+            waitDialog = builder.create();
+        }
+        waitDialog.show();
+    }
+
+    @Override
+    public void closeWaitDialog() {
+        waitDialog.dismiss();
     }
 }

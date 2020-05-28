@@ -17,8 +17,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.makeramen.roundedimageview.RoundedImageView
-        app:riv_corner_radius="5dip"
+    <ImageView
         android:scaleType="centerCrop"
         android:id="@+id/map_photo"
         android:layout_width="match_parent"

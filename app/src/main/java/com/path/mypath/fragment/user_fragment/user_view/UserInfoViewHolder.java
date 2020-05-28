@@ -70,7 +70,7 @@ public class UserInfoViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setData(DataObject data){
-
+        Log.i("Michael","照片網址 : "+data.getUserPhoto());
         ImageLoaderProvider.getInstance(context).setImage(data.getUserPhoto(),ivPhoto);
         String nickname = UserDataProvider.getInstance(context).getUserNickname();
         tvNickname.setText(nickname);

@@ -9,6 +9,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -152,7 +153,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
 
         private ConstraintLayout itemLayout;
 
-        private RoundedImageView ivPhoto;
+        private ImageView ivPhoto;
 
 
         public ViewHolder(@NonNull View itemView) {
