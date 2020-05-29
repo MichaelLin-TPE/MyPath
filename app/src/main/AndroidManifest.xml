@@ -6,9 +6,7 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the 'MyLocation' functionality.
     -->
-
-    <uses-permission android:name="android.permission.INTERNET"/>
-
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 約略定位，就是 WI-FI -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -28,28 +26,37 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".heart_activity.HeartActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".article_activity.ArticleActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".chat_room_activity.ChatRoomActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".message_activity.MessageActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".user_page_activity.UserPageActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop"/>
-        <activity android:name=".reply_activity.ReplyActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".photo_activity.SelectPhotoActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".single_view_activity.SingleViewActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTop"/>
+        <activity android:name=".search_user_activity.SearchUserActivity"></activity>
+        <activity
+            android:name=".heart_activity.HeartActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".article_activity.ArticleActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".chat_room_activity.ChatRoomActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".message_activity.MessageActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".user_page_activity.UserPageActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".reply_activity.ReplyActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".photo_activity.SelectPhotoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".single_view_activity.SingleViewActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".home_activity.HomeActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".edit_page.EditActivity"
             android:screenOrientation="portrait" />
@@ -68,10 +75,26 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
 
-        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/> <activity android:name="com.facebook.FacebookActivity" android:configChanges= "keyboard|keyboardHidden|screenLayout|screenSize|orientation" android:label="@string/app_name" /> <activity android:name="com.facebook.CustomTabActivity" android:exported="true"> <intent-filter> <action android:name="android.intent.action.VIEW" /> <category android:name="android.intent.category.DEFAULT" /> <category android:name="android.intent.category.BROWSABLE" /> <data android:scheme="@string/fb_login_protocol_scheme" /> </intent-filter> </activity>
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+        <activity
+            android:name="com.facebook.CustomTabActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
+                <data android:scheme="@string/fb_login_protocol_scheme" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />

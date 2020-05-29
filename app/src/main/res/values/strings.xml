@@ -62,8 +62,12 @@
     <string name="chasing_user">追蹤的用戶</string>
     <string name="fans_user">你的粉絲</string>
     <string name="no_message">目前還沒有人傳訊息給你唷~*</string>
-    <string name="facebook_app_id">246821643259126</string> <string name="fb_login_protocol_scheme">fb246821643259126</string>
+    <string name="facebook_app_id">246821643259126</string>
+    <string name="fb_login_protocol_scheme">fb246821643259126</string>
     <string name="login_fail">登入失敗</string>
     <string name="impeachment_report">APP檢舉信件</string>
+    <string name="search_user">搜尋用戶</string>
+    <string name="enter_email_or_nickname">輸入EMAIL或暱稱</string>
+    <string name="already_chasing">已追蹤</string>
 
 </resources>

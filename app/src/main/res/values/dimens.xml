@@ -38,4 +38,5 @@
     <dimen name="chat_left_image_height">150dp</dimen>
     <dimen name="big_icon_size">80dp</dimen>
     <dimen name="login_height">40dp</dimen>
+    <dimen name="invite_btn_height">30dp</dimen>
 </resources>

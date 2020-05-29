@@ -9,4 +9,6 @@ public interface AddFragmentPresenter {
     void onMapItemClickListener(DataArray locationData);
 
     void onCatchHomeDataSuccess(String json);
+
+    void onSearchButtonClickListener();
 }

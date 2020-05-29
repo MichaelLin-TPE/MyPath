@@ -139,10 +139,26 @@ public class InformationViewHolder extends RecyclerView.ViewHolder {
                             public void onClick(View v) {
                                 btnSend.setEnabled(false);
                                 btnSend.setText(context.getString(R.string.send_invite_already));
-                                listener.onBtnSendClick(data.getEmail());
+                                listener.onBtnSendClick(data.getUserNickname());
                             }
                         });
 
+                    }else {
+                        ImageLoaderProvider.getInstance(context).setImage(data.getUserPhoto(),ivPhoto);
+                        tvNickname.setText(data.getUserNickname());
+                        tvSentence.setText(data.getSentence());
+                        tvArticleCount.setText(String.format(Locale.getDefault(),"%d",data.getArticleCount()));
+                        tvFriendCount.setText(String.format(Locale.getDefault(),"%d",data.getFriendCount()));
+                        tvChasingCount.setText(String.format(Locale.getDefault(),"%d",data.getChasingCount()));
+
+                        btnSend.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                btnSend.setEnabled(false);
+                                btnSend.setText(context.getString(R.string.send_invite_already));
+                                listener.onBtnSendClick(data.getEmail());
+                            }
+                        });
                     }
                 }
             }

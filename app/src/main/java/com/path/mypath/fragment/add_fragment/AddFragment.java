@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.fragment.user_fragment.user_view.MapAdapter;
+import com.path.mypath.search_user_activity.SearchUserActivity;
 import com.path.mypath.single_view_activity.SingleViewActivity;
 
 import java.util.ArrayList;
@@ -92,6 +93,12 @@ public class AddFragment extends Fragment implements AddFragmentVu {
         ivSearch = view.findViewById(R.id.search_icon);
         recyclerView = view.findViewById(R.id.search_recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(context, 3));
+        tvSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                presenter.onSearchButtonClickListener();
+            }
+        });
     }
 
     @Override
@@ -150,5 +157,11 @@ public class AddFragment extends Fragment implements AddFragmentVu {
         if (getActivity() != null){
             getActivity().startActivity(it);
         }
+    }
+
+    @Override
+    public void intentToSearchUserActivity() {
+        Intent it = new Intent(context, SearchUserActivity.class);
+        context.startActivity(it);
     }
 }

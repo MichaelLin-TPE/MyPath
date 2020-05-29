@@ -3,15 +3,14 @@ apply plugin: 'com.google.gms.google-services'
 android {
 
 
-
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.path.mypath"
         minSdkVersion 22
         targetSdkVersion 29
-        versionCode 5
-        versionName "1.4"
+        versionCode 6
+        versionName "1.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -25,7 +24,7 @@ android {
     }
 
     buildTypes {
-        debug{
+        debug {
             signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

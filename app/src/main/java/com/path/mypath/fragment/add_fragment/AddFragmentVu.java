@@ -9,4 +9,6 @@ public interface AddFragmentVu {
     void setRecyclerView(ArrayList<DataArray> dataArray);
 
     void intentToSingleViewActivity(DataArray locationData);
+
+    void intentToSearchUserActivity();
 }

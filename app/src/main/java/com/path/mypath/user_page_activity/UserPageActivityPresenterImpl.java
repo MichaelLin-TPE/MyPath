@@ -48,14 +48,14 @@ public class UserPageActivityPresenterImpl implements UserPageActivityPresenter 
     }
 
     @Override
-    public void onSendButtonClickListener(String creatorEmail) {
+    public void onSendButtonClickListener(String nickname) {
         //發送推播
         FCMObject data = new FCMObject();
         FCMNotification notification = new FCMNotification();
         notification.setBody(String.format(Locale.getDefault(),"%s 發送了追蹤邀請給你",mView.getNickname()));
         notification.setTitle("發送邀請");
         FCMData fcmData = new FCMData();
-        fcmData.setDataContent(String.format(Locale.getDefault(),"%s 按你的讚唷",mView.getNickname()));
+        fcmData.setDataContent(String.format(Locale.getDefault(),"%s 發送了追蹤邀請給你",mView.getNickname()));
         fcmData.setDataTitle("發送邀請");
         data.setTo(token);
         data.setData(fcmData);
@@ -83,7 +83,7 @@ public class UserPageActivityPresenterImpl implements UserPageActivityPresenter 
         notifo.setUserEmail(mView.getUserEmail());
         notifo.setArticleTitle("");
         notifo.setArticlePostTime(0);
-        notifo.setArticleCreatorName(creatorEmail);
+        notifo.setArticleCreatorName(nickname);
         notifo.setInvite(true);
         notifo.setinviteStatusCode(3);
         if (notificationDataArray != null && notificationDataArray.size() != 0){

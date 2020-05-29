@@ -175,8 +175,8 @@ public class UserPageActivity extends AppCompatActivity implements UserPageActiv
         });
         adapter.setOnUserPageClickListener(new InformationViewHolder.OnUserPageClickListener() {
             @Override
-            public void onBtnSendClick(String creatorEmail) {
-                presenter.onSendButtonClickListener(creatorEmail);
+            public void onBtnSendClick(String nickname) {
+                presenter.onSendButtonClickListener(nickname);
             }
 
             @Override

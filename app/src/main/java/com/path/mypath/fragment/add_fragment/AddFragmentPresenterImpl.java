@@ -49,4 +49,9 @@ public class AddFragmentPresenterImpl implements AddFragmentPresenter {
     public void onCatchHomeDataSuccess(String json) {
         dataArray = gson.fromJson(json,new TypeToken<List<DataArray>>(){}.getType());
     }
+
+    @Override
+    public void onSearchButtonClickListener() {
+        mView.intentToSearchUserActivity();
+    }
 }
