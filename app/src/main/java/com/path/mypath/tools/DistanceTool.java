@@ -51,7 +51,7 @@ public class DistanceTool {
             zoom = 21;
         }else if (distance >= 2 && distance < 5){
             zoom = 22;
-        }else if (distance >= 1 && distance < 2){
+        }else if (distance >= 0 && distance < 2){
             zoom = 23;
         }
         return zoom;

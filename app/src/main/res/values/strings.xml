@@ -69,5 +69,6 @@
     <string name="search_user">搜尋用戶</string>
     <string name="enter_email_or_nickname">輸入EMAIL或暱稱</string>
     <string name="already_chasing">已追蹤</string>
+    <string name="search_no_user">沒有搜尋到此用戶唷~*</string>
 
 </resources>

@@ -21,4 +21,6 @@ public interface SearchUserVu {
     void updateLikeUserData(String json, String email);
 
     void searchUserToken(String email);
+
+    void showSearchNoUserView(boolean isShow);
 }

@@ -55,6 +55,7 @@ public class SearchUserPresenterImpl implements SearchUserPresenter{
             likeArray.add(dataArray);
         }
         Log.i("Michael","likeArray size : "+likeArray.size());
+        mView.showSearchNoUserView(false);
         mView.setRecyclerView(dataArray,likeArray);
 
     }
@@ -132,5 +133,31 @@ public class SearchUserPresenterImpl implements SearchUserPresenter{
                 Log.i("Michael","推送失敗 : "+exception);
             }
         });
+    }
+
+    @Override
+    public void onEditActionSearchListener(String content) {
+        if (dataArray == null || dataArray.size() == 0){
+            return;
+        }
+        ArrayList<UserData> replaceDataArray = new ArrayList<>();
+        for (UserData data : dataArray){
+            if (data.getNickname().equals(content)){
+                replaceDataArray.add(data);
+                break;
+            }
+            if (data.getEmail().equals(content)){
+                replaceDataArray.add(data);
+                break;
+            }
+        }
+        if (replaceDataArray.size() == 0){
+            mView.showSearchNoUserView(true);
+            mView.setRecyclerView(replaceDataArray,likeArray);
+            return;
+        }
+        mView.showSearchNoUserView(false);
+        mView.setRecyclerView(replaceDataArray,likeArray);
+
     }
 }

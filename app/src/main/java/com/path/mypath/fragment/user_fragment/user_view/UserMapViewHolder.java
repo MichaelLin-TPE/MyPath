@@ -14,9 +14,12 @@ import com.path.mypath.R;
 import com.path.mypath.data_parser.DataArray;
 import com.path.mypath.tools.UserDataProvider;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
 
 public class UserMapViewHolder extends RecyclerView.ViewHolder {
 
@@ -65,7 +68,29 @@ public class UserMapViewHolder extends RecyclerView.ViewHolder {
             Collections.sort(dataArray, new Comparator<DataArray>() {
                 @Override
                 public int compare(DataArray o1, DataArray o2) {
-                    return (int) (o2.getCurrentTime() - o1.getCurrentTime());
+                    Date d1,d2;
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss", Locale.TAIWAN);
+
+                    try{
+                        String currentTime1 = sdf.format(new Date(o1.getCurrentTime()));
+                        String currentTime2 = sdf.format(new Date(o2.getCurrentTime()));
+                        d1 = sdf.parse(currentTime1);
+                        d2 = sdf.parse(currentTime2);
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        return 0;
+                    }
+                    if (d1 != null && d2 != null){
+                        if (d1.before(d2)){
+                            return 1;
+                        }else {
+                            return -1;
+                        }
+                    }else {
+                        return 0;
+                    }
                 }
             });
 

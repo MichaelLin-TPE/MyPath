@@ -33,7 +33,17 @@ public class UserPresenterImpl implements UserPresenter {
 
     @Override
     public int getItemCount() {
-        return 2;
+        int itemCount = 0;
+
+        if (data != null){
+            itemCount ++;
+            if (data.getDataArray() != null && data.getDataArray().size() != 0){
+                itemCount ++;
+            }
+        }
+
+
+        return itemCount;
     }
 
     @Override

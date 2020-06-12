@@ -16,4 +16,6 @@ public interface SearchUserPresenter {
     void onChaseButtonClickListener(UserData data);
 
     void onCatchUserToken(String token);
+
+    void onEditActionSearchListener(String toString);
 }

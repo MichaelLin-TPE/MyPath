@@ -57,7 +57,16 @@ public class UserFragmentPresenterImpl implements UserFragmentPresenter {
 
         data = gson.fromJson(json, DataObject.class);
         if (data != null) {
-            mView.setRecyclerView(data);
+
+            if (data.getArticleCount() != data.getDataArray().size()){
+                data.setArticleCount(data.getDataArray().size());
+                String userJson = gson.toJson(data);
+                mView.saveUserData(userJson);
+            }else {
+                mView.setRecyclerView(data);
+            }
+
+
         } else {
             Log.i("Michael", "資料結構 == null");
         }

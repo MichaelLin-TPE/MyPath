@@ -10,9 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -45,6 +48,10 @@ public class SearchUserActivity extends AppCompatActivity implements SearchUserV
     private RecyclerView recyclerView;
 
     private FirebaseFirestore firestore;
+
+    private ImageView ivIcon;
+
+    private TextView tvInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +125,8 @@ public class SearchUserActivity extends AppCompatActivity implements SearchUserV
     }
 
     private void initView() {
+        ivIcon = findViewById(R.id.search_user_icon);
+        tvInfo = findViewById(R.id.search_user_info);
         ivBack = findViewById(R.id.search_user_toolbar_icon);
         edSearch = findViewById(R.id.search_user_edit_email);
         recyclerView = findViewById(R.id.search_user_recycler_view);
@@ -126,6 +135,17 @@ public class SearchUserActivity extends AppCompatActivity implements SearchUserV
             @Override
             public void onClick(View v) {
                 presenter.onBackButtonClickListener();
+            }
+        });
+        edSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if (actionId == EditorInfo.IME_ACTION_SEARCH){
+                    presenter.onEditActionSearchListener(edSearch.getText().toString());
+                }
+
+                return true;
             }
         });
     }
@@ -207,6 +227,12 @@ public class SearchUserActivity extends AppCompatActivity implements SearchUserV
                         }
                     }
                 });
+    }
+
+    @Override
+    public void showSearchNoUserView(boolean isShow) {
+        tvInfo.setVisibility(isShow ? View.VISIBLE : View.GONE);
+        ivIcon.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 
 }

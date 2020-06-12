@@ -728,4 +728,14 @@ public class UserFragment extends Fragment implements UserFragmentVu {
     public void closeWaitDialog() {
         waitDialog.dismiss();
     }
+
+    @Override
+    public void saveUserData(String userJson) {
+
+        Map<String,Object> map = new HashMap<>();
+        map.put("user_json",userJson);
+        firestore.collection(PERSONAL_DATA)
+                .document(UserDataProvider.getInstance(context).getUserEmail())
+                .set(map,SetOptions.merge());
+    }
 }

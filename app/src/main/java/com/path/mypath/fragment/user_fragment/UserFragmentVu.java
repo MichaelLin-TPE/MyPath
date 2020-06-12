@@ -57,4 +57,6 @@ public interface UserFragmentVu {
     void showWaitDialog();
 
     void closeWaitDialog();
+
+    void saveUserData(String userJson);
 }

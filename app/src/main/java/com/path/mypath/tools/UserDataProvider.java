@@ -3,6 +3,9 @@ package com.path.mypath.tools;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
+import java.util.Locale;
+
 public class UserDataProvider {
 
     private static UserDataProvider instance = null;
@@ -41,6 +44,7 @@ public class UserDataProvider {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("sentence",sentence);
         editor.apply();
+
     }
 
 
@@ -58,8 +62,5 @@ public class UserDataProvider {
     public String getUserPHotoUrl(){
         return sharedPreferences.getString("photo_url","");
     }
-
-
-
 
 }
