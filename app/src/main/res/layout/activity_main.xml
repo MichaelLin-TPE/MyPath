@@ -83,6 +83,7 @@
         app:layout_constraintLeft_toLeftOf="@id/main_sign_in_btn"
         app:layout_constraintRight_toRightOf="@id/main_sign_in_btn"
         android:layout_width="0dp"
+        android:visibility="gone"
         android:layout_marginTop="15dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"

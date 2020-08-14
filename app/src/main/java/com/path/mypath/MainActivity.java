@@ -69,7 +69,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityVu {
 
     private static String[] PERMISSION_LOCATION = {"android.permission.ACCESS_FINE_LOCATION"
             , "android.permission.ACCESS_COARSE_LOCATION"
-            , "android.permission.ACCESS_BACKGROUND_LOCATION"};
+            , "android.permission.ACCESS_BACKGROUND_LOCATION"
+            , "android.permission.READ_EXTERNAL_STORAGE"
+            , "android.permission.WRITE_EXTERNAL_STORAGE"};
 
     private static final String USER = "user";
 
